@@ -1,0 +1,27 @@
+
+Dear DeluxePaint Animation user:
+
+Thank you for contacting us regarding the use of animation files created with 
+DeluxePaint Animation.
+
+The enclosed files be useful for reading and writing animations from you own 
+application code or for converting animations to and from your own file 
+format.  The files contain both an executable program as well as C source 
+code.  For further details, please see the README.TXT file provided with these 
+files.  For information on the ANM (animation) file format, please see the 
+comments in the LPFILE.C file.
+
+The PCX and PCC format is available from a company called Z-Soft, they can be 
+contacted by calling 404-428-0008.
+
+Please understand that these files and information are presented as is and 
+that we cannot provide technical support for the Programmer's Kit.  However, 
+if you should have any questions concerning the operation of DeluxePaint 
+Animation, please do not hesitate to contact us.
+
+Electronic Arts Multimedia Support
+P.O. Box 7578 
+San Mateo, CA 94403-7578
+(415) 572-2787
+(415) 571-6552 FAX
+

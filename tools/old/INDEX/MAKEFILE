@@ -1,0 +1,23 @@
+LIB_LIST = \
+	\src\libs\video\watcom\video.lib \
+	\src\libs\graphics\watcom\graphics.lib \
+	\src\libs\memory\watcom\memory.lib \
+	\src\libs\resource\watcom\resource.lib \
+	\src\libs\input\watcom\input.lib \
+	\src\libs\sound\watcom\sound.lib \
+	\src\libs\decomp\watcom\decomp.lib \
+	\src\libs\strings\watcom\strings.lib \
+	\src\libs\task\watcom\task.lib \
+	\src\libs\math\watcom\math.lib
+
+FLAGS		= $(CFLAGS) -DPACKAGING -I\src\libs\resource
+
+ndx.exe pkg.exe unpkg.exe:	$(@R).obj $(LIB_LIST)
+	@echo "Loading $@ ... "
+	@$(LINKER) @$(@R).lnk
+	@4gwbind 4gwpro t.exe $@ -V
+	@echo "done"
+
+ndx.obj pkg.obj unpkg.obj:	$(@R).c
+	$(CC) $(FLAGS) $?
+

@@ -1,0 +1,70 @@
+MODEL		= M
+INC1		= ..
+INC2		= ..\resource
+#DFLAGS		= /Ox /Gc /Gr
+DFLAGS		= /Zi /Od /Gs /Gc /Gr
+CFLAGS		= $(DFLAGS) -DPACKAGING /W4 /A$(MODEL) /NT RESSEG -I$(INC1) -I$(INC2)
+DEST		= \bin
+EXTHDRS		=
+FFLAGS		=
+HDRS		=
+LDFLAGS		= /ST:8192 /CO /NOE
+LDMAP		= $(@R)
+LIBS		= \
+		  ..\task\task.lib \
+		  ..\sound\sound.lib \
+		  ..\input\input.lib \
+		  ..\resource\resource.lib \
+		  ..\error\error.lib \
+		  ..\memory\memory.lib
+LINKER		= link
+MAKEFILE	= Makefile
+INDEX_OBJS	= ndx.obj
+PACKAGE_OBJS	= init.obj getres.obj
+RES_OBJS	= $(INC2)\init.obj $(INC2)\getres.obj
+SPLIT_OBJS	= split.obj combine.obj
+COMBINE_OBJS	= combine.o
+PRINT		= print
+PROGRAMS	= unpkg.exe ndx.exe pkg.exe
+SETARGV		= \lib\${MODEL}setargv
+INDEX_SRCS	= ndx.c
+PACKAGE_SRCS	= pkg.c
+
+all:		$(PROGRAMS)
+
+ndx.exe:     $(INDEX_OBJS) $(LIBS)
+		@echo "Loading $@ ... "
+		@$(LINKER) $(INDEX_OBJS), $@, $(LDMAP), $(LIBS) $(LDFLAGS);
+		@echo "done"
+
+pkg.exe:     $(@R).obj $(PACKAGE_OBJS) $(LIBS)
+		@echo "Loading $@ ... "
+		@$(LINKER) $(@R).obj $(PACKAGE_OBJS), $@, $(LDMAP), $(LIBS) $(LDFLAGS);
+		@echo "done"
+
+unpkg.exe:     $(@R).obj $(RES_OBJS) $(LIBS)
+		@echo "Loading $@ ... "
+		@$(LINKER) $(@R).obj $(RES_OBJS), $@, $(LDMAP), $(LIBS) $(LDFLAGS);
+		@echo "done"
+
+split.exe combine.exe:     $(@:.exe=.obj)
+		@echo "Loading $@ ... "
+		@$(LINKER) $(@:.exe=.obj), $@, $(LDMAP), $(LDFLAGS);
+		@echo "done"
+
+combine:     $(COMBINE_OBJS)
+		@echo "Loading $@ ... "
+		@blink /lc/lib/c.o,$(COMBINE_OBJS) TO $(@) LIB /lc/lib/lc.lib
+		@echo "done"
+
+backup:
+	(md b:index; ct [*.c,*.h,makefile] b:index)
+
+init.obj getres.obj:	../resource/$(@:.obj=.c)
+	$(CC) $(CFLAGS) -c $?
+
+.BEFORE:
+.AFTER:
+
+combine.o:	combine.c
+	lc -i/src/libs combine.c

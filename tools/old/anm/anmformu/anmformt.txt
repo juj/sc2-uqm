@@ -1,0 +1,5 @@
+Long Description:  Info and code on the DeluxePaint Animation .ANM file format
+        Tutorial:  No
+     Sample Code:  Yes
+    Utility/Tool:  No
+           Notes:  Nicely documented, and works.
