@@ -32,12 +32,13 @@ struct options {
 	char verbose;
 	int num_palettefiles;
 	char **palettefiles;
+	char font;
 };
 
 int max_palettes;
 png_color palettes[256][256];
 
-index_header *readIndex(const uint8 *buf);
+index_header *readIndex(const uint8 *buf, int isfont);
 void printIndex(const index_header *h, const uint8 *buf, FILE *out);
 void generateAni(const index_header *h, const uint8 *buf, const char *prefix,
 		FILE *out);
@@ -89,7 +90,7 @@ main(int argc, char *argv[]) {
 			loadPalette(opts.palettefiles[i]);
 	}
 
-	h = readIndex(buf);
+	h = readIndex(buf, opts.font);
 	if (opts.print)
 		printIndex(h, buf, stdout);
 
@@ -152,9 +153,9 @@ main(int argc, char *argv[]) {
 void
 usage() {
 	fprintf(stderr,
-			"unani -a <infile>\n"
-			"unani -p <infile>\n"
-			"unani [-c <clutfile>] [-o <outdir>] [-n <prefix>] <infile>\n");
+			"unani -a [-f] <infile>\n"
+			"unani -p [-f] <infile>\n"
+			"unani [-f] [-c <clutfile>] [-o <outdir>] [-n <prefix>] <infile>\n");
 }
 
 void
@@ -163,7 +164,7 @@ parse_arguments(int argc, char *argv[], struct options *opts) {
 	
 	memset(opts, '\0', sizeof (struct options));
 	while (1) {
-		ch = getopt(argc, argv, "ac:hln:o:pv");
+		ch = getopt(argc, argv, "ac:hln:o:pfv");
 		if (ch == -1)
 			break;
 		switch(ch) {
@@ -188,6 +189,9 @@ parse_arguments(int argc, char *argv[], struct options *opts) {
 			case 'p':
 				opts->print = 1;
 				break;
+			case 'f':
+				opts->font = 1;
+				break;
 			case 'v':
 				opts->verbose = 1;
 				break;
@@ -211,7 +215,7 @@ parse_arguments(int argc, char *argv[], struct options *opts) {
 }
 
 index_header *
-readIndex(const uint8 *buf) {
+readIndex(const uint8 *buf, int isfont) {
 	index_header *h;
 	const uint8 *bufptr;
 	uint16 i;
@@ -224,10 +228,16 @@ readIndex(const uint8 *buf) {
 		exit(EXIT_FAILURE);
 	}
 	
-	h->num_frames =
+	if (isfont) {
+		h->num_frames = MAX_FONT_CHARS;
+		h->frames_ofs = 0x70;
+	} else {
+		h->num_frames =
 			INDEX_GET(MAKE_DWORD(buf[11], buf[10], buf[9], buf[8])) + 1;
-
-	bufptr = buf + 12;
+		h->frames_ofs = 0x0c;
+	}
+	
+	bufptr = buf + h->frames_ofs;
 	h->frames = malloc(h->num_frames * sizeof (frame_desc));
 	for (i = 0; i < h->num_frames; i++) {
 		uint32 temp;
@@ -255,8 +265,8 @@ printIndex(const index_header *h, const uint8 *buf, FILE *out) {
 	fprintf(out, "0x00000008  Number of frames:        %d\n",
 			h->num_frames);
 	
-	bufptr = buf + 0x0c;
-	fprintf(out, "0x0000000c  frame info:\n");
+	bufptr = buf + h->frames_ofs;
+	fprintf(out, "0x%08x  frame info:\n", h->frames_ofs);
 	{
 		int i;
 		

@@ -34,8 +34,22 @@ typedef struct {
 
 typedef struct {
 	uint16 num_frames; // only first 12 bits used
+	uint16 frames_ofs;
 	frame_desc *frames;
 } index_header;
+
+#define MAX_FONT_CHARS	0x60
+
+typedef struct {
+   	uint8 leading;
+   	uint8 max_ascend;
+	uint8 max_descend;
+	uint8 spacing;
+	uint8 kern_amount;
+	uint8 kerntab[MAX_FONT_CHARS];
+	uint8 padding1_[3];
+	frame_desc frames[MAX_FONT_CHARS];
+} FONT_DESC;
 
 #define FTYPE_SHIFT   12
 #define FINDEX_MASK   ((1 << FTYPE_SHIFT) - 1)
