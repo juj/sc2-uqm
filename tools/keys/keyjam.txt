@@ -1,0 +1,10 @@
+This is a lightly adapted version of the SDL documentation's example
+of keyboard access.  It may be used to determine Key Jamming
+information.
+
+It will spawn a little window, then give information in the console.
+To exit the program, close the little window.
+
+Obvious enhancements to this will be to have the little window *be*
+the key jamming interface, and a KEYS.EXE-like real-time status
+report.
