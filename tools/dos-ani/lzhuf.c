@@ -670,9 +670,16 @@ int lzhuf_decode(lzhuf_session_t* sess)  /* recover */
 	return 0;
 }
 
-void lzhuf_startSession(lzhuf_session_t* sess)
+void lzhuf_startSession(lzhuf_session_t* sess, int bStdIO)
 {
 	memset(sess, 0, sizeof(*sess));
+	if (bStdIO)
+	{
+		sess->read = fread;
+		sess->write = fwrite;
+		sess->seek = fseek;
+		sess->tell = ftell;
+	}
 }
 
 void lzhuf_endSession(lzhuf_session_t* sess)

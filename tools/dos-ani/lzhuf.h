@@ -63,7 +63,9 @@ typedef struct
 
 } lzhuf_session_t;
 
-void lzhuf_startSession(lzhuf_session_t *);
+#define LZHUF_STDIO 1
+
+void lzhuf_startSession(lzhuf_session_t *, int bStdIO);
 void lzhuf_endSession(lzhuf_session_t *);
 int lzhuf_encode(lzhuf_session_t *);  /* compression */
 int lzhuf_decode(lzhuf_session_t *);  /* recover */

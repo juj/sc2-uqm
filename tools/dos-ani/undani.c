@@ -569,14 +569,13 @@ void generateAni(const index_header_t *h, const char *prefix, int plut, FILE *ou
 	{
 		frame_info_t* info = h->frames + i;
 		frame_desc_t* desc = info->desc;
-		int actplut;
+		int actplut = plut;
 		
 		if ((h->flags & GFX_HAS_IMAGES) && (h->flags & GFX_HAS_MASKS))
 		{
 			char tempbuf[sizeof("frame -2147483648")];
 			sprintf(tempbuf, "frame %d", i);
 			transparentPixel = findTransparentColour(tempbuf, info);
-			actplut = plut;
 		}
 		else if (h->flags & GFX_HAS_MASKS)
 		{
@@ -1096,7 +1095,7 @@ int decompressData(uint8_t* src, uint32_t srclen, uint8_t* dst, uint32_t dstlen)
 	decomp_handle_t writeh = {dst, dstlen, 0};
 	int ret;
 
-	lzhuf_startSession(&sess);
+	lzhuf_startSession(&sess, 0);
 	sess.infile = &readh;
 	sess.outfile = &writeh;
 	sess.read = decRead;
