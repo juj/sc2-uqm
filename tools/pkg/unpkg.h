@@ -20,12 +20,15 @@ typedef unsigned int uint32;
 		((uint16)((res) >> (TYPE_BITS + INSTANCE_BITS)) & \
 		((1 << PACKAGE_BITS) - 1))
 
-typedef struct
-{
+
+typedef struct {
+	uint8 type;
+	uint16 first_instance;  // only low 13 bits used
+	uint16 num_instances;  // only low 11 bits used
+} packtype_desc;
+
+typedef struct {
 	uint16 instance_count;
-#if 0
-	RES_VECTORS func_vectors;
-#endif
 } type_desc;
 
 typedef struct {
@@ -40,6 +43,7 @@ typedef struct {
 	uint16 file_index;  // only low 11 bits used
 	uint8 flags;
 	uint32 data_loc;  // only low 24 bits used
+	packtype_desc *type_list;
 } package_desc;
 
 typedef struct {

@@ -110,7 +110,7 @@ readIndex(const uint8 *buf) {
 			h.package_list[i].num_instances = GET_INSTANCE(temp);
 			h.package_list[i].file_index = GET_PACKAGE(temp);
 			fprintf(stderr, "0x%08x    #%d, %d types, %d instances, "
-					"file index 0x%04x, ", bufptr - buf, i,
+					"file index 0x%04x, ", bufptr - buf, i + 1,
 					h.package_list[i].num_types,
 					h.package_list[i].num_instances,
 					h.package_list[i].file_index);
@@ -165,43 +165,62 @@ readIndex(const uint8 *buf) {
 				if (filename == NULL)
 					filename = "<UNNAMED>";
 				fprintf(stderr, "0x%08x    Package #%d (%s):\n",
-						bufptr - buf, i, filename);
+						bufptr - buf, i + 1, filename);
 			} else {
 				// not packaged
-				fprintf(stderr, "0x%08x    Package #%d:\n", bufptr - buf, i);
+				fprintf(stderr, "0x%08x    Package #%d:\n",
+						bufptr - buf, i + 1);
 			}
+
 			num_types = h.package_list[i].num_types;
+			h.package_list[i].type_list =
+					malloc(num_types * sizeof (packtype_desc));
 			for (j = 0; j < num_types; j++) {
 				temp = MAKE_DWORD(bufptr[0], bufptr[1], bufptr[2], bufptr[3]);
+				h.package_list[i].type_list[j].type = GET_TYPE(temp);
+				h.package_list[i].type_list[j].first_instance =
+						GET_INSTANCE(temp);
+				h.package_list[i].type_list[j].num_instances =
+						GET_PACKAGE(temp);
 				fprintf(stderr, "0x%08x      Type #%d: type %d, "
-						"%d instances, rest: %d\n",
+						"%d instances starting with #%d\n",
 						bufptr - buf, j,
-						GET_TYPE(temp),
-						GET_PACKAGE(temp), /* Yes, this is correct, the
-						package field contains the number of instances */
-						GET_INSTANCE(temp));
+						h.package_list[i].type_list[j].type,
+						h.package_list[i].type_list[j].num_instances,
+						h.package_list[i].type_list[j].first_instance);
 				bufptr += 4;
 			}
 
-			num_instances = h.package_list[i].num_instances;
-			for (j = 0; j < num_instances; j++) {
-				if (h.res_flags) {
-					// packaged
-					fprintf(stderr, "0x%08x      Instance #%d: size %d "
-							"bytes\n", bufptr - buf, j,
-							4 * MAKE_WORD(bufptr[0], bufptr[1]));
-				} else {
-					char *filename;
-
-					filename = get_file_name(buf, &h,
-							MAKE_WORD(bufptr[0], bufptr[1]));
-					if (filename == NULL)
-						filename = "<UNNAMED>";
-					fprintf(stderr, "0x%08x      Instance #%d: %s\n",
-						  bufptr - buf, j, filename);
-				}
-				bufptr += 2;
-			}
+			for (j = 0; j < num_types; j++) {
+				int k;
+				
+				num_instances = h.package_list[i].type_list[j].num_instances;
+				for (k = 0; k < num_instances; k++) {
+					if (h.res_flags) {
+						// packaged
+						fprintf(stderr, "0x%08x      Instance #%d of "
+								"type %d: size %d bytes\n", bufptr - buf,
+								k + h.package_list[i].type_list[j].
+								first_instance,
+								h.package_list[i].type_list[j].type,
+								4 * MAKE_WORD(bufptr[0], bufptr[1]));
+					} else {
+						char *filename;
+	
+						filename = get_file_name(buf, &h,
+								MAKE_WORD(bufptr[0], bufptr[1]));
+						if (filename == NULL)
+							filename = "<UNNAMED>";
+						fprintf(stderr, "0x%08x      Instance #%d of "
+								"type %d: %s\n", bufptr - buf,
+								k + h.package_list[i].type_list[j].
+								first_instance,
+								h.package_list[i].type_list[j].type,
+								filename);
+					}
+					bufptr += 2;
+				}  // for k
+			}  // for j
 		}
 	}
 }
