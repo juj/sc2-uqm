@@ -25,11 +25,16 @@ typedef unsigned int uint32;
 		((uint32)(t)))
 
 typedef struct {
+	uint32 size;  // only low 18 bits used, multiple of 4
+	uint32 offset;
+	char *filename;
+} packdef_instance;
+
+typedef struct {
 	uint8 type;
 	uint16 first_instance;  // only low 13 bits used
 	uint16 num_instances;  // only low 11 bits used
-	uint32 *sizes;  // only low 18 bits used, multiple of 4
-	uint32 *offsets;
+	packdef_instance *instances;
 } packtype_desc;
 
 typedef struct {
@@ -48,6 +53,7 @@ typedef struct {
 	uint16 file_index;  // only low 11 bits used
 	uint8 flags;
 	uint32 data_loc;  // only low 24 bits used
+	char *filename;
 	packtype_desc *type_list;
 } package_desc;
 

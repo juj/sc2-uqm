@@ -21,6 +21,7 @@
 
 
 index_header *readIndex(const uint8 *buf);
+void printIndex(const index_header *h, const uint8 *buf, FILE *out);
 char *get_file_name(const uint8 *buf, const index_header *h,
 		uint16 file_index);
 void writeFiles(const index_header *h, const uint8 *data);
@@ -59,6 +60,7 @@ main(int argc, char *argv[]) {
 	close(in);
 
 	h = readIndex(buf);
+	printIndex(h, buf, stderr);
 
 	if (argc > 2) {
 		char *dir = argv[2];
@@ -86,39 +88,18 @@ readIndex(const uint8 *buf) {
 	
 	h = malloc(sizeof (index_header));
 	h->res_flags = MAKE_WORD(buf[0x00], buf[0x01]) ? 1 : 0;
-	fprintf(stderr, "0x00000000  File type:               %s\n",
-			h->res_flags ? "packaged" : "not packaged");
-	
 	h->packmem_list_offs =
 			MAKE_DWORD(buf[0x02], buf[0x03], buf[0x04], buf[0x05]);
-	fprintf(stderr, "0x00000002  packmem_list_offs:       0x%08x\n",
-			h->packmem_list_offs);
-
 	h->path_list_offs =
 			MAKE_DWORD(buf[0x06], buf[0x07], buf[0x08], buf[0x09]);
-	fprintf(stderr, "0x00000006  path_list_offs:          0x%08x\n",
-			h->path_list_offs);
-
 	h->file_list_offs =
 			MAKE_DWORD(buf[0x0a], buf[0x0b], buf[0x0c], buf[0x0d]);
-	fprintf(stderr, "0x0000000a  file_list_offs:          0x%08x\n",
-			h->file_list_offs);
-
 	h->num_packages = MAKE_WORD(buf[0x0e], buf[0x0f]);
-	fprintf(stderr, "0x0000000e  Number of packages:      %d\n",
-			h->num_packages);
-
 	h->num_types = MAKE_WORD(buf[0x10], buf[0x11]);
-	fprintf(stderr, "0x00000010  Number of package types: %d\n",
-			h->num_types);
-
 	h->header_len = MAKE_DWORD(buf[0x12], buf[0x13], buf[0x14], buf[0x15]);
-	fprintf(stderr, "0x00000012  Header length:           0x%08x\n",
-			h->header_len);
 	
 	bufptr = buf + 0x16;
 	h->package_list = malloc(h->num_packages * sizeof (package_desc));
-	fprintf(stderr, "0x00000016  package info:\n");
 	{
 		int i;
 		uint32 temp;
@@ -128,47 +109,30 @@ readIndex(const uint8 *buf) {
 			h->package_list[i].num_types = GET_TYPE(temp);
 			h->package_list[i].num_instances = GET_INSTANCE(temp);
 			h->package_list[i].file_index = GET_PACKAGE(temp);
-			fprintf(stderr, "0x%08x    #%d, %d types, %d instances, "
-					"file index 0x%04x, ", bufptr - buf, i + 1,
-					h->package_list[i].num_types,
-					h->package_list[i].num_instances,
-					h->package_list[i].file_index);
 			bufptr += 4;
 			
 			temp = MAKE_DWORD(bufptr[0], bufptr[1], bufptr[2], bufptr[3]);
 			h->package_list[i].flags = temp >> 24;
 			h->package_list[i].data_loc = temp & 0x00ffffff;
-			
-			if (h->package_list[i].flags != 0xff) {
-				fprintf(stderr, "BAD OFFSET!\n");
-			} else {
-				fprintf(stderr, "offset 0x%06x\n",
-						h->package_list[i].data_loc);
-			}
 			bufptr += 4;
 		}
 	}
 	
 	// Type info:
 	h->type_list = malloc(h->num_types * sizeof (type_desc));
-	fprintf(stderr, "0x%08x  type info:\n", bufptr - buf);
 	{
 		int i;
 		
 		for (i = 0; i < h->num_types; i++) {
 			h->type_list[i].instance_count = 
 					MAKE_WORD(bufptr[0], bufptr[1]);
-			fprintf(stderr, "0x%08x    #%d, %d instances\n",
-					bufptr - buf, i + 1, h->type_list[i].instance_count);
 			bufptr += 2;
 		}
 	}
 	
 	if ((uint32) (bufptr - buf) != h->packmem_list_offs) {
-		fprintf(stderr, "PACKMEM_LIST NOT IMMEDIATELY AFTER TYPE LIST!\n");
 		bufptr = buf + h->packmem_list_offs;
 	}
-	fprintf(stderr, "0x%08x  packmem info:\n", bufptr - buf);
 	{
 		int i, j;
 		int num_types, num_instances;
@@ -178,18 +142,11 @@ readIndex(const uint8 *buf) {
 			uint32 next_offset;
 			if (h->res_flags) {
 				// packaged
-				char *filename;
-
-				filename = get_file_name(buf, h,
-						h->package_list[i].file_index);
-				if (filename == NULL)
-					filename = "<UNNAMED>";
-				fprintf(stderr, "0x%08x    Package #%d (%s):\n",
-						bufptr - buf, i + 1, filename);
+				h->package_list[i].filename = strdup(get_file_name(buf, h,
+						h->package_list[i].file_index));
 			} else {
 				// not packaged
-				fprintf(stderr, "0x%08x    Package #%d:\n",
-						bufptr - buf, i + 1);
+				h->package_list[i].filename = NULL;
 			}
 
 			num_types = h->package_list[i].num_types;
@@ -202,12 +159,6 @@ readIndex(const uint8 *buf) {
 						GET_INSTANCE(temp);
 				h->package_list[i].type_list[j].num_instances =
 						GET_PACKAGE(temp);
-				fprintf(stderr, "0x%08x      Type #%d: type %d, "
-						"%d instances starting with #%d\n",
-						bufptr - buf, j,
-						h->package_list[i].type_list[j].type,
-						h->package_list[i].type_list[j].num_instances,
-						h->package_list[i].type_list[j].first_instance);
 				bufptr += 4;
 			}
 
@@ -219,44 +170,26 @@ readIndex(const uint8 *buf) {
 				int k;
 				
 				num_instances = h->package_list[i].type_list[j].num_instances;
-				if (h->res_flags) {
-					// packaged
-					h->package_list[i].type_list[j].sizes =
-							malloc(sizeof (uint32) * num_instances);
-					h->package_list[i].type_list[j].offsets =
-							malloc(sizeof (uint32) * num_instances);
-				} else {
-					h->package_list[i].type_list[j].sizes = NULL;
-					h->package_list[i].type_list[j].offsets = NULL;
-				}
+				h->package_list[i].type_list[j].instances =
+						malloc(sizeof (packdef_instance) * num_instances);
 				for (k = 0; k < num_instances; k++) {
 					if (h->res_flags) {
 						// packaged
-						h->package_list[i].type_list[j].sizes[k] = 
+						h->package_list[i].type_list[j].instances[k].size = 
 								4 * MAKE_WORD(bufptr[0], bufptr[1]);
-						h->package_list[i].type_list[j].offsets[k] =
+						h->package_list[i].type_list[j].instances[k].offset =
 								next_offset;
-						next_offset +=
-								h->package_list[i].type_list[j].sizes[k];
-						fprintf(stderr, "0x%08x      Instance #%d of "
-								"type %d: size %d bytes\n", bufptr - buf,
-								k + h->package_list[i].type_list[j].
-								first_instance,
-								h->package_list[i].type_list[j].type,
-								h->package_list[i].type_list[j].sizes[k]);
+						h->package_list[i].type_list[j].instances[k].
+								filename = NULL;
+						next_offset += h->package_list[i].type_list[j].
+								instances[k].size;
 					} else {
-						char *filename;
-	
-						filename = get_file_name(buf, h,
-								MAKE_WORD(bufptr[0], bufptr[1]));
-						if (filename == NULL)
-							filename = "<UNNAMED>";
-						fprintf(stderr, "0x%08x      Instance #%d of "
-								"type %d: %s\n", bufptr - buf,
-								k + h->package_list[i].type_list[j].
-								first_instance,
-								h->package_list[i].type_list[j].type,
-								filename);
+						h->package_list[i].type_list[j].instances[k].size = 0;
+						h->package_list[i].type_list[j].instances[k].offset =
+								0;
+						h->package_list[i].type_list[j].instances[k].
+								filename = strdup(get_file_name(buf, h,
+								MAKE_WORD(bufptr[0], bufptr[1])));
 					}
 					bufptr += 2;
 				}  // for k
@@ -264,6 +197,125 @@ readIndex(const uint8 *buf) {
 		} // for i
 	}
 	return h;
+}
+
+void
+printIndex(const index_header *h, const uint8 *buf, FILE *out) {
+	const uint8 *bufptr;
+	
+	fprintf(out, "0x00000000  File type:               %s\n",
+			h->res_flags ? "packaged" : "not packaged");
+	fprintf(out, "0x00000002  packmem_list_offs:       0x%08x\n",
+			h->packmem_list_offs);
+	fprintf(out, "0x00000006  path_list_offs:          0x%08x\n",
+			h->path_list_offs);
+	fprintf(out, "0x0000000a  file_list_offs:          0x%08x\n",
+			h->file_list_offs);
+	fprintf(out, "0x0000000e  Number of packages:      %d\n",
+			h->num_packages);
+	fprintf(out, "0x00000010  Number of package types: %d\n",
+			h->num_types);
+	fprintf(out, "0x00000012  Header length:           0x%08x\n",
+			h->header_len);
+	
+	bufptr = buf + 0x16;
+	fprintf(out, "0x00000016  package info:\n");
+	{
+		int i;
+		
+		for (i = 0; i < h->num_packages; i++) {
+			fprintf(out, "0x%08x    #%d, %d types, %d instances, "
+					"file index 0x%04x, ", bufptr - buf, i + 1,
+					h->package_list[i].num_types,
+					h->package_list[i].num_instances,
+					h->package_list[i].file_index);
+			bufptr += 4;
+			
+			if (h->package_list[i].flags != 0xff) {
+				fprintf(out, "BAD OFFSET!\n");
+			} else {
+				fprintf(out, "offset 0x%06x\n",
+						h->package_list[i].data_loc);
+			}
+			bufptr += 4;
+		}
+	}
+	
+	// Type info:
+	fprintf(out, "0x%08x  type info:\n", bufptr - buf);
+	{
+		int i;
+		
+		for (i = 0; i < h->num_types; i++) {
+			fprintf(out, "0x%08x    #%d, %d instances\n",
+					bufptr - buf, i + 1, h->type_list[i].instance_count);
+			bufptr += 2;
+		}
+	}
+	
+	if ((uint32) (bufptr - buf) != h->packmem_list_offs) {
+		fprintf(out, "PACKMEM_LIST NOT IMMEDIATELY AFTER TYPE LIST!\n");
+		bufptr = buf + h->packmem_list_offs;
+	}
+	fprintf(out, "0x%08x  packmem info:\n", bufptr - buf);
+	{
+		int i, j;
+		int num_types, num_instances;
+		
+		for (i = 0; i < h->num_packages; i++) {
+			if (h->res_flags) {
+				// packaged
+				fprintf(out, "0x%08x    Package #%d (%s):\n",
+						bufptr - buf, i + 1,
+						(h->package_list[i].filename == NULL) ?
+						"<<UNNAMED>>" : h->package_list[i].filename);
+			} else {
+				// not packaged
+				fprintf(out, "0x%08x    Package #%d:\n",
+						bufptr - buf, i + 1);
+			}
+
+			num_types = h->package_list[i].num_types;
+			for (j = 0; j < num_types; j++) {
+				fprintf(out, "0x%08x      Type #%d: type %d, "
+						"%d instances starting with #%d\n",
+						bufptr - buf, j,
+						h->package_list[i].type_list[j].type,
+						h->package_list[i].type_list[j].num_instances,
+						h->package_list[i].type_list[j].first_instance);
+				bufptr += 4;
+			}
+
+			for (j = 0; j < num_types; j++) {
+				int k;
+				
+				num_instances = h->package_list[i].type_list[j].num_instances;
+				for (k = 0; k < num_instances; k++) {
+					if (h->res_flags) {
+						// packaged
+						fprintf(out, "0x%08x      Instance #%d of "
+								"type %d: size %d bytes\n", bufptr - buf,
+								k + h->package_list[i].type_list[j].
+								first_instance,
+								h->package_list[i].type_list[j].type,
+								h->package_list[i].type_list[j].instances[k].
+								size);
+					} else {
+						fprintf(out, "0x%08x      Instance #%d of "
+								"type %d: %s\n", bufptr - buf,
+								k + h->package_list[i].type_list[j].
+								first_instance,
+								h->package_list[i].type_list[j].type,
+								(h->package_list[i].type_list[j].instances[k].
+								filename == NULL) ? "<<UNNAMED>>" :
+								h->package_list[i].type_list[j].instances[k].
+								filename);
+					}
+					bufptr += 2;
+				}  // for k
+			}  // for j
+		} // for i
+	}
 }
 
 char *
@@ -323,6 +375,7 @@ writeFile(const char *file, const uint8 *data, size_t len) {
 	close(fd);
 }
 
+
 void
 writeFiles(const index_header *h, const uint8 *data) {
 	int i;
@@ -345,8 +398,9 @@ writeFiles(const index_header *h, const uint8 *data) {
 						h->package_list[i].type_list[j].type,
 						h->package_list[i].type_list[j].first_instance + k);
 				writeFile(filename,
-						&data[h->package_list[i].type_list[j].offsets[k]],
-						h->package_list[i].type_list[j].sizes[k]);
+						&data[h->package_list[i].type_list[j].instances[k].
+						offset],
+						h->package_list[i].type_list[j].instances[k].size);
 			}
 		}
 	}
