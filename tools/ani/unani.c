@@ -3,6 +3,8 @@
  * By Serge van den Boom (svdb@stack.nl), 20021027
  * The GPL applies.
  *
+ * Changes:
+ * 20030829: Added support for .fon files. - Alex Volkov
  * 
  */
 
