@@ -595,11 +595,16 @@ writePacked(const char *filename, const frame_desc *f,
 		sig_bit.blue = 8;
 		png_set_sBIT(png_ptr, info_ptr, &sig_bit);
 		png_set_PLTE(png_ptr, info_ptr, palettes[f->plut], 256);
-		if (transparentPixel >= 0) {
+		if (transparentPixel >= 0)
+		{	// generate transparency chunk
+			// for indexed PNGs, tRNS chunk contains an array of
+			// alpha values corresponding to palette entries
 			png_byte trans[256];
-			memset(trans, 0x0, 256 * sizeof (png_byte));
-			trans[transparentPixel] = 0xff;
-			png_set_tRNS(png_ptr, info_ptr, trans, 1, NULL);
+			// set all palette alpha values to 0xff (fully opaque) initially
+			memset(trans, 0xff, 256 * sizeof (png_byte));
+			trans[transparentPixel] = 0; // the only one
+			// only need to write out upto and including transparentPixel
+			png_set_tRNS(png_ptr, info_ptr, trans, transparentPixel + 1, NULL);
 		}
 		png_write_info(png_ptr, info_ptr);
 		png_write_image(png_ptr, (png_byte **) lines);
