@@ -4,7 +4,7 @@ import string
 
 def _xml_line(line, firstline):
     if len(line) == 0 and firstline: return ''
-    return '    <line> '+line.strip()+' </line>\n'
+    return '      <line> '+line.strip()+' </line>\n'
 
 def _xml_join(a, tag, b):
     if tag is None:
@@ -72,8 +72,10 @@ class Speeches:
             result += '  <speech id="'+speech.id+'">\n'
             if speech.audio is not None:
                 result += '    <audio><file>'+speech.audio+'</file></audio>\n'
+            result += '    <text>\n'
             for line, i in zip(speech.lines, xrange(sys.maxint)):
                 result += _xml_line(line, i==0)
+            result += '    </text>\n'
             result += '  </speech>\n'
 
         result += '</speeches>\n'
