@@ -7,13 +7,13 @@
 
 TARGET = lpf2ani
 # These flags are needed to get it to compile with libpngX.dll on CYGWIN
-# CYGWINFLAGS = -DPNG_USE_DLL
-CYGWINFLAGS =
+CYGWINFLAGS = -DPNG_USE_DLL
+#CYGWINFLAGS =
 PNGFLAGS = -I. 
 
 CC = gcc
 CFLAGS = -W -Wall -O0 # -g
-LIBS = -L/usr/local/lib -lpng -lm -lz
+LIBS = -L/usr/local/lib -lpng -lm
 LDFLAGS=
 
 BINS = $(TARGET) $(TARGET).exe
