@@ -1,0 +1,132 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0102 
+header_name {.h} 
+code_name {.cpp}
+decl {extern void NextFrame ();} {public
+} 
+
+decl {extern void PauseFrame ();} {public
+} 
+
+decl {extern void GetTracks(int value);} {public
+} 
+
+decl {extern void StartPlayback();} {public
+} 
+
+decl {extern void StopPlayback();} {public
+} 
+
+decl {extern void RestartFrame();} {public
+} 
+
+decl {extern void DoExit();} {public
+} 
+
+decl {extern void UpdatePlayTime(int);} {selected public
+} 
+
+class Synchronizer {open
+} {
+  Function {Synchronizer()} {open
+  } {
+    Fl_Window MainWindow {open
+      xywh {366 309 597 356} visible
+    } {
+      Fl_Menu_Bar MainMenu {open
+        xywh {0 0 475 25}
+      } {
+        submenu File {
+          label File open
+          xywh {0 0 100 20}
+        } {
+          menuitem Exit {
+            label Exit
+            callback {DoExit();}
+            xywh {5 5 100 20}
+          }
+        }
+      }
+      Fl_Output CurrentTrack {
+        label {Playing track:}
+        xywh {245 25 135 25}
+        code0 {CurrentTrack->deactivate();}
+      }
+      Fl_Output CurrentFrame {
+        label {Frame:}
+        xywh {455 25 135 25}
+        code0 {CurrentFrame->deactivate();}
+      }
+      Fl_Output PlayTime {
+        label {Time left:}
+        xywh {475 0 115 25}
+        code0 {PlayTime->deactivate();}
+      }
+      Fl_Output TextScreen {
+        xywh {155 50 435 180} type Multiline textsize 16
+        code0 {TextScreen->deactivate();}
+      }
+      Fl_Slider Slider {
+        xywh {155 235 435 30} type {Horz Knob}
+        code0 {Slider->deactivate();}
+      }
+      Fl_Browser RaceChooser {
+        callback {GetTracks (RaceChooser->value());}
+        xywh {0 50 145 105} type Hold
+        code0 {RaceChooser->has_scrollbar(Fl_Browser_::VERTICAL);}
+      }
+      Fl_Check_Browser TrackSelector {
+        callback {UpdatePlayTime(1);}
+        xywh {0 180 145 120} when 4
+        code0 {TrackSelector->has_scrollbar(Fl_Browser_::VERTICAL);}
+      }
+      Fl_Button ChooseAllButton {
+        label {Choose All}
+        callback {TrackSelector->check_all();UpdatePlayTime(1);}
+        xywh {10 305 120 20}
+      }
+      Fl_Button ClearAllButton {
+        label {Clear All}
+        callback {TrackSelector->check_none();UpdatePlayTime(1);}
+        xywh {10 330 120 20}
+      }
+      Fl_Box {} {
+        label Race
+        xywh {0 30 130 20}
+      }
+      Fl_Box {} {
+        label Track
+        xywh {5 160 120 20}
+      }
+      Fl_Button PauseButton {
+        label { Pause}
+        callback {PauseFrame ();}
+        xywh {335 280 105 45} shortcut 0x70 labelfont 1 labelsize 16
+      }
+      Fl_Button NextButton {
+        label {Next Screen}
+        callback {NextFrame();}
+        xywh {155 280 135 45} shortcut 0x6e labelfont 1 labelsize 16
+      }
+      Fl_Button StartButton {
+        label Start
+        callback {StartPlayback ();}
+        xywh {490 305 100 20} labelfont 1
+      }
+      Fl_Button RestartButton {
+        label Restart
+        callback {RestartFrame ();}
+        xywh {490 280 100 20} labelfont 1
+      }
+      Fl_Button StopButton {
+        label Stop
+        callback {StopPlayback();}
+        xywh {490 330 100 20} labelfont 1
+      }
+    }
+  }
+  Function {show(int argc, char **argv)} {open
+  } {
+    code {MainWindow->show(argc, argv);} {}
+  }
+} 
