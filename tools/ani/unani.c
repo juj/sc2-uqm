@@ -1,6 +1,6 @@
 /*
  * .ani file extractor
- * By Serge van den Boom (svdb@stack.nl), 20021012
+ * By Serge van den Boom (svdb@stack.nl), 20021027
  * The GPL applies.
  *
  * 
@@ -41,6 +41,8 @@ index_header *readIndex(const uint8 *buf);
 void printIndex(const index_header *h, const uint8 *buf, FILE *out);
 void generateAni(const index_header *h, const uint8 *buf, const char *prefix,
 		FILE *out);
+int findTransparentColourPacked(const char *name, const frame_desc *f,
+		const uint8 *data);
 void writeFiles(const index_header *h, const uint8 *data, const char *path,
 		const char *prefix);
 void parse_arguments(int argc, char *argv[], struct options *opts);
@@ -309,15 +311,37 @@ void
 generateAni(const index_header *h, const uint8 *buf, const char *prefix,
 		FILE *out) {
 	int i;
-		
+	int transparentPixel;
+	
 	for (i = 0; i < h->num_frames; i++) {
+		if (h->frames[i].flags & FLAG_DATA_PACKED) {
+			char tempbuf[sizeof("frame -2147483648")];
+			sprintf(tempbuf, "frame %d", i);
+			transparentPixel = findTransparentColourPacked(tempbuf,
+					&h->frames[i], h->frames[i].start);
+		} else
+			transparentPixel = -1;
+		fprintf(out, "%s.%d.%s %d %d %d %d\n",
+				prefix, h->frames[i].index,
+				(h->frames[i].flags & FLAG_DATA_HARDWARE) ? "png" :
+				(h->frames[i].flags & FLAG_DATA_PACKED) ? "png" : "???",
+				transparentPixel, h->frames[i].plut,
+#if 1
+				(h->frames[i].flags & FLAG_X_FLIP) ?
+				h->frames[i].bounds.w - h->frames[i].hotspot.x /* - 1 */:
+#endif
+				h->frames[i].hotspot.x,
+				h->frames[i].hotspot.y);
+#if 0
 		fprintf(out, "%s.%d.%s %d %d %d %d %d %d %d %d\n",
 				prefix, h->frames[i].index,
-				(h->frames[i].flags & FLAG_DATA_HARDWARE) ? "cel" :
+				(h->frames[i].flags & FLAG_DATA_HARDWARE) ? "png" :
+//				(h->frames[i].flags & FLAG_DATA_HARDWARE) ? "cel" :
 				(h->frames[i].flags & FLAG_DATA_PACKED) ? "png" : "???",
-				-1, h->frames[i].plut, 0, 0,
+				transparentPixel, h->frames[i].plut, 0, 0,
 				h->frames[i].bounds.w, h->frames[i].bounds.h,
 				h->frames[i].hotspot.x, h->frames[i].hotspot.y);
+#endif
 	}
 	(void) buf;
 }
@@ -372,10 +396,95 @@ writeFile(const char *file, const uint8 *data, size_t len) {
 }
 
 void
-writeCel(const char *filename, const frame_desc *frame, const uint8 *data) {
+writeCel(const char *filename, const frame_desc *f, const uint8 *data) {
+	if (f->flags & FLAG_X_FLIP) {
+		fprintf(stderr, "Warning: X_FLIP used with .cel image - "
+				"not implemented.\n");
+	}
 	writeFile(filename, data + 4,
 			MAKE_DWORD(data[3], data[2], data[1], data[0]));
-	(void) frame;
+}
+
+// If there are no transparent pixels, returns -1
+// Otherwise, returns an index in the palette that is never used so can be
+// used for transparancy. If all palette entries are used, a warning is
+// printed and 0 is used.
+int
+findTransparentColourPacked(const char *name, const frame_desc *f,
+		const uint8 *data) {
+	const uint8 *src, *srclineend;
+	uint8 pack_type, num_pixels;
+	int i;
+	int dstlinecount;
+	bool paletteUsed[256];
+	bool haveTransparent;
+		
+	memset(paletteUsed, '\0', sizeof (paletteUsed));
+	haveTransparent = FALSE;
+	src = data;
+	for (i = 0; i < f->bounds.h; i++) {
+		dstlinecount = 0;
+		srclineend = src + ((MAKE_WORD(src[1], src[0]) + 2) << 2);
+		src += 2;
+		while (src < srclineend) {
+			pack_type = PACK_TYPE(*src);
+			num_pixels = PACK_COUNT(*src);
+			src++;
+			switch (pack_type) {
+				case PACK_EOL:
+					if (dstlinecount != f->bounds.w) {
+						haveTransparent = TRUE;
+						dstlinecount = f->bounds.w;
+					}
+					break;
+				case PACK_LITERAL:
+					while (num_pixels--) {
+						paletteUsed[*src] = TRUE;
+						src++;
+					}
+					break;
+				case PACK_TRANS:
+					haveTransparent = TRUE;
+					break;
+				case PACK_REPEAT:
+					paletteUsed[*src] = TRUE;
+					src++;
+					break;
+			}
+		}
+	}
+
+	if (!haveTransparent)
+		return -1;
+	
+	for (i = 0; i < 256; i++) {
+		if (!paletteUsed[i])
+			return i;
+	}
+	fprintf(stderr, "Warning: Could not find an unused palette entry to use "
+			"for transparency for %s. Using 0 entry.\n", name);
+	return 0;
+}
+
+inline void
+swap_bytes(uint8 *b1, uint8 *b2) {
+	uint8 temp;
+
+	temp = *b1;
+	*b1 = *b2;
+	*b2 = temp;
+}
+
+void
+flipX(uint8 **lines, int x, int y) {
+	int i;
+	
+	while (y--) {
+		i = x / 2;
+		while (i--)
+			swap_bytes(&(*lines)[i], &(*lines)[x - i - 1]);
+		lines++;
+	}
 }
 
 void
@@ -387,8 +496,10 @@ writePacked(const char *filename, const frame_desc *f,
 	uint8 *dst, *dstlineend;
 	uint8 **lines;
 	uint8 pack_type, num_pixels;
+	int transparentPixel;
 	int i;
 	
+	transparentPixel = findTransparentColourPacked(filename, f, data);
 	buf = alloca(f->bounds.w * f->bounds.h * sizeof (uint8));
 	memset(buf, '\0', f->bounds.w * f->bounds.h * sizeof (uint8));
 	dst = buf;
@@ -406,7 +517,7 @@ writePacked(const char *filename, const frame_desc *f,
 			switch (pack_type) {
 				case PACK_EOL:
 					while (dst != dstlineend)
-						*(dst++) = 0;  // rest is transparant
+						*(dst++) = transparentPixel;  // rest is transparent
 					break;
 				case PACK_LITERAL:
 					memcpy(dst, src, num_pixels);
@@ -414,7 +525,7 @@ writePacked(const char *filename, const frame_desc *f,
 					dst += num_pixels;
 					break;
 				case PACK_TRANS:
-					memset(dst, '\0', num_pixels);
+					memset(dst, transparentPixel, num_pixels);
 					dst += num_pixels;
 					break;
 				case PACK_REPEAT:
@@ -426,12 +537,14 @@ writePacked(const char *filename, const frame_desc *f,
 		}
 	}
 
+	if (f->flags & FLAG_X_FLIP)
+		flipX(lines, f->bounds.w, f->bounds.h);
+
 	{
 		FILE *file;
 		png_structp png_ptr;
 		png_infop info_ptr;
 		png_color_8 sig_bit;
-		png_byte trans[1];
 	
 		png_ptr = png_create_write_struct
 				(PNG_LIBPNG_VER_STRING, (png_voidp) NULL /* user_error_ptr */,
@@ -465,24 +578,22 @@ writePacked(const char *filename, const frame_desc *f,
 				8 /* bit_depth per channel */, PNG_COLOR_TYPE_PALETTE,
 				PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
 				PNG_FILTER_TYPE_DEFAULT);
-#if 0
 		sig_bit.red = 8;
 		sig_bit.green = 8;
 		sig_bit.blue = 8;
 		png_set_sBIT(png_ptr, info_ptr, &sig_bit);
-		png_set_shift(png_ptr, &sig_bit);
-#endif
 		png_set_PLTE(png_ptr, info_ptr, palettes[f->plut], 256);
-
-#if 0
-		trans[0] = 0;
-		png_set_tRNS(png_ptr, info_ptr, trans, 1, NULL);
-#endif
+		if (transparentPixel >= 0) {
+			png_byte trans[256];
+			memset(trans, 0x0, 256 * sizeof (png_byte));
+			trans[transparentPixel] = 0xff;
+			png_set_tRNS(png_ptr, info_ptr, trans, 1, NULL);
+		}
 		png_write_info(png_ptr, info_ptr);
-		png_set_packing(png_ptr);
 		png_write_image(png_ptr, (png_byte **) lines);
 		png_write_end(png_ptr, info_ptr);
 		png_destroy_write_struct(&png_ptr, &info_ptr);
+		fclose(file);
 	}
 }
 
@@ -498,9 +609,11 @@ writeFiles(const index_header *h, const uint8 *data, const char *path,
 		if (h->frames[i].flags & FLAG_DATA_HARDWARE) {
 			strcat(filename, "cel");
 			writeCel(filename, &h->frames[i], h->frames[i].start);
-		} if (h->frames[i].flags & FLAG_DATA_PACKED) {
+		} else if (h->frames[i].flags & FLAG_DATA_PACKED) {
 			strcat(filename, "png");
 			writePacked(filename, &h->frames[i], h->frames[i].start);
+		} else if (h->frames[i].flags == 0) {
+			fprintf(stderr, "Empty frame %d skipped.\n", i);
 		} else {
 			fprintf(stderr, "Frame %d skipped - not supported.\n", i);
 		}
