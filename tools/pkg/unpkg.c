@@ -1,7 +1,7 @@
 /*
  * .pkg file extractor
  * By Serge van den Boom (svdb@stack.nl), 20021012
- * GPL applies
+ * The GPL applies.
  *
  * 
  */
@@ -20,30 +20,38 @@
 #include "unpkg.h"
 
 
+struct options {
+	char *infile;
+	char *outdir;
+	char list;
+	char print;
+	char verbose;
+};
+
+
 index_header *readIndex(const uint8 *buf);
 void printIndex(const index_header *h, const uint8 *buf, FILE *out);
 char *get_file_name(const uint8 *buf, const index_header *h,
 		uint16 file_index);
-void writeFiles(const index_header *h, const uint8 *data);
+void writeFiles(const index_header *h, const uint8 *data, const char *path);
+void parse_arguments(int argc, char *argv[], struct options *opts);
+void listResources(const index_header *h, const uint8 *buf, FILE *out);
+
 
 int
 main(int argc, char *argv[]) {
-	char *filename;
 	int in;
 	struct stat sb;
 	uint8 *buf;
 	index_header *h;
+	struct options opts;
 
-	if (argc < 2 || argc > 3) {
-		fprintf(stderr, "unpkg <infile> [outdir]\n");
-		return EXIT_FAILURE;
-	}
+	parse_arguments(argc, argv, &opts);
 
-	filename = argv[1];
-
-	in = open(filename, O_RDONLY);
+	in = open(opts.infile, O_RDONLY);
 	if (in == -1) {
-		perror("Could not open input file");
+		fprintf(stderr, "Error: Could not open file %s: %s\n", opts.infile,
+				strerror(errno));
 		return EXIT_FAILURE;
 	}
 	
@@ -60,25 +68,91 @@ main(int argc, char *argv[]) {
 	close(in);
 
 	h = readIndex(buf);
-	printIndex(h, buf, stderr);
+	if (opts.print)
+		printIndex(h, buf, stdout);
 
-	if (argc > 2) {
-		char *dir = argv[2];
-		if (h->res_flags) {
-			// packaged
-			if (chdir(dir) == -1) {
-				perror("Could not change directory");
-				return EXIT_FAILURE;
-			}
-			writeFiles(h, buf);
-		} else {
-			fprintf(stderr, "Cannot unpack data from unpacked file.\n");
+	if (opts.list)
+		listResources(h, buf, stdout);
+
+	if (opts.outdir != NULL) {
+		size_t len;
+		struct stat sb;
+
+		if (!h->res_flags) {
+			fprintf(stderr, "Error: Cannot unpack data from unpackaged "
+					"file.\n");
+			exit(EXIT_FAILURE);
 		}
+
+		if (access(opts.outdir, W_OK) == -1) {
+			fprintf(stderr, "Error: Invalid destination dir %s: %s\n",
+					opts.outdir, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+		if (stat(opts.outdir, &sb) == -1) {
+			fprintf(stderr, "Error: Could not stat %s: %s\n", opts.outdir,
+					strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+		if (!S_ISDIR(sb.st_mode)) {
+			fprintf(stderr, "Error: %s is not a directory.\n",
+					opts.outdir);
+			exit(EXIT_FAILURE);
+		}
+				
+		len = strlen(opts.outdir);
+		if (opts.outdir[len - 1] == '/')
+			opts.outdir[len - 1] = '\0';
+
+		writeFiles(h, buf, opts.outdir);
 	}
 
 	// freeIndex(h);
 	munmap(buf, sb.st_size);
 	return EXIT_SUCCESS;
+}
+
+void
+usage() {
+	fprintf(stderr, "unpkg [-o outputdir] [-v] [-l listfile] <infile>\n");
+}
+
+void
+parse_arguments(int argc, char *argv[], struct options *opts) {
+	char ch;
+	
+	memset(opts, '\0', sizeof (struct options));
+	while (1) {
+		ch = getopt(argc, argv, "hlo:pv");
+		if (ch == -1)
+			break;
+		switch(ch) {
+			case 'l':
+				opts->list = 1;
+				break;
+			case 'o':
+				opts->outdir = optarg;
+				break;
+			case 'p':
+				opts->print = 1;
+				break;
+			case 'v':
+				opts->verbose = 1;
+				break;
+			case '?':
+			case 'h':
+			default:
+				usage();
+				exit(EXIT_FAILURE);
+		}
+	}
+	argc -= optind;
+	argv += optind;
+	if (argc != 1) {
+		usage();
+		exit(EXIT_FAILURE);
+	}
+	opts->infile = argv[0];
 }
 
 index_header *
@@ -142,8 +216,10 @@ readIndex(const uint8 *buf) {
 			uint32 next_offset;
 			if (h->res_flags) {
 				// packaged
-				h->package_list[i].filename = strdup(get_file_name(buf, h,
-						h->package_list[i].file_index));
+				char *temp;
+				temp = get_file_name(buf, h, h->package_list[i].file_index);
+				h->package_list[i].filename =
+						(temp == NULL) ? NULL : strdup(temp);
 			} else {
 				// not packaged
 				h->package_list[i].filename = NULL;
@@ -184,12 +260,15 @@ readIndex(const uint8 *buf) {
 						next_offset += h->package_list[i].type_list[j].
 								instances[k].size;
 					} else {
+						char *temp;
 						h->package_list[i].type_list[j].instances[k].size = 0;
 						h->package_list[i].type_list[j].instances[k].offset =
 								0;
+						temp = get_file_name(buf, h,
+								MAKE_WORD(bufptr[0], bufptr[1]));
 						h->package_list[i].type_list[j].instances[k].
-								filename = strdup(get_file_name(buf, h,
-								MAKE_WORD(bufptr[0], bufptr[1])));
+								filename = (temp == NULL) ?
+								NULL : strdup(temp);
 					}
 					bufptr += 2;
 				}  // for k
@@ -318,6 +397,42 @@ printIndex(const index_header *h, const uint8 *buf, FILE *out) {
 	}
 }
 
+void
+listResources(const index_header *h, const uint8 *buf, FILE *out) {
+	int i, j;
+	int num_types, num_instances;
+	char *filename;
+	
+	for (i = 0; i < h->num_packages; i++) {
+		if (h->res_flags) {
+			// packaged
+			filename = (h->package_list[i].filename == NULL) ?
+					"<<UNNAMED>>" : h->package_list[i].filename;
+		}
+
+		num_types = h->package_list[i].num_types;
+		for (j = 0; j < num_types; j++) {
+			int k;
+			
+			num_instances = h->package_list[i].type_list[j].num_instances;
+			for (k = 0; k < num_instances; k++) {
+				if (!h->res_flags) {
+					filename = (h->package_list[i].type_list[j].instances[k].
+							filename == NULL) ? "<<UNNAMED>>" :
+							h->package_list[i].type_list[j].instances[k].
+							filename;
+				}
+				fprintf(out, "0x%08x  %s\n",
+						MAKE_RESOURCE(i + 1,
+						h->package_list[i].type_list[j].type,
+						h->package_list[i].type_list[j].first_instance + k),
+						filename);
+			}  // for k
+		}  // for j
+	} // for i
+	(void) buf;
+}
+
 char *
 get_file_name(const uint8 *buf, const index_header *h, uint16 file_index) {
 	static char result[MAXPATHLEN];
@@ -355,6 +470,31 @@ void
 writeFile(const char *file, const uint8 *data, size_t len) {
 	int fd;
 
+	// check if all the path components exist
+	{
+		const char *ptr;
+		char path[MAXPATHLEN];
+		
+		ptr = file;
+		if (ptr[0] == '/')
+			ptr++;
+		while (1) {
+			ptr = strchr(ptr, '/');
+			if (ptr == NULL)
+				break;
+			ptr++;
+			memcpy(path, file, ptr - file);
+			path[ptr - file] = '\0';
+			if (mkdir(path, 0777) == -1) {
+				if (errno == EEXIST)
+					continue;
+				fprintf(stderr, "Error: Could not make directory %s: %s\n",
+						path, strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+		}
+	}
+	
 	fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (fd == -1) {
 		perror("Could not open file for writing");
@@ -377,26 +517,35 @@ writeFile(const char *file, const uint8 *data, size_t len) {
 
 
 void
-writeFiles(const index_header *h, const uint8 *data) {
+writeFiles(const index_header *h, const uint8 *data, const char *path) {
 	int i;
-	char filename[sizeof("01234567=012-01-012")];
+	char filename[MAXPATHLEN];
 	int num_types, num_instances;
 	
 	for (i = 0; i < h->num_packages; i++) {
 		int j;
+
 		num_types = h->package_list[i].num_types;
 		for (j = 0; j < num_types; j++) {
 			int k;
 			
 			num_instances = h->package_list[i].type_list[j].num_instances;
 			for (k = 0; k < num_instances; k++) {
-				sprintf(filename, "%08x=%03x-%02x-%03x",
+				sprintf(filename, "%s/%08x",
+						path,
+						MAKE_RESOURCE(i + 1,
+						h->package_list[i].type_list[j].type,
+						h->package_list[i].type_list[j].first_instance + k));
+#if 0
+				sprintf(filename, "%s/%08x=%03x-%02x-%03x",
+						path,
 						MAKE_RESOURCE(i + 1,
 						h->package_list[i].type_list[j].type,
 						h->package_list[i].type_list[j].first_instance + k),
 						i + 1,
 						h->package_list[i].type_list[j].type,
 						h->package_list[i].type_list[j].first_instance + k);
+#endif
 				writeFile(filename,
 						&data[h->package_list[i].type_list[j].instances[k].
 						offset],
