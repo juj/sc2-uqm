@@ -141,6 +141,7 @@ struct options
 	int crop;
 	int verbose;
 	int plut;
+	int zeropos;
 	int num_palettefiles;
 	char **palettefiles;
 };
@@ -153,9 +154,9 @@ void verbose(int level, const char* fmt, ...);
 index_header_t* readIndex(uint8_t *buf);
 void freeIndex(index_header_t *);
 void printIndex(const index_header_t* h, const uint8_t *buf, FILE *out);
-void generateAni(const index_header_t* h, const char *prefix, int plut, FILE *out);
+void generateAni(const index_header_t* h, const char *prefix, int zeropos, int plut, FILE *out);
 int findTransparentColour(const char *name, const frame_info_t* f);
-void writeFiles(const index_header_t* h, const char *path, const char *prefix);
+void writeFiles(const index_header_t* h, const char *path, const char *prefix, int zeropos);
 void parse_arguments(int argc, char *argv[], struct options *opts);
 void listFrames(const index_header_t* h, FILE *out);
 int loadPalette(const char *filename);
@@ -251,17 +252,17 @@ int main(int argc, char *argv[])
 	}
 
 	if (opts.makeani)
-		generateAni(h, prefix, opts.plut, stdout);
+		generateAni(h, prefix, opts.zeropos, opts.plut, stdout);
 	
 	if (!opts.print && !opts.list && !opts.makeani)
 	{
 		size_t len;
-				
+		
 		len = strlen(opts.outdir);
 		if (opts.outdir[len - 1] == '/')
 			opts.outdir[len - 1] = '\0';
 
-		writeFiles(h, opts.outdir, prefix);
+		writeFiles(h, opts.outdir, prefix, opts.zeropos);
 	}
 
 	freeIndex(h);
@@ -285,9 +286,9 @@ void verbose(int level, const char* fmt, ...)
 void usage()
 {
 	fprintf(stderr,
-			"undani -a [-m <plutind>] [-r] <infile>\n"
+			"undani -a [-m <plutind>] [-r] [-0] <infile>\n"
 			"undani -p <infile>\n"
-			"undani [-c <palfile>] [-r] [-o <outdir>] [-n <prefix>] <infile>\n"
+			"undani [-c <palfile>] [-r] [-0] [-o <outdir>] [-n <prefix>] <infile>\n"
 			"Options:\n"
 			"\t-a  output .ani file\n"
 			"\t-p  print header and frame info\n"
@@ -296,6 +297,7 @@ void usage()
 			"\t-n  name pngs <prefix>.<N>.png\n"
 			"\t-r  crop the images removing edge rows and columns consisting\n"
 			"\t    entirely of transparent color (affects hotspots with -a)\n"
+			"\t-0  make <N> 0-prepended; use several to specify width\n"
 			"\t-v  increase verbosity level (use more than once)\n"
 			);
 }
@@ -307,7 +309,7 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 	memset(opts, 0, sizeof (struct options));
 	opts->plut = -1;
 
-	while (-1 != (ch = getopt(argc, argv, "ac:h?ln:o:m:prv")))
+	while (-1 != (ch = getopt(argc, argv, "ac:h?ln:o:m:pr0v")))
 	{
 		switch (ch)
 		{
@@ -337,6 +339,9 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 			break;
 		case 'r':
 			opts->crop = 1;
+			break;
+		case '0':
+			opts->zeropos++;
 			break;
 		case 'v':
 			opts->verbose++;
@@ -560,10 +565,17 @@ void listFrames(const index_header_t* h, FILE *out)
 	}
 }
 
-void generateAni(const index_header_t *h, const char *prefix, int plut, FILE *out)
+void generateAni(const index_header_t *h, const char *prefix, int zeropos, int plut, FILE *out)
 {
 	int i;
 	int transparentPixel = -1;
+	char fmt[40] = "%s.%";
+
+	if (zeropos > 0)
+		sprintf(fmt + strlen(fmt), "0%dd", zeropos);
+	else
+		strcat(fmt, "d");
+	strcat(fmt, ".%s %d %d %d %d\n");
 	
 	for (i = 0; i < h->num_frames; i++)
 	{
@@ -583,9 +595,9 @@ void generateAni(const index_header_t *h, const char *prefix, int plut, FILE *ou
 			actplut = -1; // no colormap for masks
 		}
 
-		fprintf(out, "%s.%d.%s %d %d %d %d\n",
-				prefix, (int)INDEX_GET(desc->index),
-				"png", transparentPixel, actplut,
+		fprintf(out, fmt,
+				prefix, (int)INDEX_GET(desc->index), "png",
+				transparentPixel, actplut,
 				(int)desc->hotspot.x - info->sx0,
 				(int)desc->hotspot.y - info->sy0);
 	}
@@ -979,29 +991,34 @@ void writeBitmapMask(const char *filename, const frame_info_t* f)
 }
 #endif // 0 or 1
 
-void writeFiles(const index_header_t *h, const char *path, const char *prefix)
+void writeFiles(const index_header_t *h, const char *path, const char *prefix, int zeropos)
 {
 	int i;
 	char filename[512];
+	char fmt[32] = "%s/%s.%";
+
+	if (zeropos > 0)
+		sprintf(fmt + strlen(fmt), "0%dd", zeropos);
+	else
+		strcat(fmt, "d");
+	strcat(fmt, ".%s");
 
 	for (i = 0; i < h->num_frames; i++)
 	{
 		frame_desc_t* desc = h->frames[i].desc;
 
-		sprintf(filename, "%s/%s.%d.",
-				path, prefix, (int)INDEX_GET(desc->index));
+		sprintf(filename, fmt, path, prefix, (int)INDEX_GET(desc->index), "png");
+
 		if (desc->flags & GFX_DATA_FLAG2)
 		{
 			verbose(2, "Do not know the meaning of DATA_FLAG2, image index %d\n", i);
 		}
 		else if (h->flags & GFX_HAS_IMAGES)
 		{
-			strcat(filename, "png");
 			writePaletted(filename, h->frames + i);
 		}
 		else if (h->flags & GFX_HAS_MASKS)
 		{
-			strcat(filename, "png");
 			writeBitmapMask(filename, h->frames + i);
 		}
 		else
