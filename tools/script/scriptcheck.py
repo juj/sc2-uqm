@@ -1,4 +1,4 @@
-#!/usr/local/bin/python2.2
+#!/usr/bin/python
 
 import string
 import os.path
@@ -98,8 +98,8 @@ def read_source_header(filename):
 races = ['arilou', 'blackur', 'chmmr', 'comandr', 'druuge',
          'ilwrath', 'melnorm', 'mycon', 'orz', 'pkunk', 'rebel',
          'shofixt', 'slyhome', 'slyland', 'spahome', 'spathi',
-         'starbas', 'supox', 'syreen', 'talkpet', 'utwig',
-         'vux', 'yehat', 'zoqfot']
+         'starbas', 'supox', 'syreen', 'talkpet', 'thradd',
+         'umgah', 'urquan', 'utwig', 'vux', 'yehat', 'zoqfot']
 
 root = os.path.join('..','..','sc2')
 

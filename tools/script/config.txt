@@ -1,0 +1,118 @@
+fuse   chmmr:   i_am_captain=i_am_captain0 captain i_am_captain1 ship i_am_captain2
+fuse   comandr: name_4 = name_40 captain name_41
+fuse   comandr: we_are_vindicator=we_are_vindicator0 captain we_are_vindicator1 ship we_are_vindicator2
+fuse   comandr: no_but_well_help=no_but_well_help0 ship no_but_well_help1
+fuse   melnorm: we_are_from_alliance=we_are_from_alliance0 alliance
+addstr melnorm: we_are_from_alliance !
+fuse   orz:     we_are_vindicator=we_are_vindicator0 captain we_are_vindicator1 ship we_are_vindicator2
+fuse   pkunk:   conquer_because_1=conquer_because_1 alliance
+addstr pkunk:   conquer_because_1 !
+fuse   pkunk:   we_are_vindicator=we_are_vindicator0 captain we_are_vindicator1 ship we_are_vindicator2
+fuse   shofixt: i_am_captain=i_am_captain0 captain i_am_captain1 alliance i_am_captain2 ship i_am_captain3
+fuse   shofixt: look=look0 shofixti_name look1
+fuse   shofixt: report=report0 shofixti_name report1
+fuse   shofixt: why_here=why_here0 shofixti_name why_here1
+fuse   shofixt: bye=bye0 shofixti_name bye1
+fuse   slyhome: we_are_us=we_are_us0 captain we_are_us1 ship we_are_us2
+fuse   spahome: we_are_vindicator=we_are_vindicator0 captain we_are_vindicator1 ship we_are_vindicator2
+fuse   starbas: tell_me_about_modules=tell_me_about_modules0 ship tell_me_about_modules1
+fuse   starbas: tell_me_about_fuel=tell_me_about_fuel0 ship tell_me_about_fuel1
+fuse   supox:   i_am=i_am0 captain i_am1
+fuse   supox:   my_ship=my_ship0 ship my_ship1
+fuse   supox:   from_alliance=from_alliance0 alliance from_alliance1
+fuse   syreen:  we_are_vindicator=we_are_vindicator0 captain we_are_vindicator1 ship we_are_vindicator2
+fuse   talkpet: we_are_vindicator=we_are_vindicator0 ship we_are_vindicator1
+fuse   thradd:  alliance_name=alliance_name alliance
+fuse   umgah:   we_vindicator=we_vindicator0 captain we_vindicator1 ship we_vindicator2
+fuse   utwig:   we_are_vindicator=we_are_vindicator0 captain we_are_vindicator1 alliance we_are_vindicator2
+fuse   yehat:   i_demand_you_ally_homeworld=i_demand_you_ally_homeworld0 captain i_demand_you_ally_homeworld1 alliance i_demand_you_ally_homeworld2 ship i_demand_you_ally_homeworld3
+fuse   yehat:   i_demand_you_ally_space=i_demand_you_ally_space0 captain i_demand_you_ally_space1 ship i_demand_you_ally_space2 alliance i_demand_you_ally_space3
+fuse   zoqfot:  we_are_vindicator=we_are_vindicator0 alliance_possessive we_are_vindicator1 ship we_are_vindicator2
+
+fuse   comandr: OK_THE_NAME_IS_EMPIRE=OK_THE_NAME_IS_EMPIRE0 captain OK_THE_NAME_IS_EMPIRE1
+fuse   druuge:  FUEL=FUEL0 earned_units FUEL1
+fuse   melnorm: SOLD_LIFE_DATA=SOLD_LIFE_DATA1 sell_count SOLD_LIFE_DATA2 earned_units SOLD_LIFE_DATA3
+fuse   melnorm: SOLD_RAINBOW_LOCATIONS=SOLD_RAINBOW_LOCATIONS1 sell_count SOLD_RAINBOW_LOCATIONS2 earned_units SOLD_RAINBOW_LOCATIONS3
+fuse   melnorm: CREDIT_IS=CREDIT_IS0 credits CREDIT_IS1
+fuse   melnorm: NEED_MORE_CREDIT=NEED_MORE_CREDIT0 more_credits NEED_MORE_CREDIT1
+fuse   pkunk:   NOT_CONQUER_1=NOT_CONQUER_10 alliance NOT_CONQUER_11 alliance NOT_CONQUER_12
+fuse   shofixt: GOODBYE=GOODBYE0 captain GOODBYE1
+fuse   shofixt: FRIENDLY_HELLO=FRIENDLY_HELLO0 captain FRIENDLY_HELLO1 ship FRIENDLY_HELLO2
+fuse   shofixt: NOTHING_NEW=NOTHING_NEW0 captain NOTHING_NEW1
+fuse   spahome: JUST_MISUNDERSTANDING=JUST_MISUNDERSTANDING0 captain JUST_MISUNDERSTANDING1
+fuse   starbas: NORMAL_HELLO_A=NORMAL_HELLO_A0 captain NORMAL_HELLO_A1
+fuse   starbas: NORMAL_HELLO_B=NORMAL_HELLO_B0 captain NORMAL_HELLO_B1
+fuse   starbas: NORMAL_HELLO_C=NORMAL_HELLO_C0 captain NORMAL_HELLO_C1
+fuse   starbas: NORMAL_HELLO_D=NORMAL_HELLO_D0 captain NORMAL_HELLO_D1
+fuse   starbas: NORMAL_HELLO_E=NORMAL_HELLO_E0 captain NORMAL_HELLO_E1
+fuse   starbas: NORMAL_HELLO_F=NORMAL_HELLO_F0 captain NORMAL_HELLO_F1
+fuse   starbas: NORMAL_HELLO_G=NORMAL_HELLO_G0 captain NORMAL_HELLO_G1
+fuse   starbas: NORMAL_HELLO_H=NORMAL_HELLO_H0 captain NORMAL_HELLO_H1
+fuse   starbas: NORMAL_GOODBYE_A=NORMAL_GOODBYE_A0 captain NORMAL_GOODBYE_A1
+fuse   starbas: NORMAL_GOODBYE_B=NORMAL_GOODBYE_B0 captain NORMAL_GOODBYE_B1
+fuse   starbas: NORMAL_GOODBYE_C=NORMAL_GOODBYE_C0 captain NORMAL_GOODBYE_C1
+fuse   starbas: NORMAL_GOODBYE_D=NORMAL_GOODBYE_D0 captain NORMAL_GOODBYE_D1
+fuse   starbas: NORMAL_GOODBYE_E=NORMAL_GOODBYE_E0 captain NORMAL_GOODBYE_E1
+fuse   starbas: NORMAL_GOODBYE_F=NORMAL_GOODBYE_F0 captain NORMAL_GOODBYE_F1
+fuse   starbas: NORMAL_GOODBYE_G=NORMAL_GOODBYE_G0 captain NORMAL_GOODBYE_G1
+fuse   starbas: NORMAL_GOODBYE_H=NORMAL_GOODBYE_H0 captain NORMAL_GOODBYE_H1
+fuse   starbas: LIGHT_LOAD_A=LIGHT_LOAD_A0 captain LIGHT_LOAD_A1
+fuse   starbas: LIGHT_LOAD_B=LIGHT_LOAD_B0 captain LIGHT_LOAD_B1
+fuse   starbas: LIGHT_LOAD_C=LIGHT_LOAD_C0 captain LIGHT_LOAD_C1
+fuse   starbas: LIGHT_LOAD_D=LIGHT_LOAD_D0 captain LIGHT_LOAD_D1
+fuse   starbas: LIGHT_LOAD_E=LIGHT_LOAD_E0 captain LIGHT_LOAD_E1
+fuse   starbas: LIGHT_LOAD_F=LIGHT_LOAD_F0 captain LIGHT_LOAD_F1
+fuse   starbas: LIGHT_LOAD_G=LIGHT_LOAD_G0 captain LIGHT_LOAD_G1
+fuse   starbas: MEDIUM_LOAD_A=MEDIUM_LOAD_A0 captain MEDIUM_LOAD_A1
+fuse   starbas: MEDIUM_LOAD_B=MEDIUM_LOAD_B0 captain MEDIUM_LOAD_B1
+fuse   starbas: MEDIUM_LOAD_C=MEDIUM_LOAD_C0 captain MEDIUM_LOAD_C1
+fuse   starbas: MEDIUM_LOAD_D=MEDIUM_LOAD_D0 captain MEDIUM_LOAD_D1
+fuse   starbas: MEDIUM_LOAD_E=MEDIUM_LOAD_E0 captain MEDIUM_LOAD_E1
+fuse   starbas: MEDIUM_LOAD_F=MEDIUM_LOAD_F0 captain MEDIUM_LOAD_F1
+fuse   starbas: MEDIUM_LOAD_G=MEDIUM_LOAD_G0 captain MEDIUM_LOAD_G1
+fuse   starbas: HEAVY_LOAD_A=HEAVY_LOAD_A0 captain HEAVY_LOAD_A1
+fuse   starbas: HEAVY_LOAD_B=HEAVY_LOAD_B0 captain HEAVY_LOAD_B1
+fuse   starbas: HEAVY_LOAD_C=HEAVY_LOAD_C0 captain HEAVY_LOAD_C1
+fuse   starbas: HEAVY_LOAD_D=HEAVY_LOAD_D0 captain HEAVY_LOAD_D1
+fuse   starbas: HEAVY_LOAD_E=HEAVY_LOAD_E0 captain HEAVY_LOAD_E1
+fuse   starbas: HEAVY_LOAD_F=HEAVY_LOAD_F0 captain HEAVY_LOAD_F1
+fuse   starbas: HEAVY_LOAD_G=HEAVY_LOAD_G0 captain HEAVY_LOAD_G1
+fuse   starbas: STARBASE_IS_READY=STARBASE_IS_READY_A ship STARBASE_IS_READY_B ship STARBASE_IS_READY_C
+fuse   starbas: ABOUT_CREW=ABOUT_CREW0 ship ABOUT_CREW1
+fuse   syreen:  WELCOME_VINDICATOR=WELCOME_VINDICATOR0 captain WELCOME_VINDICATOR1 ship WELCOME_VINDICATOR2
+fuse   syreen:  MORE_COMFORTABLE=MORE_COMFORTABLE0 captain MORE_COMFORTABLE1
+fuse   syreen:  THIS_HAPPENS=THIS_HAPPENS0 captain THIS_HAPPENS1
+fuse   thradd:  WELCOME_SPACE=WELCOME_SPACE0 culture_20 WELCOME_SPACE1
+fuse   thradd:  WELCOME_HOMEWORLD=WELCOME_HOMEWORLD0 culture_20 WELCOME_HOMEWORLD1
+fuse   thradd:  SLAVE_EMPIRE=SLAVE_EMPIRE captain
+
+pretag melnorm: LANDERS landers
+pretag melnorm: THRUSTERS thrusters
+pretag melnorm: JETS jets
+pretag melnorm: PODS pods
+pretag melnorm: BAYS bays
+pretag melnorm: DYNAMOS dynamos
+pretag melnorm: FURNACES furnaces
+pretag melnorm: GUNS guns
+pretag melnorm: BLASTERS blasters
+pretag melnorm: CANNONS cannons
+pretag melnorm: TRACKERS trackers
+pretag melnorm: DEFENSES defenses
+
+add    starbas: NORMAL_HELLO_A NORMAL_HELLO_TAIL
+add    starbas: NORMAL_HELLO_B NORMAL_HELLO_TAIL
+add    starbas: NORMAL_HELLO_C NORMAL_HELLO_TAIL
+add    starbas: NORMAL_HELLO_D NORMAL_HELLO_TAIL
+add    starbas: NORMAL_HELLO_E NORMAL_HELLO_TAIL
+add    starbas: NORMAL_HELLO_F NORMAL_HELLO_TAIL
+add    starbas: NORMAL_HELLO_G NORMAL_HELLO_TAIL
+add    starbas: NORMAL_HELLO_H NORMAL_HELLO_TAIL
+add    thradd:  OK_SLAVE SLAVE_EMPIRE
+add    thradd:  the_slave_empire SLAVE_EMPIRE
+
+delete melnorm: name_1 name_2 name_3 name_40 name_41
+delete pkunk:   name_1 name_2 name_3 name_40 name_41
+delete shofixt: name_1 name_2 name_3 name_40 name_41
+delete starbas: NORMAL_HELLO_TAIL
+delete supox:   name_1 name_2 name_3 name_40 name_41
+delete thradd:  name_1 name_2 name_3 name_40 name_41
