@@ -24,13 +24,13 @@ main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	in = fopen(argv[1], "r");
+	in = fopen(argv[1], "rb");
 	if (!in) {
 		perror("Could not open input file");
 		return EXIT_FAILURE;
 	}
 
-	out = fopen(argv[2], "w");
+	out = fopen(argv[2], "wb");
 	if (!out) {
 		perror("Could not open output file");
 		return EXIT_FAILURE;
@@ -95,6 +95,7 @@ convert_abx(FILE *in, FILE *out) {
 	uncoded = malloc(sizeof (uint8_t *) * abx.num_frames);
 	for (i = 0; i < abx.num_frames; i++) {
 		frames[i] = malloc(frame_info[i].fsize);
+		fseek(in, frame_info[i].addr, SEEK_SET);
 		read_data(frames[i], frame_info[i].fsize, in);
 
 #if 0
