@@ -1,0 +1,13 @@
+Scriptcheck, v0.1
+
+This is a simple Python (v.2 and up) script to look for unusual
+properties in the conversation files.  It looks for spaces at the
+beginnings and ends of lines where this would suppress "..." creation
+(see docs/SCRIPT for more details on this) and compares the
+identifiers named in the .txt file with the values of the enums in the
+corresponding strings.h files.
+
+Run it from this directory or it won't be able to find the necessary
+.txt and .h files.
+
+v0.1, 15 Oct 2002: Initial release (Michael Martin)
