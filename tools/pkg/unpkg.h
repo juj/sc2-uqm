@@ -19,12 +19,17 @@ typedef unsigned int uint32;
 #define GET_PACKAGE(res) \
 		((uint16)((res) >> (TYPE_BITS + INSTANCE_BITS)) & \
 		((1 << PACKAGE_BITS) - 1))
-
+#define MAKE_RESOURCE(p,t,i) \
+		(((uint32)(p) << (TYPE_BITS + INSTANCE_BITS)) | \
+		((uint32)(i) << TYPE_BITS) | \
+		((uint32)(t)))
 
 typedef struct {
 	uint8 type;
 	uint16 first_instance;  // only low 13 bits used
 	uint16 num_instances;  // only low 11 bits used
+	uint32 *sizes;  // only low 18 bits used, multiple of 4
+	uint32 *offsets;
 } packtype_desc;
 
 typedef struct {
