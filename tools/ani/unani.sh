@@ -31,13 +31,16 @@ processone() {
 	if [ "$DIR" != "$FILE" -a ! -d "${OUTDIR}${DIR}" ]; then
 		mkdir -p -- "${OUTDIR}${DIR}"
 	fi
+	if [ "$DIR" = "$FILE" ]; then
+		DIR=""
+	fi
 	PREFIX="${FILE##*/}"
 	PREFIX="${PREFIX%.*}"
 	EXT="${FILE##*.}"
 	echo "$EXT" "$PREFIX"
 	if [ "$EXT" = "ani" ]; then
 		"$UNANI" -c "$INDIR"lbm/scclrtab.ct -o "$OUTDIR$DIR" "$INDIR$FILE"
-		"$UNANI" -a "$INDIR$FILE" > "$OUTDIR$FILE"
+		"$UNANI" -bta "$INDIR$FILE" > "$OUTDIR$FILE"
 	else
 		"$UNANI" -c "$INDIR"lbm/scclrtab.ct -n "$PREFIX.$EXT" \
 				-o "$OUTDIR$DIR" "$INDIR$FILE"
