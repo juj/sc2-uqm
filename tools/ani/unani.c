@@ -35,6 +35,8 @@ struct options {
 	int num_palettefiles;
 	char **palettefiles;
 	char font;
+	char blacktrns;
+	char truecolor;
 };
 
 int max_palettes;
@@ -43,7 +45,7 @@ png_color palettes[256][256];
 index_header *readIndex(const uint8 *buf, int isfont);
 void printIndex(const index_header *h, const uint8 *buf, FILE *out);
 void generateAni(const index_header *h, const uint8 *buf, const char *prefix,
-		FILE *out);
+		char blacktrns, char truecolor, FILE *out);
 int findTransparentColourPacked(const char *name, const frame_desc *f,
 		const uint8 *data);
 void writeFiles(const index_header *h, const uint8 *data, const char *path,
@@ -118,7 +120,7 @@ main(int argc, char *argv[]) {
 		prefix = opts.prefix;
 
 	if (opts.makeani) {
-		generateAni(h, buf, prefix, stdout);
+		generateAni(h, buf, prefix, opts.blacktrns, opts.truecolor, stdout);
 	}
 	
 	if (!opts.print && !opts.list && !opts.makeani) {
@@ -155,9 +157,15 @@ main(int argc, char *argv[]) {
 void
 usage() {
 	fprintf(stderr,
-			"unani -a [-f] <infile>\n"
+			"unani -a [-f] [-b] [-t] <infile>\n"
 			"unani -p [-f] <infile>\n"
-			"unani [-f] [-c <clutfile>] [-o <outdir>] [-n <prefix>] <infile>\n");
+			"unani [-f] [-b] [-t] [-c <clutfile>] [-o <outdir>] [-n <prefix>] <infile>\n"
+			"Options:\n"
+			"\t-c  use <clutfile> when converting (can use more than one)\n"
+			"\t-f  <infile> is a font file\n"
+			"\t-b  assume black (RGB 0,0,0) is transparent in .cel files\n"
+			"\t-t  assume .cel files are truecolor, and so do not use cluts\n"
+	);
 }
 
 void
@@ -166,7 +174,7 @@ parse_arguments(int argc, char *argv[], struct options *opts) {
 	
 	memset(opts, '\0', sizeof (struct options));
 	while (1) {
-		ch = getopt(argc, argv, "ac:hln:o:pfv");
+		ch = getopt(argc, argv, "ac:hln:o:pfbtv");
 		if (ch == -1)
 			break;
 		switch(ch) {
@@ -193,6 +201,12 @@ parse_arguments(int argc, char *argv[], struct options *opts) {
 				break;
 			case 'f':
 				opts->font = 1;
+				break;
+			case 'b':
+				opts->blacktrns = 1;
+				break;
+			case 't':
+				opts->truecolor = 1;
 				break;
 			case 'v':
 				opts->verbose = 1;
@@ -321,7 +335,7 @@ listFrames(const index_header *h, const uint8 *buf, FILE *out) {
 
 void
 generateAni(const index_header *h, const uint8 *buf, const char *prefix,
-		FILE *out) {
+		char blacktrns, char truecolor, FILE *out) {
 	int i;
 	int transparentPixel;
 	
@@ -331,19 +345,25 @@ generateAni(const index_header *h, const uint8 *buf, const char *prefix,
 			sprintf(tempbuf, "frame %d", i);
 			transparentPixel = findTransparentColourPacked(tempbuf,
 					&h->frames[i], h->frames[i].start);
-		} else
+		} else if (blacktrns && (h->frames[i].flags & FLAG_DATA_HARDWARE))
+			transparentPixel = 0;
+		else
 			transparentPixel = -1;
+
 		fprintf(out, "%s.%d.%s %d %d %d %d\n",
-				prefix, h->frames[i].index,
+				prefix, (int)h->frames[i].index,
 				(h->frames[i].flags & FLAG_DATA_HARDWARE) ? "png" :
 				(h->frames[i].flags & FLAG_DATA_PACKED) ? "png" : "???",
-				transparentPixel, h->frames[i].plut,
-#if 1
+				transparentPixel,
+				(truecolor && (h->frames[i].flags & FLAG_DATA_HARDWARE)) ? -1 :
+				(int)h->frames[i].plut,
+/* from comparing 3DO and DOS content: X_FLIP does not apply to hotspots */
+#if 0
 				(h->frames[i].flags & FLAG_X_FLIP) ?
-				h->frames[i].bounds.w - h->frames[i].hotspot.x /* - 1 */:
+				(int)h->frames[i].bounds.w - h->frames[i].hotspot.x /* - 1 */:
 #endif
-				h->frames[i].hotspot.x,
-				h->frames[i].hotspot.y);
+				(int)h->frames[i].hotspot.x,
+				(int)h->frames[i].hotspot.y);
 #if 0
 		fprintf(out, "%s.%d.%s %d %d %d %d %d %d %d %d\n",
 				prefix, h->frames[i].index,
