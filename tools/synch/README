@@ -1,22 +1,25 @@
 Ur-Quan Masters Voice-over synchronization tool
 
-For Windows:
-	Unpack into any directory.
-	From a DOS prompt, execute Synchronizer.exx from within the UQM content
-	directory it will write out files into content/timestamp/race
-	When you are done, archive them, and send to:
-		tcpaiqgvnmbf28f001@sneakemail.com
-
-To use, select the files you want to play, and  hit start.
-hitting 'n' is the same as 'Next Screen', and 'p' will pause/unpause.
-
-Hitting 'space' or 'enter' may have adverse effects, so don't
-
-For Linux:
-	The code can be compiled with:
-		gcc synch.cpp synchronizer.cpp audioSDL.cpp audio.cpp -o synch -DUSE_SDLAUDIO=1 -lfltk -lvorbisfile -lvorbis `sdl-config --cflags --libs`
+To Build:
+	The code can be compiled with the provided Makefile, Windows
+	users can build it by installing Cygwin or MinGW and using
+	the build tools provided. (or by rolling their own Visual Studio
+	project file, if they have MSVC++, which I don't)
 
 	You'll need fltk (1.1.x), oggvorbis, and SDL development libraries 
-installed.
+	installed.
 
-If you have any questions or issues, please send them to the e-mail above
+To Use:
+	Place the executable in the UQM content directory and run it.
+	Select the files you want to play, and hit start.
+	Hitting 'n' is the same as 'Next Screen', and 'p' will pause/unpause.
+
+	Hitting 'space' or 'enter' may have adverse effects, so don't  ;)
+
+	The program will write out intermediate files into
+	content/timestamp/[race]
+
+	Once finished, use the merge_ts_files.pl script (requires
+	Perl) to convert the intermediate files into .ts files that
+	the game uses, and submit the new files to the project via
+	Bugzilla (http://uqm.stack.nl/cgi-bin/bugs/index.cgi)

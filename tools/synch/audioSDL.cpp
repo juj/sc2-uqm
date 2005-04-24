@@ -23,7 +23,11 @@
 #if (USE_SDLAUDIO == 1)
 char AUDIO_TYPE[] = "SDL";
 
-#include <SDL.h> 
+#ifdef __APPLE__
+#  include <SDL/SDL.h> 
+#else
+#  include <SDL.h> 
+#endif
 #include <stdlib.h> 
 #include <string.h> 
 #include <math.h> 
