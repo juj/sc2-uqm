@@ -24,20 +24,20 @@
 char AUDIO_TYPE[] = "SDL";
 
 #ifdef __APPLE__
-#  include <SDL/SDL.h> 
+#  include <SDL/SDL.h>
 #else
-#  include <SDL.h> 
+#  include <SDL.h>
 #endif
-#include <stdlib.h> 
-#include <string.h> 
-#include <math.h> 
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 #include "audio.h"
- 
-/* doesn't Win32 have M_PI? */ 
-#ifndef M_PI 
-#define M_PI 3.14159265358979323846 
-#endif 
+
+/* doesn't Win32 have M_PI? */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 typedef struct {
 	SDL_AudioSpec spec;
@@ -46,31 +46,36 @@ typedef struct {
 	unsigned long data_pos;
 } WAVESTRUCT;
 
- 
-void fill_audio(void *u, Uint8 *stream, int len); 
+
+void fill_audio(void *u, Uint8 *stream, int len);
 
 unsigned long clocks_per_sec = 1000;
-unsigned long get_clock()
+
+unsigned long
+get_clock()
 {
 	return (SDL_GetTicks());
 }
 
-void init_sound ()
+void
+init_sound ()
 {
-        if(SDL_Init(SDL_INIT_AUDIO) < 0) { 
-                fprintf(stderr,"could not initialize SDL audio\n"); 
-                exit(-1); 
-        }
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		fprintf(stderr,"could not initialize SDL audio\n");
+		exit(-1);
+	}
 }
-WAVESTRUCT *play_sound(AUDIOHDR *audiohdr)
-{ 
-        WAVESTRUCT *WaveData = new WAVESTRUCT;
+
+WAVESTRUCT *
+play_sound(AUDIOHDR *audiohdr)
+{
+	WAVESTRUCT *WaveData = new WAVESTRUCT;
 /*
-        WaveData->spec.freq = 22050;
-        WaveData->spec.format = AUDIO_S16;
-        WaveData->spec.channels = 2;
-        WaveData->spec.samples = 1024;
-        WaveData->spec.callback = fill_audio;
+	WaveData->spec.freq = 22050;
+	WaveData->spec.format = AUDIO_S16;
+	WaveData->spec.channels = 2;
+	WaveData->spec.samples = 1024;
+	WaveData->spec.callback = fill_audio;
 */
 	WaveData->spec.freq = audiohdr->samp_freq;
 	WaveData->spec.format = AUDIO_S16;
@@ -81,34 +86,38 @@ WAVESTRUCT *play_sound(AUDIOHDR *audiohdr)
 	WaveData->data = audiohdr->data;
 	WaveData->data_len = audiohdr->data_len;
 	WaveData->data_pos = 0;
-        if(SDL_OpenAudio(&WaveData->spec, NULL) < 0) { 
-                fprintf(stderr,"could not open SDL audio\n"); 
-                exit(-1); 
-        } 
-        SDL_PauseAudio(0);
+	if(SDL_OpenAudio(&WaveData->spec, NULL) < 0) {
+		fprintf(stderr,"could not open SDL audio\n");
+		exit(-1);
+	}
+	SDL_PauseAudio(0);
 	return (WaveData);
 }
 
-void pause_sound(WAVESTRUCT *WaveData)
+void
+pause_sound(WAVESTRUCT *WaveData)
 {
 	if (WaveData)
 		SDL_PauseAudio(1);
 }
 
-void unpause_sound (WAVESTRUCT *WaveData)
+void
+unpause_sound (WAVESTRUCT *WaveData)
 {
 	if (WaveData)
 		SDL_PauseAudio(0);
 }
 
-void reset_sound (WAVESTRUCT *WaveData)
+void
+reset_sound (WAVESTRUCT *WaveData)
 {
 	if (WaveData) {
-	        SDL_CloseAudio();
+		SDL_CloseAudio();
 		delete WaveData->data;
 		delete WaveData;
 	}
-} 
+}
+
 /*
 void fill_audio (void *u, Uint8 *stream, int len)
 {
@@ -118,7 +127,7 @@ void fill_audio (void *u, Uint8 *stream, int len)
 
         printf("%p is %d\n", u, *(int*)u);
         factor = Frequency / 22050.0 * 2.0 * M_PI;
-        l = len * sizeof *stream / sizeof *b; // yuck 
+        l = len * sizeof *stream / sizeof *b; // yuck
         b = (Sint16 *)malloc(l * sizeof *b);
         for(i = 0; i < l / 2; i++, Offset++) {
                 double v = cos(Offset * factor);
@@ -128,11 +137,12 @@ void fill_audio (void *u, Uint8 *stream, int len)
         free(b);
 }
 */
- 
-void fill_audio (void *u, Uint8 *stream, int len) 
-{ 
-        Sint16 *b; 
-        int l, i; 
+
+void
+fill_audio (void *u, Uint8 *stream, int len)
+{
+	Sint16 *b;
+	int l, i;
 	long amt_left;
 	WAVESTRUCT *WaveData = (WAVESTRUCT *)u;
 
@@ -141,6 +151,7 @@ void fill_audio (void *u, Uint8 *stream, int len)
 		amt_left = len;
 	memcpy(stream, WaveData->data + WaveData->data_pos, amt_left);
 	WaveData->data_pos += amt_left;
-} 
- 
+}
+
 #endif
+
