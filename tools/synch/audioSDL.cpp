@@ -141,8 +141,6 @@ void fill_audio (void *u, Uint8 *stream, int len)
 void
 fill_audio (void *u, Uint8 *stream, int len)
 {
-	Sint16 *b;
-	int l, i;
 	long amt_left;
 	WAVESTRUCT *WaveData = (WAVESTRUCT *)u;
 

@@ -28,12 +28,14 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #ifdef WIN32
-#include <io.h>
-#include <direct.h>
-#define MKDIR mkdir
+#	include <io.h>
+#	include <direct.h>
+#	define MKDIR mkdir
+#	define PATH_MAX _MAX_PATH
 #else
-#include <unistd.h>
-#define MKDIR(dir) mkdir((dir), 0777)
+#	include <unistd.h>
+#	define MKDIR(dir) mkdir((dir), 0777)
+#	include <limits.h>
 #endif
 
 #ifdef __linux__
@@ -194,8 +196,6 @@ void StartPlayback ()
 	}
 	if (trackxtra->tracknum)
 	{
-		char *block;/* pointer to the block */
-		unsigned long blockSize;/* holds the size of the block */
 		char buf[80];
 		AUDIOHDR audiohdr;
 		trackxtra->paused = 0;
@@ -245,7 +245,7 @@ void SaveTimestamps()
 	sprintf (buf, "%s/%s.ts",savepath, buf1);
 	fh = fopen(buf,"w");
 	fprintf(fh,"Version: %s-%s-%s\n",SYNC_VER, SYNC_EXTRA_VER, AUDIO_TYPE);
-	fprintf(fh,"Checksum: %lu\n",curtrack->chksum);
+	fprintf(fh,"Checksum: %lu\n", curtrack->chksum);
 	curclip = curtrack->clip;
 	while (curclip != NULL) {
 		fprintf(fh,"%8.3f\n",(double)(curclip->time)/clocks_per_sec);
@@ -258,13 +258,13 @@ void SaveTimestamps()
 void NextFrame ()
 {
 	unsigned long curtime;
-	if  (! trackxtra->tracknum || trackxtra->paused)
+	if (!trackxtra->tracknum || trackxtra->paused)
 		return;
 	if (playing_clip->Next == NULL)
 		StartPlayback();
 	else {
 		curtime = get_clock();
-		printf ("Frame time: %d\n",curtime-trackxtra->time);
+		printf ("Frame time: %lu\n",curtime-trackxtra->time);
 		playing_clip = playing_clip->Next;
 		playing_clip->time = curtime-trackxtra->time;
 		synch->TextScreen->value(playing_clip->str);
@@ -275,31 +275,33 @@ void NextFrame ()
 		
 }
 
-void wrapstr (char *dst, char *src)
+void
+wrapstr (char *dst, const char *src)
 {
-	int i,j,last=0;
-	for (i = 0; i < strlen (src); i++) {
+	size_t i,j,last=0;
+	size_t src_len = strlen(src);
+	for (i = 0; i < src_len; i++) {
 		*dst++ = src[i];
 		if (i == last) {
-			if (i != 0) {
+			if (i != 0)
 				*dst++ = '\n';
-			}
-			last = strlen(src);
-			for (j=i+1; j < strlen (src); j++) {
+
+			last = src_len;
+			for (j=i+1; j < src_len; j++) {
 				if (j -i > WRAP_LEN)
 					break;
-				if (src[j] == ' ') {
+				if (src[j] == ' ')
 					last = j;
-				}
 			}
-			if (j == strlen (src))
+			if (j == src_len)
 				last = j;
 		}
 	}
 	*dst = 0;
 }
 
-void PauseFrame ()
+void
+PauseFrame ()
 {
 	unsigned long curtime;
 	if(trackxtra->paused)
@@ -311,10 +313,11 @@ void PauseFrame ()
 	trackxtra->paused = ! trackxtra->paused;
 }
 
-void GetTracks (int value)
+void
+GetTracks (int value)
 {
 	const char *race;
-	char buf[80];
+	char speechFileName[PATH_MAX];
 	char str[MAX_LEN];
 	int i = 0, read_data = 0;
 	CLIPTXTDATA *curclip;
@@ -322,21 +325,18 @@ void GetTracks (int value)
 
 	race = races[value - 1];
 	CleanUp();
-	sprintf (path, "comm/%s",race);
-	sprintf (buf, "%s/%s.txt",path, race);
-	fh = fopen (buf, "r");
+	sprintf (path, "comm/%s", race);
+	sprintf (speechFileName, "%s/%s.txt", path, race);
+	fh = fopen (speechFileName, "r");
 	if (!fh) {
-		char buf1[100];
-		sprintf (buf1, "Could not find %s!",buf);
-		fl_alert (buf1);
+		fl_alert ("Could not find %s!", speechFileName);
 		return;
 	}
-	char tmp[80];
 	MKDIR ("timestamp");
 	sprintf(savepath,"timestamp/%s",race);
 	MKDIR (savepath);
 	synch->TrackSelector->clear ();
-	while (fgets(str,512,fh))
+	while (fgets(str, 512, fh))
 	{
 		str[strlen (str) - 1] = 0;
 		if(str[0] == '#')
@@ -344,7 +344,8 @@ void GetTracks (int value)
 			char *tmp;
 			read_data = 0;
 			tmp = strtok (str, "\t ");
-			if ((tmp = strtok (NULL, "\t ")) != NULL)
+			tmp = strtok (NULL, "\t ");
+			if (tmp != NULL)
 			{
 #ifdef SKIP_SINGLE_LINES
 				if (i && racedata[i-1]->num_lines < 2) {
@@ -353,8 +354,8 @@ void GetTracks (int value)
 				}
 #endif
 				if (i && ! racedata[i-1]->tracktime) {
-					char buf[80];
-					sprintf(buf,"%s/%s",path, racedata[i-1]->filename);
+					char buf[PATH_MAX];
+					sprintf(buf,"%s/%s", path, racedata[i-1]->filename);
 					racedata[i-1]->tracktime = get_ogg_runtime(buf);
 					synch->TrackSelector->add (racedata[i-1]->filename);
 					if (! racedata[i-1]->tracktime) {
@@ -364,12 +365,13 @@ void GetTracks (int value)
 				}
 				i++;
 				racedata[i-1] = new FILEDATA;
-				strcpy (racedata[i-1]->filename, tmp);
+				strncpy (racedata[i-1]->filename, tmp, PATH_MAX);
+				racedata[i-1]->filename[PATH_MAX - 1] = '\0';
 				curclip = NULL;
 				read_data = 1;
 			}
 		}
-		else if (read_data && strlen (str))
+		else if (read_data && str[0] != '\0')
 		{
 			if (racedata[i-1]->clip == NULL) {
 				racedata[i-1]->clip = new CLIPTXTDATA;
@@ -393,7 +395,7 @@ void GetTracks (int value)
 	}
 #endif
 	if (i && ! racedata[i-1]->tracktime) {
-		char buf[80];
+		char buf[PATH_MAX];
 		sprintf(buf,"%s/%s",path, racedata[i-1]->filename);
 		racedata[i-1]->tracktime = get_ogg_runtime(buf);
 		synch->TrackSelector->add (racedata[i-1]->filename);
@@ -402,30 +404,29 @@ void GetTracks (int value)
 }
 
 unsigned long
-get_ogg_runtime (char *filename) {
+get_ogg_runtime (const char *filename) {
 	OggVorbis_File vf;
-	vorbis_info *vi;
-	FILE  *fh;
+	FILE *fh;
 	unsigned long runtime;
 	double rt;
 	fh = fopen(filename, "rb");
 	if (fh == NULL)
 		return (0);
-	if(ov_open(fh, &vf, NULL, 0) < 0)
+	if (ov_open(fh, &vf, NULL, 0) < 0)
 		return (0);
 	rt = ov_time_total(&vf, -1);
 	runtime = (unsigned long)(rt + 0.5);
 	ov_clear(&vf);
 	fclose(fh);
-	printf("%s : %lu (%f)\n",filename, runtime, rt);
+	printf("%s : %lu (%f)\n", filename, runtime, rt);
 	return(runtime);
 }
-int 
-read_ogg (char *filename,  AUDIOHDR *audiohdr) {
+
+int
+read_ogg (const char *filename,  AUDIOHDR *audiohdr) {
 	OggVorbis_File vf;
 	vorbis_info *vi;
 	FILE  *fh;
-	char *wav;
 	int current_section;
 
 	fh = fopen(filename, "rb");
@@ -433,31 +434,34 @@ read_ogg (char *filename,  AUDIOHDR *audiohdr) {
 		fprintf (stderr, "Couldn't find file: %s\n", filename);
 		return (1);
 	}
-	if(ov_open(fh, &vf, NULL, 0) < 0) {
+	if (ov_open(fh, &vf, NULL, 0) < 0) {
 		fprintf(stderr,"Input does not appear to be an Ogg bitstream.\n");
 		return (1);
 	}
-	vi=ov_info(&vf,-1);
+	vi = ov_info(&vf,-1);
 	audiohdr->samp_freq = vi->rate;
 	audiohdr->channels = vi->channels;
 	audiohdr->bits_per_sample = 16;
 	{
-		const unsigned int extra=10000;
-		unsigned int numsamples = extra+(unsigned int)ov_pcm_total(&vf,0);
-		unsigned int numbytes = numsamples*vi->channels*2; // 16bit output wav
+		const unsigned int extra = 10000;
+		unsigned int numsamples = extra + (unsigned int)ov_pcm_total(&vf,0);
+		unsigned int numbytes = numsamples * vi->channels * 2;
+				// 16bit output wav
 		char *wavptr;
-		int eof  = 0;
+		int eof = 0;
 		unsigned long readbytes = 0;
 		audiohdr->data = new char[numbytes];
 		wavptr = audiohdr->data;
 		while(!eof){
-			long ret=ov_read(&vf,wavptr,numbytes-readbytes,0,2,1,&current_section);
+			long ret = ov_read(&vf, wavptr, numbytes - readbytes,
+					0, 2, 1, &current_section);
 			if (ret == 0) {
-				eof=1;
+				eof = 1;
 			} else if (ret > 0) {
 				readbytes += ret;
 				wavptr += ret;
 			}
+			// XXX - What if ret < 0 - SvdB
 		}
 		audiohdr->data_len = readbytes;
 	}
@@ -466,15 +470,19 @@ read_ogg (char *filename,  AUDIOHDR *audiohdr) {
 	return (0);
 }
 
-unsigned long checksum(char *filename)
+unsigned long
+checksum(const char *filename)
 {
 	int fh;
-	unsigned long chk= 0, buf = 0;
+	unsigned long chk = 0, buf = 0;
 	fh = open(filename,O_RDONLY);
 	if (fh == -1)
 		return 0;
-	while (read (fh,&buf,sizeof(buf)) > 0 )
+	while (read(fh, &buf, sizeof(buf)) > 0)
+			// XXX Not endianness-safe - SvdB
 		chk = ((chk << 1) | (chk >> 31)) ^ buf;
 	close(fh);
 	return (chk);
 }
+
+

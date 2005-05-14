@@ -17,6 +17,13 @@ endif
 CFLAGS  += -DUSE_SDLAUDIO=1 $(shell fltk-config --cxxflags)
 LDFLAGS += $(shell fltk-config --ldflags)
 
+CFLAGS += -W -Wall \
+                -Wwrite-strings -Wimplicit -Wreturn-type -Wformat \
+                -Wswitch -Wcomment -Wchar-subscripts \
+                -Wparentheses -Wcast-align -Waggregate-return \
+                -Winline
+#		-Wcast-qual
+
 # MacOS X apps need to have a resource fork applied, else the window
 # manager will refuse to manage them (which makes the app very
 # difficult to use)  This rule should be ignored by all non-Mac

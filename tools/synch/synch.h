@@ -44,7 +44,7 @@ typedef struct CLIPTXTDATA {
 } CLIPTXTDATA;
 
 typedef struct FILEDATA {
-	char filename[20];
+	char filename[PATH_MAX];
 	int num_lines;
 	long chksum;
 	unsigned long tracktime;
@@ -76,9 +76,9 @@ typedef struct XTRATRACKDATA {
 	}
 } XTRATRACKDATA;
 
-int read_ogg (char *filename,  AUDIOHDR *audiohdr);
-unsigned long get_ogg_runtime (char *filename);
-unsigned long checksum(char *filename);
+int read_ogg (const char *filename,  AUDIOHDR *audiohdr);
+unsigned long get_ogg_runtime (const char *filename);
+unsigned long checksum(const char *filename);
 
 
 unsigned long get_clock();
