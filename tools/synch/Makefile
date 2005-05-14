@@ -6,12 +6,12 @@ TARGET = synch
 # For MacOS X: SDL, Ogg and Vorbis are provided as frameworks,
 # which require different flags than unix-style shared libs
 ifeq ($(shell uname), Darwin)
-    CFLAGS  = -D__MACOSX__
-    LDFLAGS = -framework Ogg -framework Vorbis -framework SDL \
+    CFLAGS  += -D__MACOSX__
+    LDFLAGS += -framework Ogg -framework Vorbis -framework SDL \
               -framework Cocoa
 else
-    CFLAGS  = $(shell sdl-config --cflags)
-    LDFLAGS = -lvorbisfile -lvorbis $(shell sdl-config --libs)
+    CFLAGS  += $(shell sdl-config --cflags)
+    LDFLAGS += -lvorbisfile -lvorbis $(shell sdl-config --libs)
 endif
 
 CFLAGS  += -DUSE_SDLAUDIO=1 $(shell fltk-config --cxxflags)
