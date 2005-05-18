@@ -1,0 +1,83 @@
+#!/bin/sh
+# Script for building uqm packages.
+# Copyright Serge van den Boom (svdb@stack.nl)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+VERSION=0.4.0
+
+LIST_DIR=/home/uqm/var/uqmzip
+PKG_DIR=/home/uqm/var/uqmzip
+SOURCE_DIR=/home/uqm/cvs/sc2
+CONTENT_DIR=$SOURCE_DIR/content
+
+CONTENT_LIST=$LIST_DIR/uqm-$VERSION-content.lst
+VOICE_LIST=$LIST_DIR/uqm-$VERSION-voice.lst
+MUSIC_LIST=$LIST_DIR/uqm-$VERSION-3domusic.lst
+
+CONTENT_PKG=$PKG_DIR/uqm-$VERSION-content.uqm
+VOICE_PKG=$PKG_DIR/uqm-$VERSION-voice.uqm
+MUSIC_PKG=$PKG_DIR/uqm-$VERSION-3domusic.uqm
+
+ZIP="zip -X -q -n .ogg -8"
+
+make_content_list() {
+	cd "$CONTENT_DIR"
+	find . -type f -not -path '*/CVS*' -and -not -name "*.ogg" | sort > "$CONTENT_LIST"
+}
+
+make_voice_list() {
+	cd "$CONTENT_DIR"
+	find . -type f -name '*[0-9][0-9][0-9].ogg' | sort > "$VOICE_LIST"
+}
+
+make_3domusic_list() {
+	cd "$CONTENT_DIR"
+	find . -type f -name "*.ogg" -and -not -name '*[0-9][0-9][0-9].ogg' | sort > "$MUSIC_LIST"
+}
+
+make_content_pkg() {
+	cd "$CONTENT_DIR"
+	rm -f -- "$CONTENT_PKG"
+	$ZIP "$CONTENT_PKG" -r . -i@"$CONTENT_LIST"
+}
+
+make_voice_pkg() {
+	cd "$CONTENT_DIR"
+	rm -f -- "$VOICE_PKG"
+	$ZIP "$VOICE_PKG" -r . -i@"$VOICE_LIST"
+}
+
+make_3domusic_pkg() {
+	cd "$CONTENT_DIR"
+	rm -f -- "$MUSIC_PKG"
+	$ZIP "$MUSIC_PKG" -r . -i@"$MUSIC_LIST"
+}
+
+
+umask 022
+chmod go+rX "$SOURCE_DIR"
+find "$CONTENT_DIR" -type f -print0 | xargs -0 chmod 644
+find "$CONTENT_DIR" -type d -print0 | xargs -0 chmod 755
+
+make_content_list
+make_voice_list
+make_3domusic_list
+
+make_content_pkg
+make_voice_pkg
+make_3domusic_pkg
+
