@@ -2,6 +2,8 @@
  * DOS .fnt file extractor
  * By Alex Volkov (codepro@usa.net), 20050207
  *
+ * Based on code by Serge van den Boom (svdb@stack.nl)
+ *
  * The GPL applies (to this file).
  *
  */
