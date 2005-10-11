@@ -14,7 +14,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* This file contains two versions of LoadDirEntryTable; one for Windows, and
+/* This file contains two versions of make_file_list(); one for Windows, and
  * one for other systems (POSIX).
  */
 #ifdef WIN32
