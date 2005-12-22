@@ -1,8 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ $# -gt 1 ]; then
 	echo "Syntax: ctmap.sh [indir] |sort [>map-file]"
-	echo "Creates a map of colormaps used by various images"
 	echo "Creates a map of colormaps used by various images"
 	exit 1
 elif [ $# -ne 1 ]; then

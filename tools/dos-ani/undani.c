@@ -126,6 +126,27 @@ typedef struct
 
 #define PAL_COLORS	0x100 
 
+// Palette types
+typedef uint8_t channel_t;
+
+typedef struct
+{
+	channel_t r, g, b;
+} color_t;
+
+typedef struct
+{
+	uint8_t first;
+	uint8_t last;
+	union
+	{
+		color_t colors[1];
+		channel_t chans[3];
+	} pal;
+} colormap_t;
+
+#define DOS_SIG_BITS 6
+
 #if defined(_MSC_VER)
 #	pragma pack(pop)
 #endif
@@ -162,6 +183,8 @@ void listFrames(const index_header_t* h, FILE *out);
 int loadPalette(const char *filename);
 int decompressFrames(const index_header_t *);
 int cropFrames(const index_header_t *);
+
+inline channel_t conv_chan(uint8_t c);
 
 inline uint16_t get_16_le(uint16_t* val);
 inline uint32_t get_32_le(uint32_t* val);
@@ -1328,7 +1351,9 @@ int loadPalette(const char *filename)
 {
 	FILE* in;
 	size_t inlen;
-	uint8_t *buf, *clr;
+	uint8_t *buf;
+	colormap_t* map;
+	color_t* clr;
 	int i;
 
 	in = fopen(filename, "rb");
@@ -1358,14 +1383,16 @@ int loadPalette(const char *filename)
 	}
 	fclose(in);
 
+	map = (colormap_t*)buf;
+
 	verbose(2, "%s contains %d palette entries\n",
 			filename, (int)buf[1] - buf[0] + 1);
 	
-	for (i = buf[0], clr = buf + 2; i <= (int)buf[1]; ++i, clr += 3)
+	for (i = map->first, clr = map->pal.colors; i <= (int)map->last; ++i, ++clr)
 	{
-		palette[i].red   = clr[0] << 2;
-		palette[i].green = clr[1] << 2;
-		palette[i].blue  = clr[2] << 2;
+		palette[i].red   = conv_chan(clr->r);
+		palette[i].green = conv_chan(clr->g);
+		palette[i].blue  = conv_chan(clr->b);
 	}
 
 	free(buf);
@@ -1373,12 +1400,17 @@ int loadPalette(const char *filename)
 	return 0;
 }
 
+inline channel_t conv_chan(uint8_t c)
+{	// this uniformly distributes the lower 'unknown' bits
+	return (c << (8 - DOS_SIG_BITS)) | (c >> (DOS_SIG_BITS - (8 - DOS_SIG_BITS)));
+}
+
 inline uint16_t get_16_le(uint16_t* val)
 {
-	return (uint16_t)(((uint8_t*)val)[1]) << 8 | ((uint8_t*)val)[0];
+	return (uint16_t)(((uint8_t*)val)[1] << 8) | ((uint8_t*)val)[0];
 }
 
 inline uint32_t get_32_le(uint32_t* val)
 {
-	return (uint32_t)(((uint16_t*)val)[1]) << 16 | ((uint16_t*)val)[0];
+	return (uint32_t)(get_16_le((uint16_t*)val + 1) << 16) | get_16_le((uint16_t*)val);
 }
