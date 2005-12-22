@@ -40,6 +40,7 @@ struct options
 	char *maskfile;
 	int maskoff;
 	int maskon;
+	int alpha;
 	int verbose;
 };
 
@@ -81,7 +82,7 @@ int writeImage(image_t *, const char* filename);
 void freeImage(image_t *);
 int getImageTransIndex(image_t *);
 void maskImage(image_t *, image_t* mask, int maskon, int maskoff);
-
+void alphaImage(image_t *, image_t* mask);
 
 int main(int argc, char *argv[])
 {
@@ -132,26 +133,46 @@ int main(int argc, char *argv[])
 		freeImage(mask);
 		return EXIT_FAILURE;
 	}
-	if (mask->trans)
+	if (opts.alpha && (mask->color_type & PNG_COLOR_MASK_PALETTE))
+	{
+		verbose(2, "Warning: ignoring palette in mask image; using indices\n");
+	}
+	if (opts.alpha && mask->bit_depth != 8)
+	{
+		verbose(1, "Mask image for the alpha channel must be 8bpp\n");
+		freeImage(img);
+		freeImage(mask);
+		return EXIT_FAILURE;
+	}
+	if (!opts.alpha && mask->trans)
 	{
 		mask->trans_index = getImageTransIndex(mask);
 		verbose(2, "Using mask image transparency info; trans index %d\n", mask->trans_index);
 	}
-	else
+	else if (!opts.alpha)
 	{
 		mask->trans_index = 0;
 		verbose(2, "Mask image has no transparency info; using index %d\n", mask->trans_index);
 	}
 
-	if (!opts.maskon && !opts.maskoff)
+	if (!opts.maskon && !opts.maskoff && !opts.alpha)
 	{
 		freeImage(img);
 		freeImage(mask);
-		verbose(1, "Nothing to do; specify -0 or -1\n");
+		verbose(1, "Nothing to do; specify -0 or -1, or use -a\n");
 		return EXIT_SUCCESS;
 	}
 
-	maskImage(img, mask, opts.maskon, opts.maskoff);
+	if (opts.alpha && (opts.maskon || opts.maskoff))
+	{
+		verbose(2, "Options -0 and -1 have no effect when -a specified\n");
+	}
+
+	if (opts.alpha)
+		alphaImage(img, mask);
+	else
+		maskImage(img, mask, opts.maskon, opts.maskoff);
+	
 	writeImage(img, opts.outfile);
 
 	freeImage(img);
@@ -175,9 +196,10 @@ void verbose(int level, const char* fmt, ...)
 void usage()
 {
 	fprintf(stderr,
-			"maskimg [-0] [-1] [-o <outfile>] -m <maskfile> <infile>\n"
+			"maskimg [-0] [-1] [-a] [-o <outfile>] -m <maskfile> <infile>\n"
 			"Options:\n"
 			"\t-o  write resulting png into <outfile>\n"
+			"\t-a  use mask image as alpha channel and create result with alpha\n"
 			"\t-m  specifies mask image to use (must be present)\n"
 			"\t-0  mask pixels off by setting them to transparent color\n"
 			"\t-1  mask pixels on by bumping red channel slightly\n"
@@ -191,12 +213,15 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 	
 	memset(opts, 0, sizeof (struct options));
 
-	while (-1 != (ch = getopt(argc, argv, "h?o:m:01v")))
+	while (-1 != (ch = getopt(argc, argv, "h?ao:m:01v")))
 	{
 		switch (ch)
 		{
 		case 'o':
 			opts->outfile = optarg;
+			break;
+		case 'a':
+			opts->alpha = 1;
 			break;
 		case 'm':
 			opts->maskfile = optarg;
@@ -230,7 +255,7 @@ void parse_arguments(int argc, char *argv[], struct options *opts)
 
 	if (!opts->maskfile)
 	{
-		fprintf(stderr, "Not mask image specified, use -m\n");
+		fprintf(stderr, "No mask image specified, use -m\n");
 		usage();
 		exit(EXIT_FAILURE);
 	}
@@ -429,9 +454,16 @@ int writeImage(image_t* img, const char* filename)
 	png_set_IHDR(png_ptr, info_ptr, img->w, img->h, img->bit_depth,
 			img->color_type, img->interlace_type, img->compression_type,
 			img->filter_type);
-	png_set_sBIT(png_ptr, info_ptr, img->sig_bit);
-	png_set_shift(png_ptr, img->sig_bit);
-	png_set_tRNS(png_ptr, info_ptr, NULL, 0, img->trans_values);
+	if (img->sig_bit)
+	{
+		png_set_sBIT(png_ptr, info_ptr, img->sig_bit);
+		png_set_shift(png_ptr, img->sig_bit);
+	}
+	if (!(img->color_type & (PNG_COLOR_MASK_PALETTE | PNG_COLOR_MASK_ALPHA))
+			&& img->trans_values)
+	{
+		png_set_tRNS(png_ptr, info_ptr, NULL, 0, img->trans_values);
+	}
 	png_write_info(png_ptr, info_ptr);
 	png_set_packing(png_ptr);
 	png_write_image(png_ptr, (png_byte **) img->lines);
@@ -464,8 +496,8 @@ void maskImage(image_t* img, image_t* mask, int maskon, int maskoff)
 
 	for (y = 0; y < img->h; ++y)
 	{
-		imgp = img->data + img_pitch * y;
-		maskp = mask->data + mask_pitch * y;
+		imgp = img->lines[y];
+		maskp = mask->lines[y];
 
 		for (x = 0; x < img->w; ++x, imgp += img->bpp, maskp += mask->bpp)
 		{
@@ -487,5 +519,72 @@ void maskImage(image_t* img, image_t* mask, int maskon, int maskoff)
 					++imgp[0];
 			}
 		}
+	}
+}
+
+void alphaImage(image_t* img, image_t* mask)
+{
+	png_uint_32 x, y;
+	//png_bytep imgp, maskp;
+	int dpitch;
+	png_bytep newdata;
+
+	dpitch = img->w * 4;
+	newdata = malloc(img->h * dpitch);
+	if (!newdata)
+	{
+		verbose(1, "Out of memory converting image to rgba\n");
+		exit(EXIT_FAILURE);
+	}
+
+	for (y = 0; y < img->h; ++y)
+	{
+		png_bytep sp = img->lines[y];
+		png_bytep dp = newdata + dpitch * y;
+		png_bytep mp = mask->lines[y];
+
+		for (x = 0; x < img->w; ++x, sp += img->bpp, dp += 4, mp += mask->bpp)
+		{
+			if (img->sig_bit)
+			{
+				png_byte c;
+
+				c = sp[0] << (8 - img->sig_bit->red);
+				dp[0] = c | (c >> img->sig_bit->red);
+				c = sp[1] << (8 - img->sig_bit->green);
+				dp[1] = c | (c >> img->sig_bit->green);
+				c = sp[2] << (8 - img->sig_bit->blue);
+				dp[2] = c | (c >> img->sig_bit->blue);
+			}
+			else
+			{
+				dp[0] = sp[0];
+				dp[1] = sp[1];
+				dp[2] = sp[2];
+			}
+			dp[3] = mp[0];
+		}
+	}
+
+	if (img->sig_bit)
+	{
+		img->sig_bit->red = 8;
+		img->sig_bit->green = 8;
+		img->sig_bit->blue = 8;
+		img->sig_bit->alpha = 8;
+		img->sig_bit->gray = 8;
+	}
+
+	img->trans_values = 0;
+	img->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+	img->channels = 4;
+	img->bpp = 4;
+
+	free(img->data);
+	img->data = newdata;
+	{	// init lines
+		png_uint_32 i;
+		for (i = 0; i < img->h; ++i)
+			img->lines[i] = img->data + img->w * img->bpp * i;
 	}
 }
