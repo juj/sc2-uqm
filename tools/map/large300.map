@@ -27,7 +27,7 @@ grid.width=10.49
 grid.height=10.49
 grid.color=9566cb
 # font: Arial Bold
-grid.font.name=arialbd.ttf
+grid.font.name=Arialbd.ttf
 # font point size is in 1/64th of an inch
 grid.font.size=8
 # weight is in 1/64th of an inch
@@ -40,7 +40,7 @@ grid.marks.color=8771b6
 stars.definition=stars.map
 stars.numcolor=989898
 # font: Times New Roman
-stars.desig.font.name=times.ttf
+stars.desig.font.name=Times.ttf
 stars.desig.font.size=4
 # designation letters/symbols in utf8 for the specified font
 # using Greek letters
@@ -108,7 +108,7 @@ stars.W.3.color=f0f0f0
 
 clusters.definition=clusters.map
 # font: Arial Narrow Bold
-clusters.names.font.name=arialnb.ttf
+clusters.names.font.name=Arialnb.ttf
 clusters.names.font.size=7
 clusters.names.color=7aa2ef
 clusters.lines.color=8181a9
@@ -116,7 +116,7 @@ clusters.lines.weight=0.75
 
 # Spheres of Influence
 
-sois.font.name=arialbd.ttf
+sois.font.name=Arialbd.ttf
 sois.font.size=16
 sois.count=14
 
