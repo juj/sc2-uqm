@@ -12,6 +12,7 @@
 #include "mapdrv.h"
 #include <stdio.h>
 #include <malloc.h>
+#include <string.h>
 #include <errno.h>
 #include "SDL.h"
 #include "SDL_image.h"

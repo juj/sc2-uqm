@@ -7,18 +7,18 @@
 
 TARGET = mapgen
 # These flags are needed to get it to compile with libpngX.dll on CYGWIN
-CYGWINFLAGS = -DPNG_USE_DLL
-#CYGWINFLAGS =
+#CYGWINFLAGS = -DPNG_USE_DLL
+CYGWINFLAGS =
 PNGFLAGS = -I. 
 SDLFLAGS = $(shell sdl-config --cflags)
 
 CC = gcc
-CFLAGS = -W -Wall -O0 # -g
+CFLAGS += -W -Wall -O0 # -g
 LIBS = -L/usr/local/lib -lpng -lm -lSDL_ttf -lSDL_image
-LDFLAGS = $(shell sdl-config --libs)
+LDFLAGS += $(shell sdl-config --libs)
 
 BINS = $(TARGET) $(TARGET).exe
-OBJS = mapgen.o alist.o scriptlib.o stringbank.o unicode.o sdlpngdrv.o SDL_gfxPrimitives.o
+OBJS = mapgen.o alist.o scriptlib.o stringbank.o unicode.o sdlpngdrv.o SDL_gfxPrimitives.o port.o
 
 .SUFFIXES: .c .o
 

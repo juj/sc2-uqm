@@ -14,5 +14,17 @@
 
 #define countof(a)	   ( sizeof(a)/sizeof(*a) )
 
+#ifdef __WIN32__
+#	define HAVE_STRICMP
+#	define HAVE_STRUPR
+#endif
+
+
+#ifndef HAVE_STRICMP
+#	define stricmp strcasecmp
+#else
+#	define strcasecmp stricmp
+#endif
+
 #endif /* _PORT_H */
 
