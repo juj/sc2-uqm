@@ -446,6 +446,9 @@ static int parseFont(mg_font_t* fnt, const char* key)
 	size = scr_GetFloatDef(buf, 10) / 64.0;
 
 	*fnt = drv->loadFont(name, size, name);
+
+	if (!*fnt)
+		mg_verbose(1, "Warning: cannot load font '%s'\n", name);
 	
 	return *fnt != NULL;
 }
@@ -580,6 +583,10 @@ static star_image_t* loadStarImages(const char* key, const char* colors, int siz
 					drv->getImageSize(img->img, &r);
 					img->hot.x = r.w / 2;
 					img->hot.y = r.h / 2;
+				}
+				else
+				{
+					mg_verbose(1, "Warning: cannot load image '%s'\n", name);
 				}
 			}
 
@@ -974,6 +981,8 @@ static soi_t* loadSois(const char* key, int count, script_t* scr)
 		sprintf(buf, "%s.%d.%s", key, i, "font.size");
 		fntsize = scr_GetFloatDef(buf, scr->soifontsize) / 64.0;
 		soi->font = drv->loadFont(scr->soifont, fntsize, scr->soifont);
+		if (!soi->font)
+			mg_verbose(1, "Warning: cannot load font '%s'\n", scr->soifont);
 	}
 	
 	return tab;
