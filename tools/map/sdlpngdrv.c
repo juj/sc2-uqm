@@ -400,11 +400,17 @@ static mg_font_t drv_loadFont(const char* name, double size, const char* filenam
 	char buf[512];
 	struct mg_font* fnt;
 
+	if (!filename)
+	{
+		mg_verbose(1, "sdlpng: filename not specified for font '%s'\n", name);
+		return 0;
+	}
+
 	fnt = calloc(1, sizeof(*fnt));
 	if (!fnt)
 		return 0;
 	fnt->size = inchToPixelsY(size);
-	fnt->name = strcopy(name);
+	fnt->name = strcopy(name ? name : "<Unknown>");
 	sprintf(buf, "%s/%s", fontdir, filename);
 	fnt->font = TTF_OpenFont(buf, fnt->size);
 	if (!fnt->font)

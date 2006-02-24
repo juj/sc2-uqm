@@ -187,6 +187,7 @@ typedef struct
 	soi_t* sois;
 	int csois;
 	const char* soifont;
+	const char* soifontfile;
 	double soifontsize;
 
 	object_t* objs;
@@ -295,35 +296,15 @@ int main(int argc, char *argv[])
 
 		drv->drawFilledRect(NULL, scr.backclr);
 
-#if 0
-		drawSpheres(drv, &scr);
-		drawGrid(drv, &scr);
-		drawSphereNames(drv, &scr);
-		drawClusterLines(drv, &scr);
-		drawStars(drv, &scr);
-		drawStarDesignations(drv, &scr);
-		drawClusterNames(drv, &scr);
-#endif
 		drawLayers(drv, &scr);
 
-
-#if 0
+		ret = drv->write();
+		if (ret)
 		{
-			int w = 7;
-			void drawLine(SDL_Surface* dst, int x0, int y0, int x1, int y1, Uint32 color, int weight);
-
-			drawLine(img, 100, 3500, 150, 3300, 0xffffffff, w);
-			drawLine(img, 100, 3550, 150, 3490, 0xffffffff, w);
-			drawLine(img, 100, 3575, 150, 3525, 0xffffffff, w);
-			drawLine(img, 100, 3600, 200, 3570, 0xffffffff, w);
-			drawLine(img, 100, 3650, 200, 3680, 0xffffffff, w);
-			drawLine(img, 100, 3675, 150, 3725, 0xffffffff, w);
-			drawLine(img, 100, 3700, 150, 3760, 0xffffffff, w);
-			drawLine(img, 100, 3750, 150, 3950, 0xffffffff, w);
+			mg_verbose(1, "Driver could not write to the device\n");
+			break;
 		}
-#endif
 
-		drv->write();
 		drv->end();
 
 		ret = EXIT_SUCCESS;
@@ -436,19 +417,20 @@ static int parseFont(mg_font_t* fnt, const char* key)
 {
 	char buf[128];
 	const char* name;
+	const char* filename;
 	double size;
 
 	sprintf(buf, "%s.name", key);
 	name = scr_GetString(buf);
-	if (!name)
-		return 0;
+	sprintf(buf, "%s.filename", key);
+	filename = scr_GetString(buf);
 	sprintf(buf, "%s.size", key);
 	size = scr_GetFloatDef(buf, 10) / 64.0;
 
-	*fnt = drv->loadFont(name, size, name);
+	*fnt = drv->loadFont(name, size, filename);
 
 	if (!*fnt)
-		mg_verbose(1, "Warning: cannot load font '%s'\n", name);
+		mg_verbose(1, "Warning: cannot load font '%s' (%s)\n", name, filename);
 	
 	return *fnt != NULL;
 }
@@ -980,9 +962,9 @@ static soi_t* loadSois(const char* key, int count, script_t* scr)
 		soi->radius = scr_GetFloatDef(buf, 0);
 		sprintf(buf, "%s.%d.%s", key, i, "font.size");
 		fntsize = scr_GetFloatDef(buf, scr->soifontsize) / 64.0;
-		soi->font = drv->loadFont(scr->soifont, fntsize, scr->soifont);
+		soi->font = drv->loadFont(scr->soifont, fntsize, scr->soifontfile);
 		if (!soi->font)
-			mg_verbose(1, "Warning: cannot load font '%s'\n", scr->soifont);
+			mg_verbose(1, "Warning: cannot load font '%s' (%s)\n", scr->soifont, scr->soifontfile);
 	}
 	
 	return tab;
@@ -1048,6 +1030,7 @@ static int readScript(script_t* scr, FILE* f)
 
 	scr->csois = scr_GetIntegerDef("sois.count", 0);
 	scr->soifont = scr_GetString("sois.font.name");
+	scr->soifontfile = scr_GetString("sois.font.filename");
 	scr->soifontsize = scr_GetFloatDef("sois.font.size", 16);
 	scr->sois = loadSois("sois", scr->csois, scr);
 

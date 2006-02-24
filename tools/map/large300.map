@@ -11,6 +11,7 @@ image.dpi.y=300
 # width and height in inches; v-trimmed A3
 image.width=11.69
 image.height=14.56
+# color specified as RRGGBB in hexadecimal
 image.backcolor=200020
 # layer Order
 image.layers=sois,grid,soinames,clusters,stars,starnums,cnames
@@ -26,8 +27,8 @@ grid.origin.y=0.6
 grid.width=10.49
 grid.height=10.49
 grid.color=9566cb
-# font: Arial Bold
-grid.font.name=Arialbd.ttf
+grid.font.name=Arial Bold
+grid.font.filename=Arialbd.ttf
 # font point size is in 1/64th of an inch
 grid.font.size=8
 # weight is in 1/64th of an inch
@@ -39,8 +40,8 @@ grid.marks.color=8771b6
 
 stars.definition=stars.map
 stars.numcolor=989898
-# font: Times New Roman
-stars.desig.font.name=Times.ttf
+stars.desig.font.name=Times New Roman
+stars.desig.font.filename=Times.ttf
 stars.desig.font.size=4
 # designation letters/symbols in utf8 for the specified font
 # using Greek letters
@@ -107,8 +108,8 @@ stars.W.3.color=f0f0f0
 # Star Clusters
 
 clusters.definition=clusters.map
-# font: Arial Narrow Bold
-clusters.names.font.name=Arialnb.ttf
+clusters.names.font.name=Arial Narrow Bold
+clusters.names.font.filename=Arialnb.ttf
 clusters.names.font.size=7
 clusters.names.color=7aa2ef
 clusters.lines.color=8181a9
@@ -116,7 +117,8 @@ clusters.lines.weight=0.75
 
 # Spheres of Influence
 
-sois.font.name=Arialbd.ttf
+sois.font.name=Arial Bold
+sois.font.filename=Arialbd.ttf
 sois.font.size=16
 sois.count=14
 
