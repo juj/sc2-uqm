@@ -25,13 +25,13 @@ main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	in = fopen(argv[1], "r");
+	in = fopen(argv[1], "rb");
 	if (!in) {
 		perror("Could not open input file");
 		return EXIT_FAILURE;
 	}
 
-	out = fopen(argv[2], "w");
+	out = fopen(argv[2], "wb");
 	if (!out) {
 		perror("Could not open output file");
 		return EXIT_FAILURE;
@@ -253,9 +253,9 @@ write_data(const uint8_t *data, ssize_t size, int numChannels, FILE *out) {
 
 	endptr = data + size;
 	srcptr = data;
-	buffer = alloca(size * sizeof (uint16_t));
+	buffer = malloc(size * sizeof (uint16_t));
 	dstptr = buffer;
-	last = alloca(numChannels * sizeof(int16_t));
+	last = malloc(numChannels * sizeof(int16_t));
 	memset(last, '\0', numChannels * sizeof(uint16_t));
 	while (srcptr < endptr) {
 		for (i = 0; i < numChannels; i++) {
@@ -270,5 +270,9 @@ write_data(const uint8_t *data, ssize_t size, int numChannels, FILE *out) {
 		}
 	}
 	fwrite(buffer, size * sizeof (uint16_t), 1, out);
+
+	free(last);
+	free(buffer);
 }
+
 
