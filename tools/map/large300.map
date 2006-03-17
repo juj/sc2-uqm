@@ -47,10 +47,12 @@ stars.desig.font.size=4
 # using Greek letters
 stars.desig.table=greek.map
 # star images and/or colors
-# radius in 1/64 of an inch
+# colors are whatever you want, one letter per color, but
+#   must match those used in map defined by stars.definition
 stars.colors=RGBOYW
 stars.sizes=3
 stars.R.1.image=stars/fca_027_red.png
+# radius in 1/64 of an inch
 stars.R.1.radius=1.6
 stars.R.1.color=980000
 stars.R.2.image=stars/fca_037_red.png
@@ -122,13 +124,15 @@ sois.font.filename=Arialbd.ttf
 sois.font.size=16
 sois.count=14
 
+# Center and radius are in grid coordinates
 sois.1.name=EARTHLING
 sois.1.color=f05015
 sois.1.font.size=9
 sois.1.center.x=177
 sois.1.center.y=144.5
 sois.1.radius=44
-sois.1.tweak.y=-10
+# Race name positioning tweak (.x and .y)
+sois.1.tweak.y=-3
 
 sois.2.name=CHENJESU
 sois.2.color=6090e0
@@ -146,10 +150,11 @@ sois.3.radius=48
 
 sois.4.name=ILWRATH
 sois.4.color=E00040
-sois.4.font.size=5
+sois.4.font.size=5.5
 sois.4.center.x=-10
 sois.4.center.y=355
 sois.4.radius=53
+sois.4.tweak.y=-15
 
 sois.5.name=SPATHI
 sois.5.color=f0f000
@@ -163,6 +168,7 @@ sois.6.font.size=8
 sois.6.center.x=370
 sois.6.center.y=261
 sois.6.radius=49
+sois.6.tweak.y=-15
 
 sois.7.name=SHOFIXTI
 sois.7.color=e07038
@@ -170,12 +176,14 @@ sois.7.font.size=9
 sois.7.center.x=288
 sois.7.center.y=20
 sois.7.radius=37
+sois.7.tweak.y=-5
 
 sois.8.name=VUX
 sois.8.color=00f060
 sois.8.center.x=431
 sois.8.center.y=153
 sois.8.radius=58
+sois.8.tweak.y=-12
 
 sois.9.name=YEHAT
 sois.9.color=f0c010
