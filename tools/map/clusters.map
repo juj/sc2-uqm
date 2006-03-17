@@ -1,3 +1,12 @@
+#####################################################################
+# The Ur-Quan Masters official cluster definitions
+# (used by starmap image generation scripts)
+#
+# Fields are:
+#   Cluster name,
+#   Name positioning hint (navigational abbr; not currently used),
+#   Connecting line pairs (comma separated; latin: A=1, B=2, etc)
+#####################################################################
 Andromedae,s,AB
 Antliae,ne,AB,BC,BE,CD,EF,FA
 Apodis,w,AB,BC,CD,DA

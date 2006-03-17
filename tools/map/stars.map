@@ -1,3 +1,15 @@
+#####################################################################
+# The Ur-Quan Masters official star definitions
+# (used by starmap image generation scripts)
+#
+# Fields are:
+#   Star/cluster name,
+#   Star designation in a cluster (or * for singular),
+#   X coordinate (in grid coords),
+#   Y coordinate (in grid coords),
+#   Color (must match whatever the parent script has),
+#   Size (usually 1-3)
+#####################################################################
 Achernar,*,537.5,272.9,B,1
 Alcor,*,970.8,025.0,B,1
 Aldebaran,*,737.5,356.2,B,1
