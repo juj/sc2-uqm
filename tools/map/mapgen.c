@@ -57,6 +57,7 @@ typedef struct
 	mg_pointf_t pos;
 	char color;
 	int size;
+	const star_image_t* image;
 } star_t;
 
 typedef star_t* cluster_conn_t[2];
@@ -78,6 +79,7 @@ typedef struct
 	double radius;
 	mg_color_t clr;
 	mg_font_t font;
+	mg_pointf_t tweak;
 } soi_t;
 
 typedef enum
@@ -204,6 +206,7 @@ static const mg_driver_t* findDriver(const char* name);
 
 static int readScript(script_t*, FILE*);
 static void freeScript(script_t*);
+static void preprocessStars(script_t* scr);
 static object_t* addObject(script_t*, obj_type_t, shape_type_t, double x0, double y0,
 		double x1, double y1, double rx, double ry);
 
@@ -286,6 +289,7 @@ int main(int argc, char *argv[])
 			mg_verbose(1, "Cannot process input script -- %s\n", strerror(errno));
 			break;
 		}
+		preprocessStars(&scr);
 
 		ret = drv->begin(scr.w, scr.h);
 		if (ret)
@@ -648,8 +652,7 @@ static star_t* loadStars(const char* name, int* count)
 		char cbuf[20];
 		star_t* star;
 
-		fgets(buf, sizeof(buf), f);
-		if (!buf[0] || buf[0] == '#')
+		if (!fgets(buf, sizeof(buf), f) || !buf[0] || buf[0] == '#')
 			continue;
 
 		if (cstars >= tabsize)
@@ -837,8 +840,7 @@ static int loadClusters(const char* name, script_t* scr)
 		cluster_t* cluster;
 		int cconns;
 
-		fgets(buf, sizeof(buf), f);
-		if (!buf[0] || buf[0] == '#')
+		if (!fgets(buf, sizeof(buf), f) || !buf[0] || buf[0] == '#')
 			continue;
 
 		cname = buf;
@@ -960,6 +962,10 @@ static soi_t* loadSois(const char* key, int count, script_t* scr)
 		soi->center.y = scr_GetFloatDef(buf, 0);
 		sprintf(buf, "%s.%d.%s", key, i, "radius");
 		soi->radius = scr_GetFloatDef(buf, 0);
+		sprintf(buf, "%s.%d.%s", key, i, "tweak.x");
+		soi->tweak.x = scr_GetFloatDef(buf, 0);
+		sprintf(buf, "%s.%d.%s", key, i, "tweak.y");
+		soi->tweak.y = scr_GetFloatDef(buf, 0);
 		sprintf(buf, "%s.%d.%s", key, i, "font.size");
 		fntsize = scr_GetFloatDef(buf, scr->soifontsize) / 64.0;
 		soi->font = drv->loadFont(scr->soifont, fntsize, scr->soifontfile);
@@ -1072,6 +1078,26 @@ static void freeScript(script_t* scr)
 	freeMemory(&scr->clusters);
 	freeMemory(&scr->sois);
 	freeMemory(&scr->objs);
+}
+
+static void preprocessStars(script_t* scr)
+{
+	// lookup and record corresponding star image definitions
+	int i;
+	star_t* star;
+
+	for (i = 0, star = scr->stars; i < scr->cstars; ++i, ++star)
+	{
+		const char* cl;
+		int iclr;
+
+		cl = strchr(scr->starclrs, star->color);
+		if (!cl)
+			continue; // cannot draw this color star
+		iclr = cl - scr->starclrs;
+
+		star->image = scr->starimgs + iclr * scr->starsizes + star->size;
+	}
 }
 
 static void drawLayers(const mg_driver_t* dst, script_t* scr)
@@ -1702,19 +1728,11 @@ static void drawStarsSize(const mg_driver_t* dst, script_t* scr, int size)
 
 	for (i = 0, star = scr->stars; i < scr->cstars; ++i, ++star)
 	{
-		const char* cl;
-		int iclr;
-		const star_image_t* img;
+		const star_image_t* img = star->image;
 
-		if (star->size != size)
+		if (star->size != size || !img)
 			continue;
 
-		cl = strchr(scr->starclrs, star->color);
-		if (!cl)
-			continue; // cannot draw this color star
-		iclr = cl - scr->starclrs;
-
-		img = scr->starimgs + iclr * scr->starsizes + star->size;
 		if (img->img)
 		{	// use image
 			dst->drawImage(orgx + star->pos.x * stepx - img->hot.x,
@@ -1805,7 +1823,30 @@ static void drawClusterLines(const mg_driver_t* dst, script_t* scr)
 	}
 }
 
-static void drawClusterNames(const mg_driver_t* dst, script_t* scr)
+static int tryPlaceRect(script_t* scr, obj_type_t kind, mg_rectf_t* r, double x, double y)
+{
+	shape_t shp;
+
+	// passed rect considered centered around x,y
+	shp.type = sht_Rect;
+	shp.pt0.x = x - r->w / 2;
+	shp.pt0.y = y - r->h / 2;
+	shp.pt1.x = shp.pt0.x + r->w;
+	shp.pt1.y = shp.pt0.y + r->h;
+
+	if (isCollidingWith(scr, &shp, kind))
+		return 0;
+
+	if (shp.pt0.x < 0 || shp.pt1.x >= scr->gridmx || shp.pt0.y < 0 || shp.pt1.y >= scr->gridmy)
+		return 0; // out of bounds
+
+	r->x = shp.pt0.x;
+	r->y = shp.pt0.y;
+
+	return 1;
+}
+
+static void drawSingularNamesSize(const mg_driver_t* dst, script_t* scr, int size)
 {
 	int i;
 	const double orgx = scr->gridr.x;
@@ -1815,41 +1856,155 @@ static void drawClusterNames(const mg_driver_t* dst, script_t* scr)
 	const double stepx = width / scr->gridmx;
 	const double stepy = height / scr->gridmy;
 
+	for (i = 0; i < scr->cclusters; ++i)
+	{
+		const cluster_t* cluster = scr->clusters + i;
+		const star_t* star = scr->stars + cluster->first;
+		const star_image_t* img = star->image;
+		mg_rectf_t r;
+		int placed = 0;
+		double radxofs, radyofs;
+		double rx, ry;
+
+		// not interested in clusters or singulars or other sizes
+		if (cluster->cstars > 1 || star->size != size)
+			continue;
+
+		if (!img)
+		{
+			mg_verbose(2, "Warning: star %s has no image\n", star->cluster);
+			continue;
+		}
+
+		r.x = r.y = 0;
+		dst->getTextSize(scr->cnamefnt, star->cluster, &r);
+		r.w /= stepx;
+		r.h /= stepy;
+
+		// placement is done in grid coordinates
+		radxofs = img->radius * 1.2 / stepx;
+		radyofs = img->radius / stepy;
+
+		// search for a good placement spot
+		for (rx = radxofs, ry = radyofs;
+				!placed && (rx < radxofs + r.h || ry < radyofs + r.h);
+				rx += r.h * 0.1, ry += r.h * 0.1)
+		{
+			// try below
+			placed = tryPlaceRect(scr, objt_TextPlacement, &r,
+					star->pos.x, star->pos.y - ry - r.h / 2);
+			if (placed)
+				continue;
+			// try above
+			placed = tryPlaceRect(scr, objt_TextPlacement, &r,
+					star->pos.x, star->pos.y + ry + r.h / 2);
+			if (placed)
+				continue;
+			// try to the left
+			placed = tryPlaceRect(scr, objt_TextPlacement, &r,
+					star->pos.x - rx - r.w / 2, star->pos.y);
+			if (placed) 
+				continue;
+			// try to the right
+			placed = tryPlaceRect(scr, objt_TextPlacement, &r,
+					star->pos.x + rx + r.w / 2, star->pos.y);
+		}
+
+		if (!placed)
+		{
+			mg_verbose(2, "Warning: cannot place '%s' w/o overlap\n", star->cluster);
+			continue; // oops
+		}
+
+		dst->drawText(scr->cnamefnt,
+				orgx + r.x * stepx,
+				orgy - (r.y + r.h) * stepy,
+				star->cluster, scr->cnameclr);
+
+		// register a rect grid object
+		addObject(scr, objt_ClusterText, sht_Rect,
+				r.x, r.y, r.x + r.w, r.y + r.h,
+				0, 0);
+	}
+}
+
+static void drawSingularNames(const mg_driver_t* dst, script_t* scr)
+{
+	int i;
+	int max = 0;
+	star_t* star;
+
+	// find max star size
+	for (i = 0, star = scr->stars; i < scr->cstars; ++i, ++star)
+	{
+		if (star->size > max)
+			max = star->size;
+	}
+
+	// draw names in the order of star size, from smaller to larger
+	for (i = 0; i <= max; ++i)
+		drawSingularNamesSize(dst, scr, i);
+}
+
+static void drawClusteredNames(const mg_driver_t* dst, script_t* scr)
+{
+	int i;
+	const double orgx = scr->gridr.x;
+	const double orgy = scr->gridr.y + scr->gridr.h;
+	const double width = scr->gridr.w;
+	const double height = scr->gridr.h;
+	const double stepx = width / scr->gridmx;
+	const double stepy = height / scr->gridmy;
+
+	// draw cluster names
+	for (i = 0; i < scr->cclusters; ++i)
+	{
+		const cluster_t* cluster = scr->clusters + i;
+		const star_t* star = scr->stars + cluster->first;
+		mg_rectf_t r;
+		int placed = 0;
+
+		// not interested in singular stars
+		if (cluster->cstars <= 1)
+			continue;
+			
+		r.x = r.y = 0;
+		dst->getTextSize(scr->cnamefnt, star->cluster, &r);
+		r.w /= stepx;
+		r.h /= stepy;
+
+		// placement is done in grid coordinates
+		if (!placed)
+		{	// try cluster center
+			placed = tryPlaceRect(scr, objt_TextPlacement, &r,
+					cluster->center.x, cluster->center.y);
+		}
+
+		if (!placed)
+			continue; // oops
+
+		dst->drawText(scr->cnamefnt,
+				orgx + r.x * stepx,
+				orgy - (r.y + r.h) * stepy,
+				star->cluster, scr->cnameclr);
+
+		// register a rect grid object
+		addObject(scr, objt_ClusterText, sht_Rect,
+				r.x, r.y, r.x + r.w, r.y + r.h,
+				0, 0);
+	}
+}
+
+static void drawClusterNames(const mg_driver_t* dst, script_t* scr)
+{
 	if (!scr->stars || !scr->clusters)
 	{
 		mg_verbose(2, "Warning: not enough data to render cluster names\n");
 		return;
 	}
 
-	// draw cluster names
-	for (i = 0; i < scr->cclusters; ++i)
-	{
-		const cluster_t* cluster = scr->clusters + i;
-		shape_t shp;
-		mg_rectf_t r;
-
-		r.x = r.y = 0;
-		dst->getTextSize(scr->cnamefnt, scr->stars[cluster->first].cluster, &r);
-		
-		boxToRectShape(scr, &r, &shp);
-		shp.pt0.x += cluster->center.x - shp.pt1.x / 2;
-		shp.pt0.y += cluster->center.y - shp.pt1.y / 2;
-		shp.pt1.x += shp.pt0.x;
-		shp.pt1.y += shp.pt0.y;
-		if (isCollidingWith(scr, &shp, objt_TextPlacement))
-			continue;
-		
-		dst->drawText(scr->cnamefnt,
-				orgx + cluster->center.x * stepx - r.w / 2,
-				orgy - cluster->center.y * stepy - r.h / 2,
-				scr->stars[cluster->first].cluster,
-				scr->cnameclr);
-
-		// register a rect grid object
-		addObject(scr, objt_ClusterText, sht_Rect,
-				shp.pt0.x, shp.pt0.y, shp.pt1.x, shp.pt1.y,
-				0, 0);
-	}
+	drawSingularNames(dst, scr);
+	drawClusteredNames(dst, scr);
 }
 
 static void drawStarDesignations(const mg_driver_t* dst, script_t* scr)
@@ -1954,8 +2109,8 @@ static void drawSphereNames(const mg_driver_t* dst, script_t* scr)
 		r.x = r.y = 0;
 		dst->getTextSize(soi->font, soi->name, &r);
 
-		dstx = orgx + soi->center.x * stepx - r.w / 2;
-		dsty = orgy - soi->center.y * stepy - r.h / 2;
+		dstx = orgx + (soi->center.x + soi->tweak.x) * stepx - r.w / 2;
+		dsty = orgy - (soi->center.y + soi->tweak.y) * stepy - r.h / 2;
 		// make sure the text is all within the grid
 		if (dstx < scr->gridr.x + stepx)
 			dstx = scr->gridr.x + stepx;
