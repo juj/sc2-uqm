@@ -1969,7 +1969,7 @@ static void drawClusteredNames(const mg_driver_t* dst, script_t* scr)
 	{
 		const cluster_t* cluster = scr->clusters + i;
 		const star_t* star = scr->stars + cluster->first;
-		const char* cname = star->cluster;
+		const unsigned char* cname = star->cluster;
 		mg_rectf_t r;
 		int placed = 0;
 		int j;
@@ -2043,15 +2043,68 @@ static void drawClusterNames(const mg_driver_t* dst, script_t* scr)
 	drawClusteredNames(dst, scr);
 }
 
-static void drawStarDesignations(const mg_driver_t* dst, script_t* scr)
+static void drawStarDesignation(const mg_driver_t* dst, script_t* scr, const star_t* star)
 {
-	int i;
 	const double orgx = scr->gridr.x;
 	const double orgy = scr->gridr.y + scr->gridr.h;
 	const double width = scr->gridr.w;
 	const double height = scr->gridr.h;
 	double stepx = width / scr->gridmx;
 	double stepy = height / scr->gridmy;
+	const star_image_t* img = star->image;
+	const unsigned char* sdesig = scr->desigtab[star->prefix - 1].str;
+	mg_rectf_t r;
+	int placed = 0;
+	double rad, ang;
+
+	if (!img)
+	{
+		mg_verbose(2, "Warning: star %s has no image\n", star->cluster);
+		return;
+	}
+
+	r.x = r.y = 0;
+	dst->getTextSize(scr->desigfnt, sdesig, &r);
+	// add a little x margin
+	r.w += r.h / 8;
+	// placement is done in grid coordinates
+	r.w /= stepx;
+	r.h /= stepy;
+
+	// search for a good placement spot
+	for (rad = r.w * 1.06; !placed && rad < r.h * 2.5; rad += r.h * 0.05)
+	{
+		double astep = M_PI / (rad / r.h * 32);
+
+		for (ang = 0; !placed && ang < M_PI * 2; ang += astep)
+		{
+			placed = tryPlaceRect(scr, objt_DesigPlacement, &r,
+					star->pos.x + cos(ang) * rad,
+					star->pos.y + sin(ang) * rad);
+		}
+	}
+
+	if (!placed)
+	{
+		mg_verbose(2, "Warning: cannot place %s %d designation w/o overlap\n", star->cluster, star->prefix);
+		return; // oops
+	}
+
+	dst->drawText(scr->desigfnt,
+			orgx + r.x * stepx,
+			orgy - (r.y + r.h) * stepy,
+			sdesig, scr->desigclr);
+
+	// register a rect grid object
+	addObject(scr, objt_Designation, sht_Rect,
+			r.x, r.y, r.x + r.w, r.y + r.h,
+			0, 0);
+
+}
+
+static void drawStarDesignations(const mg_driver_t* dst, script_t* scr)
+{
+	int i;
 
 	if (!scr->stars || !scr->desigtab || scr->cdesigtab == 0 || !scr->clusters)
 	{
@@ -2068,47 +2121,11 @@ static void drawStarDesignations(const mg_driver_t* dst, script_t* scr)
 		for (s = 0; s < cluster->cstars; ++s)
 		{
 			const star_t* star = scr->stars + cluster->first + s;
-			double dx, dy;
-			double length;
-			double sinl, cosl;
-			double ofsx, ofsy;
-			shape_t shp;
-			const unsigned char* sdesig;
-			mg_rectf_t r;
 
 			if (!star->prefix)
 				continue; // no designation
 
-			sdesig = scr->desigtab[star->prefix - 1].str;
-			r.x = r.y = 0;
-			dst->getTextSize(scr->desigfnt, sdesig, &r);
-		
-			dx = star->pos.x - cluster->center.x;
-			dy = star->pos.y - cluster->center.y;
-			length = sqrt(SQR(dx) + SQR(dy));
-			sinl = dy / length;
-			cosl = dx / length;
-			
-			ofsx = (r.w * cosl);
-			ofsy = (r.h * sinl);
-
-			boxToRectShape(scr, &r, &shp);
-			shp.pt0.x += star->pos.x + shp.pt1.x * cosl - shp.pt1.x / 2;
-			shp.pt0.y += star->pos.y + shp.pt1.y * sinl - shp.pt1.y / 2;
-			shp.pt1.x += shp.pt0.x;
-			shp.pt1.y += shp.pt0.y;
-			if (isCollidingWith(scr, &shp, objt_DesigPlacement))
-				continue;
-
-			dst->drawText(scr->desigfnt,
-					orgx + (star->pos.x * stepx + ofsx) - r.w / 2,
-					orgy - (star->pos.y * stepy + ofsy) - r.h / 2,
-					sdesig, scr->desigclr);
-
-			// register a rect grid object
-			addObject(scr, objt_Designation, sht_Rect,
-					shp.pt0.x, shp.pt0.y, shp.pt1.x, shp.pt1.y,
-					0, 0);
+			drawStarDesignation(dst, scr, star);
 		}
 	}
 }
