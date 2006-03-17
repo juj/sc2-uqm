@@ -22,6 +22,12 @@
 #include "unicode.h"
 #include "mapdrv.h"
 
+#ifndef M_PI
+#	define M_PI  3.1415927
+#endif
+#ifndef SQR
+#	define SQR(x)  ((x) * (x))
+#endif
 
 extern const mg_driver_t sdlpng_drv;
 
@@ -1878,12 +1884,14 @@ static void drawSingularNamesSize(const mg_driver_t* dst, script_t* scr, int siz
 
 		r.x = r.y = 0;
 		dst->getTextSize(scr->cnamefnt, star->cluster, &r);
+		// add a little x margin
+		r.w += r.h / 12;
+		// placement is done in grid coordinates
 		r.w /= stepx;
 		r.h /= stepy;
 
-		// placement is done in grid coordinates
-		radxofs = img->radius * 1.2 / stepx;
-		radyofs = img->radius / stepy;
+		radxofs = img->radius * 1.1 / stepx;
+		radyofs = img->radius * 1.1 / stepy;
 
 		// search for a good placement spot
 		for (rx = radxofs, ry = radyofs;
@@ -1961,32 +1969,60 @@ static void drawClusteredNames(const mg_driver_t* dst, script_t* scr)
 	{
 		const cluster_t* cluster = scr->clusters + i;
 		const star_t* star = scr->stars + cluster->first;
+		const char* cname = star->cluster;
 		mg_rectf_t r;
 		int placed = 0;
+		int j;
+		double maxd;
+		double rad, dxrad, ang;
 
 		// not interested in singular stars
 		if (cluster->cstars <= 1)
 			continue;
-			
+
+		// find the farthest star for center
+		for (j = 0, maxd = 0; j < cluster->cstars; ++j, ++star)
+		{
+			double d = sqrt(SQR(cluster->center.x - star->pos.x)
+					+ SQR(cluster->center.y - star->pos.y));
+			if (d > maxd)
+				d = maxd;
+		}
+		
 		r.x = r.y = 0;
-		dst->getTextSize(scr->cnamefnt, star->cluster, &r);
+		dst->getTextSize(scr->cnamefnt, cname, &r);
+		// add a little x margin
+		r.w += r.h / 12;
+		// placement is done in grid coordinates
 		r.w /= stepx;
 		r.h /= stepy;
 
-		// placement is done in grid coordinates
-		if (!placed)
-		{	// try cluster center
-			placed = tryPlaceRect(scr, objt_TextPlacement, &r,
-					cluster->center.x, cluster->center.y);
+		// stretch out the ellipse over x
+		dxrad = r.w / r.h;
+		dxrad -= (dxrad - 1) * 0.5; // not so severe
+
+		for (rad = 0; !placed && rad < maxd + r.h * 3; rad += r.h * 0.1)
+		{
+			double astep = M_PI / (rad / r.h * 32);
+
+			for (ang = 0; !placed && ang < M_PI * 2; ang += astep)
+			{
+				placed = tryPlaceRect(scr, objt_TextPlacement, &r,
+						cluster->center.x + cos(ang) * rad * dxrad,
+						cluster->center.y + sin(ang) * rad);
+			}
 		}
 
 		if (!placed)
-			continue; // oops
+		{
+			mg_verbose(2, "Warning: cannot place '%s' w/o overlap\n", cname);
+			continue;
+		}
 
 		dst->drawText(scr->cnamefnt,
 				orgx + r.x * stepx,
 				orgy - (r.y + r.h) * stepy,
-				star->cluster, scr->cnameclr);
+				cname, scr->cnameclr);
 
 		// register a rect grid object
 		addObject(scr, objt_ClusterText, sht_Rect,
@@ -2049,7 +2085,7 @@ static void drawStarDesignations(const mg_driver_t* dst, script_t* scr)
 		
 			dx = star->pos.x - cluster->center.x;
 			dy = star->pos.y - cluster->center.y;
-			length = sqrt(dx*dx + dy*dy);
+			length = sqrt(SQR(dx) + SQR(dy));
 			sinl = dy / length;
 			cosl = dx / length;
 			
