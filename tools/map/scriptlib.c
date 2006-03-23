@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "port.h"
 #include "scriptlib.h"
 #include "alist.h"
 #include "stringbank.h"

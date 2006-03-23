@@ -14,7 +14,7 @@
 
 #define countof(a)	   ( sizeof(a)/sizeof(*a) )
 
-#ifdef __WIN32__
+#if defined(__WIN32__) || defined(WIN32) || defined(_WIN32)
 #	define HAVE_STRICMP
 #	define HAVE_STRUPR
 #endif
