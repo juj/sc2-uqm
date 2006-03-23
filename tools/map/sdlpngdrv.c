@@ -321,7 +321,8 @@ static int drv_write(void)
 	png_structp png_ptr;
 	png_infop info_ptr;
 	SDL_Surface* cimg = NULL;
-	SDL_PixelFormat* fmt = outimg->format;
+	SDL_Surface* wimg = NULL;
+	SDL_PixelFormat* fmt;
 	png_bytep* lines = NULL;
 	int i;
 	
@@ -330,17 +331,22 @@ static int drv_write(void)
 
 	mg_verbose(2, "Writing image to '%s'\n", outdev);
 
+	fmt = outimg->format;
 	if (fmt->BytesPerPixel != 3 ||
 			fmt->Rmask != PNG_R_MASK ||
 			fmt->Gmask != PNG_G_MASK ||
 			fmt->Bmask != PNG_B_MASK)
-	{
+	{	// convert the generated image to format suitable for libpng
 		cimg = SDL_CreateRGBSurface(SDL_SWSURFACE, outimg->w, outimg->h, 24,
 				PNG_R_MASK, PNG_G_MASK, PNG_B_MASK, 0);
 		if (!cimg)
 			return EXIT_FAILURE;
 		SDL_BlitSurface(outimg, NULL, cimg, NULL);
-		outimg = cimg;
+		wimg = cimg;
+	}
+	else
+	{	// use the generated image 'as is'
+		wimg = outimg;
 	}
 
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
@@ -365,14 +371,14 @@ static int drv_write(void)
 		return EXIT_FAILURE;
 	}
 
-	lines = calloc(outimg->h, sizeof(png_bytep));
+	lines = calloc(wimg->h, sizeof(png_bytep));
 	if (!lines)
 		return EXIT_FAILURE;
-	for (i = 0; i < outimg->h; ++i)
-		lines[i] = (Uint8*)outimg->pixels + i * outimg->pitch;
+	for (i = 0; i < wimg->h; ++i)
+		lines[i] = (Uint8*)wimg->pixels + i * wimg->pitch;
 
 	png_init_io(png_ptr, fout);
-	png_set_IHDR(png_ptr, info_ptr, outimg->w, outimg->h, 8,
+	png_set_IHDR(png_ptr, info_ptr, wimg->w, wimg->h, 8,
 			PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
 			PNG_COMPRESSION_TYPE_DEFAULT,
 			PNG_FILTER_TYPE_BASE);
