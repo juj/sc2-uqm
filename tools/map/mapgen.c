@@ -957,9 +957,6 @@ static soi_t* loadSois(const char* key, int count, script_t* scr)
 
 		sprintf(buf, "%s.%d.%s", key, i, "name");
 		soi->name = scr_GetString(buf);
-		if (!soi->name)
-			continue;
-
 		sprintf(buf, "%s.%d.%s", key, i, "color");
 		parseColor(&soi->clr, buf, 0);
 		sprintf(buf, "%s.%d.%s", key, i, "center.x");
@@ -1697,7 +1694,10 @@ static void drawGrid(const mg_driver_t* dst, script_t* scr)
 
 	// draw grid numbers
 	if (!scr->gridfnt || !gxstep1)
+	{
+		mg_verbose(2, "Warning: not enough data to render grid numbers\n");
 		return; // nothing else to do
+	}
 
 	for (i = 1, x = r.x + gxstep1; x < r.x + r.w - gxstep1 / 2; x += gxstep1, ++i)
 	{
@@ -2033,6 +2033,11 @@ static void drawClusteredNames(const mg_driver_t* dst, script_t* scr)
 
 static void drawClusterNames(const mg_driver_t* dst, script_t* scr)
 {
+	if (!scr->cnamefnt)
+	{
+		mg_verbose(2, "Warning: not enough data to render cluster names (missing font)\n");
+		return;
+	}
 	if (!scr->stars || !scr->clusters)
 	{
 		mg_verbose(2, "Warning: not enough data to render cluster names\n");
@@ -2106,6 +2111,11 @@ static void drawStarDesignations(const mg_driver_t* dst, script_t* scr)
 {
 	int i;
 
+	if (!scr->desigfnt)
+	{
+		mg_verbose(2, "Warning: not enough data to render star designations (missing font)\n");
+		return;
+	}
 	if (!scr->stars || !scr->desigtab || scr->cdesigtab == 0 || !scr->clusters)
 	{
 		mg_verbose(2, "Warning: not enough data to render star designations\n");
@@ -2156,8 +2166,11 @@ static void drawSphereNames(const mg_driver_t* dst, script_t* scr)
 		double dstx, dsty;
 		mg_color_t clr = scr->backclr;
 
-		if (!soi->name)
+		if (!soi->name || !soi->font)
+		{
+			mg_verbose(2, "Warning: not enough data to render SoI name (%d)\n", i + 1);
 			continue;
+		}
 
 		r.x = r.y = 0;
 		dst->getTextSize(soi->font, soi->name, &r);
