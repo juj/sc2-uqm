@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "SDL.h"
 #include "SDL_gfxPrimitives.h"
 
@@ -117,7 +118,7 @@ main (int argc, char *argv[])
 				{
 					if (held_keys[0])
 					{
-						strcat(held_keys, " ");
+						strcat(held_keys, " | ");
 					}
 					strcat(held_keys, SDL_GetKeyName (i));
 				}
