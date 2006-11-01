@@ -1,0 +1,365 @@
+diff -ruN tcpdump-3.9.5.org/Makefile.in tcpdump-3.9.5/Makefile.in
+--- tcpdump-3.9.5.org/Makefile.in	2005-09-20 08:05:36.000000000 +0200
++++ tcpdump-3.9.5/Makefile.in	2006-11-01 19:50:02.000000000 +0100
+@@ -86,8 +86,8 @@
+ 	print-rsvp.c print-rx.c print-sctp.c print-sip.c print-sl.c print-sll.c \
+ 	print-slow.c print-snmp.c print-stp.c print-sunatm.c print-sunrpc.c \
+ 	print-symantec.c print-syslog.c print-tcp.c print-telnet.c print-tftp.c \
+-	print-timed.c print-token.c print-udp.c print-vjc.c print-vrrp.c \
+-	print-wb.c print-zephyr.c setsignal.c tcpdump.c util.c
++	print-timed.c print-token.c print-udp.c print-uqm.c print-vjc.c \
++	print-vrrp.c print-wb.c print-zephyr.c setsignal.c tcpdump.c util.c
+ 
+ LOCALSRC = @LOCALSRC@
+ GENSRC = version.c
+diff -ruN tcpdump-3.9.5.org/print-tcp.c tcpdump-3.9.5/print-tcp.c
+--- tcpdump-3.9.5.org/print-tcp.c	2005-10-16 08:05:46.000000000 +0200
++++ tcpdump-3.9.5/print-tcp.c	2006-11-01 19:44:48.000000000 +0100
+@@ -110,6 +110,7 @@
+ #endif
+ #define MSDP_PORT	639
+ #define LDP_PORT        646
++#define UQM_PORT	21837
+ 
+ static int tcp_cksum(register const struct ip *ip,
+ 		     register const struct tcphdr *tp,
+@@ -657,6 +658,9 @@
+ 		if (sport == TELNET_PORT || dport == TELNET_PORT) {
+ 			if (!qflag && vflag)
+ 				telnet_print(bp, length);
++		} else if (sport == UQM_PORT || dport == UQM_PORT) {
++			if (!qflag && vflag)
++				uqm_print(bp, length);
+ 		} else if (sport == BGP_PORT || dport == BGP_PORT)
+ 			bgp_print(bp, length);
+ 		else if (sport == PPTP_PORT || dport == PPTP_PORT)
+diff -ruN tcpdump-3.9.5.org/print-uqm.c tcpdump-3.9.5/print-uqm.c
+--- tcpdump-3.9.5.org/print-uqm.c	1970-01-01 01:00:00.000000000 +0100
++++ tcpdump-3.9.5/print-uqm.c	2006-11-01 21:19:46.000000000 +0100
+@@ -0,0 +1,326 @@
++/*
++ * Copyright (C) 2000, Richard Sharpe
++ *
++ * This software may be distributed either under the terms of the
++ * BSD-style licence that accompanies tcpdump or under the GNU GPL
++ * version 2 or later.
++ *
++ * print-beep.c
++ *
++ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#include <tcpdump-stdinc.h>
++
++#ifdef HAVE_MEMORY_H
++#include <memory.h>
++#endif
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include "interface.h"
++#include "extract.h"
++
++#define PACKET_H_STANDALONE
++#include <stdbool.h>
++typedef uint8_t uint8;
++typedef uint16_t uint16;
++typedef uint32_t uint32;
++#define ntoh16 ntohs
++#define ntoh32 ntohl
++#include "uqmpacket.h"
++
++
++typedef int (*PacketPrinter)(const Packet *packet, size_t len);
++struct PacketDesc {
++	const char *name;
++	size_t len;
++	PacketPrinter print;
++};
++typedef struct PacketDesc PacketDesc;
++
++
++int printPacket(const Packet *packet, size_t len);
++
++int PacketPrint_Init(const Packet_Init *packet, size_t len);
++int PacketPrint_Ping(const Packet_Ping *packet, size_t len);
++int PacketPrint_Ack(const Packet_Ack *packet, size_t len);
++int PacketPrint_EndTurn(const Packet_EndTurn *packet, size_t len);
++int PacketPrint_Ready(const Packet_Ready *packet, size_t len);
++int PacketPrint_Fleet(const Packet_Fleet *packet, size_t len);
++int PacketPrint_TeamName(const Packet_TeamName *packet, size_t len);
++int PacketPrint_Handshake0(const Packet_Handshake0 *packet, size_t len);
++int PacketPrint_Handshake1(const Packet_Handshake1 *packet, size_t len);
++int PacketPrint_HandshakeCancel(const Packet_HandshakeCancel *packet,
++		size_t len);
++int PacketPrint_HandshakeCancelAck(const Packet_HandshakeCancelAck *packet,
++		size_t len);
++int PacketPrint_SeedRandom(const Packet_SeedRandom *packet, size_t len);
++int PacketPrint_InputDelay(const Packet_InputDelay *packet, size_t len);
++int PacketPrint_SelectShip(const Packet_SelectShip *packet, size_t len);
++int PacketPrint_BattleInput(const Packet_BattleInput *packet, size_t len);
++int PacketPrint_FrameCount(const Packet_FrameCount *packet, size_t len);
++int PacketPrint_Checksum(const Packet_Checksum *packet, size_t len);
++
++
++#define DEFINE_PACKETDESC(name) \
++	{ \
++		/* .name = */  #name, \
++		/* .len = */   sizeof (Packet_##name), \
++		/* .print = */ (PacketPrinter) PacketPrint_##name, \
++	}
++PacketDesc packetDescs[PACKET_NUM] = {
++	DEFINE_PACKETDESC(Init),
++	DEFINE_PACKETDESC(Ping),
++	DEFINE_PACKETDESC(Ack),
++	DEFINE_PACKETDESC(EndTurn),
++	DEFINE_PACKETDESC(Ready),
++	DEFINE_PACKETDESC(Fleet),
++	DEFINE_PACKETDESC(TeamName),
++	DEFINE_PACKETDESC(Handshake0),
++	DEFINE_PACKETDESC(Handshake1),
++	DEFINE_PACKETDESC(HandshakeCancel),
++	DEFINE_PACKETDESC(HandshakeCancelAck),
++	DEFINE_PACKETDESC(SeedRandom),
++	DEFINE_PACKETDESC(InputDelay),
++	DEFINE_PACKETDESC(SelectShip),
++	DEFINE_PACKETDESC(BattleInput),
++	DEFINE_PACKETDESC(FrameCount),
++	DEFINE_PACKETDESC(Checksum),
++};
++
++
++void
++uqm_print(const u_char *buf, u_int len) {
++	for (;;) {
++		Packet *packet;
++		size_t plen;
++	
++		printf("UQM:\n");
++
++		if (len == 0)
++			goto done;
++
++		if (len < 4)
++			goto shortPacket;
++
++		packet = (Packet *) buf;
++				// XXX: there may be alignment problems here.
++		plen = packetLength(packet);
++
++		if (len < plen)
++			goto shortPacket;
++
++		printPacket(packet, plen);
++
++		len -= plen;
++		buf += plen;
++	}
++
++done:
++	return;
++
++shortPacket:
++	return;
++}
++
++const char *
++sideString(uint8 side) {
++	switch(side) {
++		case NetplaySide_local:
++			return "local";
++		case NetplaySide_remote:
++			return "remote";
++		default:
++			return "BAD!";
++	}
++}
++
++int
++printPacket(const Packet *packet, size_t len)
++{
++	PacketType type;
++	
++	type = packetType(packet);
++	if (type >= PACKET_NUM) {
++		printf("\t\tUnknown packet type.\n");
++		return 0;
++	}
++
++	printf("\t%s\n", packetDescs[type].name);
++
++	if (len < packetDescs[type].len)
++		return -1;
++
++	packetDescs[type].print(packet, len);
++	return 0;
++}
++
++int
++PacketPrint_Init(const Packet_Init *packet, size_t len) {
++	printf("\t\tprotoVersion = %d.%d\n",
++			packet->protoVersion.major, packet->protoVersion.minor);
++	printf("\t\tuqmVersion = %d.%d.%d\n", packet->uqmVersion.major,
++			packet->uqmVersion.minor, packet->uqmVersion.patch);
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_Ping(const Packet_Ping *packet, size_t len) {
++	printf("\t\tid = 0x%" PRIx32"\n", ntoh32(packet->id));
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_Ack(const Packet_Ack *packet, size_t len) {
++	printf("\t\tid = 0x%" PRIx32"\n", ntoh32(packet->id));
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_EndTurn(const Packet_EndTurn *packet, size_t len) {
++	(void) packet;
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_Ready(const Packet_Ready *packet, size_t len) {
++	(void) packet;
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_Fleet(const Packet_Fleet *packet, size_t len) {
++	uint16 numShips = ntoh16(packet->numShips);
++	size_t i;
++
++	if (sizeof packet + numShips * sizeof(packet->ships[0]) > len)
++		return -1;
++	
++	printf("\t\tSide = %s\n", sideString(packet->side));
++
++	for (i = 0; i < numShips; i++) {
++		int index = packet->ships[i].index;
++		int ship = packet->ships[i].ship;
++
++		printf("\t\t[%d] = %d\n", index, ship);
++	}
++
++	return 0;
++}
++
++int
++PacketPrint_TeamName(const Packet_TeamName *packet, size_t len) {
++	size_t nameLen = packetLength((const Packet *) packet)
++			- sizeof (Packet_TeamName) - 1;
++
++	printf("\t\tSide = %s\n", sideString(packet->side));
++	printf("\t\tName = \"%*s\"\n", nameLen, packet->name);
++	return 0;
++}
++
++int
++PacketPrint_Handshake0(const Packet_Handshake0 *packet, size_t len) {
++	(void) packet;
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_Handshake1(const Packet_Handshake1 *packet, size_t len) {
++	(void) packet;
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_HandshakeCancel(const Packet_HandshakeCancel *packet,
++		size_t len) {
++	(void) packet;
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_HandshakeCancelAck(const Packet_HandshakeCancelAck *packet,
++		size_t len) {
++	(void) packet;
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_SeedRandom(const Packet_SeedRandom *packet, size_t len) {
++	printf("\t\tseed = 0x%" PRIx32"\n", ntoh32(packet->seed));
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_InputDelay(const Packet_InputDelay *packet, size_t len) {
++	printf("\t\tseed = %" PRId32"\n", ntoh32(packet->delay));
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_SelectShip(const Packet_SelectShip *packet, size_t len) {
++	uint16 ship = htons(packet->ship);
++
++	if (ship == (uint16) ~0)
++		printf("\t\tship = RANDOM\n");
++	else
++		printf("\t\tship = %d\n", ship);
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_BattleInput(const Packet_BattleInput *packet, size_t len) {
++	uint8 state = packet->state;
++
++	printf("\t\tstate =");
++	if (state & (1 << 0))
++		printf("[LEFT]");
++	if (state & (1 << 1))
++		printf("[RIGHT]");
++	if (state & (1 << 2))
++		printf("[THRUST]");
++	if (state & (1 << 3))
++		printf("[WEAPON]");
++	if (state & (1 << 4))
++		printf("[SPECIAL]");
++	if (state & (1 << 5))
++		printf("[ESCAPE]");
++	if (state & (1 << 6))
++		printf("[DOWN]");
++	printf("\n");
++
++	(void) len;
++	return 0;	
++}
++
++int
++PacketPrint_FrameCount(const Packet_FrameCount *packet, size_t len) {
++	printf("\t\tframeCount = %" PRId32"\n", ntoh32(packet->frameCount));
++	(void) len;
++	return 0;
++}
++
++int
++PacketPrint_Checksum(const Packet_Checksum *packet, size_t len) {
++	printf("\t\tchecksum = 0x%" PRIx32"\n", ntoh32(packet->checksum));
++	(void) len;
++	return 0;
++}
++		
++

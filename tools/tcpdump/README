@@ -1,0 +1,6 @@
+This is a patch for adding support for the UQM network protocol to
+tcpdump.
+To use it, apply the patch to the tcpdump source, copy or make a link
+from the uqm file src/sc2code/netplay/packets.h to the directory
+containing the tcpdump source, run 'autoconf', and then compile as normal.
+
