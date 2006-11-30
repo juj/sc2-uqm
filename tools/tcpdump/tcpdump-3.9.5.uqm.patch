@@ -306,7 +306,7 @@ diff -ruN tcpdump-3.9.5.org/print-uqm.c tcpdump-3.9.5/print-uqm.c
 +
 +int
 +PacketPrint_InputDelay(const Packet_InputDelay *packet, size_t len) {
-+	printf("\t\tseed = %" PRId32"\n", ntoh32(packet->delay));
++	printf("\t\tdelay = %" PRId32"\n", ntoh32(packet->delay));
 +	(void) len;
 +	return 0;
 +}
