@@ -149,6 +149,7 @@ main (int argc, char *argv[])
 		{
 			quit = 1;
 		}
+		SDL_Delay (20);
 	}
 
 	/* Clean up */
