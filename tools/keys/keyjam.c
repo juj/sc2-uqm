@@ -8,6 +8,7 @@
 
 static int keystate[SDLK_LAST];
 static char held_keys[BUFFERSIZE];
+static char videoname[BUFFERSIZE];
 
 
 void
@@ -47,6 +48,11 @@ DrawScreen (SDL_Surface *s)
 	DrawCenteredText (s, y, "register when simultaneously pressed.");
 
 	y += 16;
+	DrawCenteredText (s, y, "You are using the following SDL driver:");
+	y += 8;
+	DrawCenteredText (s, y, videoname);
+
+	y += 16;
 	DrawCenteredText (s, y, "Press ESCAPE to exit.");
 
 	DrawCenteredText (s, 300, held_keys);
@@ -78,6 +84,8 @@ main (int argc, char *argv[])
 	}
 
 	SDL_WM_SetCaption ("Key Jammer", "Key Jammer");
+
+	SDL_VideoDriverName (videoname, BUFFERSIZE);
 
 	for (i = 0; i < SDLK_LAST; i++)
 	{
