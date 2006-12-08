@@ -327,7 +327,7 @@ diff -ruN tcpdump-3.9.5.org/print-uqm.c tcpdump-3.9.5/print-uqm.c
 +PacketPrint_BattleInput(const Packet_BattleInput *packet, size_t len) {
 +	uint8 state = packet->state;
 +
-+	printf("\t\tstate =");
++	printf("\t\tstate = ");
 +	if (state & (1 << 0))
 +		printf("[LEFT]");
 +	if (state & (1 << 1))
