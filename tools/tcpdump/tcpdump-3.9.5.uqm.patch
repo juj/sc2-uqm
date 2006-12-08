@@ -263,7 +263,7 @@ diff -ruN tcpdump-3.9.5.org/print-uqm.c tcpdump-3.9.5/print-uqm.c
 +			- sizeof (Packet_TeamName) - 1;
 +
 +	printf("\t\tSide = %s\n", sideString(packet->side));
-+	printf("\t\tName = \"%*s\"\n", nameLen, packet->name);
++	printf("\t\tName = \"%-*s\"\n", nameLen, packet->name);
 +	return 0;
 +}
 +
