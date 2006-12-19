@@ -17,11 +17,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-VERSION=0.4.0
+VERSION=0.6.0
 
-LIST_DIR=/home/uqm/var/uqmzip
-PKG_DIR=/home/uqm/var/uqmzip
-SOURCE_DIR=/home/uqm/cvs/sc2
+# THESE MUST BE DEFINED, PREFERABLY AS ABSOLUTE PATHS, BEFORE RUNNING
+# THIS SCRIPT
+
+LIST_DIR=/invalid/dir
+PKG_DIR=/invalid/dir
+SOURCE_DIR=/invalid/dir
 CONTENT_DIR=$SOURCE_DIR/content
 
 CONTENT_LIST=$LIST_DIR/uqm-$VERSION-content.lst
@@ -36,7 +39,7 @@ ZIP="zip -X -q -n .ogg -8"
 
 make_content_list() {
 	cd "$CONTENT_DIR"
-	find . -type f -not -path '*/CVS*' -and -not -name "*.ogg" | sort > "$CONTENT_LIST"
+	find . -type f -not -path '*/CVS*' -and -not -name "*.ogg" -and -not -name "version" | sort > "$CONTENT_LIST"
 }
 
 make_voice_list() {
