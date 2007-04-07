@@ -73,12 +73,12 @@ typedef struct {
 } package_desc;
 
 typedef struct {
+	uint8 res_flags;
 	uint32 packmem_list_offs;
 	uint32 path_list_offs;
 	uint32 file_list_offs;
 	uint16 num_packages;
-	uint8 num_types;
-	uint8 res_flags;
+	uint16 num_types;
 	uint16 header_len;
 	package_desc *package_list;
 	type_desc *type_list;
