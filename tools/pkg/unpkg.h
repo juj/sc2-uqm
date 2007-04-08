@@ -13,6 +13,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef unsigned char uint8;
@@ -73,7 +74,7 @@ typedef struct {
 } package_desc;
 
 typedef struct {
-	uint8 res_flags;
+	bool packaged;
 	uint32 packmem_list_offs;
 	uint32 path_list_offs;
 	uint32 file_list_offs;
