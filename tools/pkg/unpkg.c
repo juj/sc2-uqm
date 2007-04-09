@@ -39,7 +39,7 @@ struct options {
 	char print;
 	char verbose;
 	enum {
-		Type_sc1,  // PC version of SC1
+		Type_sc1,  // PC/Amiga version of SC1
 		Type_pc,   // PC version of SC2
 		Type_3do,  // 3DO version of SC2; also The Horde (PC version)
 	} type;
