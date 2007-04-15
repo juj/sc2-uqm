@@ -69,6 +69,7 @@ main(int argc, char *argv[]) {
 	uint8 *buf;
 	index_header *h;
 	struct options opts;
+	off_t inSize;
 
 	parse_arguments(argc, argv, &opts);
 
@@ -83,8 +84,9 @@ main(int argc, char *argv[]) {
 		perror("stat() failed");
 		return EXIT_FAILURE;
 	}
+	inSize = sb.st_size;
 	
-	buf = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, in, 0);
+	buf = mmap(NULL, inSize, PROT_READ, MAP_SHARED, in, 0);
 	if (buf == MAP_FAILED) {
 		perror("mmap() failed");
 		return EXIT_FAILURE;
@@ -103,7 +105,7 @@ main(int argc, char *argv[]) {
 	}
 
 	{
-		FilesStats *stats = createFilesStats(h, buf, sb.st_size);
+		FilesStats *stats = createFilesStats(h, buf, inSize);
 		analyzeFilesStats(&opts, h, stats);
 	}
 
@@ -141,7 +143,7 @@ main(int argc, char *argv[]) {
 	}
 
 	// freeIndex(h);
-	munmap(buf, sb.st_size);
+	munmap(buf, inSize);
 	return EXIT_SUCCESS;
 }
 
@@ -678,7 +680,7 @@ analyzeFilesStats(struct options *opts, const index_header *h,
 	size_t filesStatsI;
 	int multiplier = resourceSizeMultiplier(opts->type);
 
-	for (filesStatsI = 0; filesStatsI < filesStats->indexUpper - 1;
+	for (filesStatsI = 0; filesStatsI < filesStats->indexUpper;
 			filesStatsI++) {
 		FileStats *stats = &filesStats->fileStats[filesStatsI];
 		size_t packI;
