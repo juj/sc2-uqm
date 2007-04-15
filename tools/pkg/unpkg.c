@@ -724,7 +724,7 @@ analyzeFilesStats(struct options *opts, const index_header *h,
 				// one package with 2 instances.
 				// The DOS version of SC1 and the 3DO version of SC2 have
 				// no such overflows.
-				fprintf(stderr, "Package #%d: Size is 0x%08x; "
+				fprintf(stderr, "Package #%d: Size 0x%08x; "
 						"Expected 0x%08x. %d instances. ", pack->index,
 						pack->size, expectedSize, pack->num_instances);
 				if (pack->size < expectedSize &&
@@ -732,6 +732,14 @@ analyzeFilesStats(struct options *opts, const index_header *h,
 					fprintf(stderr, "Correcting.\n");
 					pack->size = expectedSize;
 					lastInstance(pack)->size += missing;
+				} else if (packI == stats->numPackages - 1 &&
+						pack->size + multiplier > expectedSize) {
+					// It's possible that the package itself came from
+					// another package; in that case, there might be up to
+					// multiplier - 1 bytes of padding to the end of the
+					// package file to make the size a multiple of
+					// 'multiplier'.
+					fprintf(stderr, "Just padding.\n");
 				} else {
 					fprintf(stderr, "KEPT VALUE!\n");
 				}
