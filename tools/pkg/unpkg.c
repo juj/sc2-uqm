@@ -31,6 +31,12 @@
 
 #include "unpkg.h"
 
+// Variations on the packaging file format.
+typedef enum {
+	Type_sc1,  // PC/Amiga version of SC1
+	Type_pc,   // PC version of SC2
+	Type_3do,  // 3DO version of SC2; also The Horde (PC version)
+} PackagingType;
 
 struct options {
 	char *infile;
@@ -38,11 +44,7 @@ struct options {
 	char list;
 	char print;
 	char verbose;
-	enum {
-		Type_sc1,  // PC/Amiga version of SC1
-		Type_pc,   // PC version of SC2
-		Type_3do,  // 3DO version of SC2; also The Horde (PC version)
-	} type;
+	PackagingType type;
 };
 
 
@@ -53,7 +55,11 @@ char *getFileName(const uint8 *buf, const index_header *h,
 		uint16 file_index);
 void writeFiles(const index_header *h, const uint8 *data, const char *path);
 void parse_arguments(int argc, char *argv[], struct options *opts);
+void analyzeFilesStats(struct options *opts, const index_header *h,
+		const FilesStats *filesStats);
 void listResources(const index_header *h, const uint8 *buf, FILE *out);
+FilesStats *createFilesStats(const index_header *h, const uint8 *buf,
+		size_t bufSize);
 
 
 int
@@ -86,11 +92,20 @@ main(int argc, char *argv[]) {
 	close(in);
 
 	h = readIndex(&opts, buf);
-	if (opts.print)
+	if (opts.print) {
 		printIndex(&opts, h, buf, stdout);
+		fflush(stdout);
+	}
 
-	if (opts.list)
+	if (opts.list) {
 		listResources(h, buf, stdout);
+		fflush(stdout);
+	}
+
+	{
+		FilesStats *stats = createFilesStats(h, buf, sb.st_size);
+		analyzeFilesStats(&opts, h, stats);
+	}
 
 	if (opts.outdir != NULL) {
 		size_t len;
@@ -196,6 +211,19 @@ parse_arguments(int argc, char *argv[], struct options *opts) {
 	opts->infile = argv[0];
 }
 
+// The various file formats reserve 2 bytes for the size of a resource.
+// The actual size is the value from these bytes multiplied by a value
+// which depends on the variant of the packaging file format.
+int
+resourceSizeMultiplier(PackagingType type) {
+	switch (type) {
+		case Type_sc1: return 1;
+		case Type_pc:  return 2;
+		case Type_3do: return 4;
+	}
+	abort();  // Should not happen.
+}
+
 index_header *
 readIndex(const struct options *opts, const uint8 *buf) {
 	index_header *h;
@@ -250,15 +278,21 @@ readIndex(const struct options *opts, const uint8 *buf) {
 		uint32 temp;
 		
 		for (i = 0; i < h->num_packages; i++) {
+			package_desc *package = &h->package_list[i];
+
+			package->index = i + 1;
 			temp = MAKE_DWORD(bufptr[0], bufptr[1], bufptr[2], bufptr[3]);
-			h->package_list[i].num_types = GET_TYPE(temp);
-			h->package_list[i].num_instances = GET_INSTANCE(temp);
-			h->package_list[i].file_index = GET_PACKAGE(temp);
+			package->num_types = GET_TYPE(temp);
+			package->num_instances = GET_INSTANCE(temp);
+			package->file_index = GET_PACKAGE(temp);
 			bufptr += 4;
 			
 			temp = MAKE_DWORD(bufptr[0], bufptr[1], bufptr[2], bufptr[3]);
-			h->package_list[i].flags = temp >> 24;
-			h->package_list[i].data_loc = temp & 0x00ffffff;
+			package->flags = temp >> 24;
+			package->data_loc = temp & 0x00ffffff;
+			package->size = 0;
+					// Will be calculated from the sizes of the individual
+					// resource instances in the package below.
 			bufptr += 4;
 		}
 	}
@@ -321,36 +355,27 @@ readIndex(const struct options *opts, const uint8 *buf) {
 					packdef_instance *instance = &type->instances[k];
 				
 					if (h->packaged) {
-						switch (opts->type) {
-							case Type_sc1:
-								instance->size =
-										MAKE_WORD(bufptr[0], bufptr[1]);
-								break;
-							case Type_pc:
-								instance->size =
-										2 * MAKE_WORD(bufptr[0], bufptr[1]);
-								break;
-							case Type_3do:
-								instance->size =
-										4 * MAKE_WORD(bufptr[0], bufptr[1]);
-								break;
-						}
+						instance->size = resourceSizeMultiplier(opts->type) *
+								MAKE_WORD(bufptr[0], bufptr[1]);
 						instance->offset = next_offset;
 						next_offset += instance->size;
+
+						instance->file_index = (uint16) -1;
 						instance->filename = NULL;
-								// File name is specified per package.
 					} else {
 						char *temp;
 						instance->size = 0;
 						instance->offset = 0;
-						temp = getFileName(buf, h,
-								MAKE_WORD(bufptr[0], bufptr[1]));
+						instance->file_index =
+								MAKE_WORD(bufptr[0], bufptr[1]);
+						temp = getFileName(buf, h, instance->file_index);
 						instance->filename = (temp == NULL) ?
 								NULL : strdup(temp);
-
 					}
 					bufptr += 2;
 				}  // for k
+
+				package->size = next_offset - package->data_loc;
 			}  // for j
 		} // for i
 	}
@@ -419,18 +444,16 @@ printIndex(const struct options *opts, const index_header *h,
 		int i;
 		
 		for (i = 0; i < h->num_packages; i++) {
+			package_desc *package = &h->package_list[i];
 			fprintf(out, "0x%08x    #%d, %d types, %d instances, "
-					"file index 0x%04x, ", bufptr - buf, i + 1,
-					h->package_list[i].num_types,
-					h->package_list[i].num_instances,
-					h->package_list[i].file_index);
+					"file index 0x%04x, ", bufptr - buf, package->index,
+					package->num_types, package->num_instances,
+					package->file_index);
 			bufptr += 4;
 			
-			if (h->package_list[i].flags != 0xff) {
-				fprintf(out, "BAD OFFSET!\n");
-			} else {
-				fprintf(out, "offset 0x%06x\n",
-						h->package_list[i].data_loc);
+			if (package->flags != 0xff) {
+				fprintf(out, "BAD OFFSET!\n"); } else {
+				fprintf(out, "offset 0x%06x\n", package->data_loc);
 			}
 			bufptr += 4;
 		}
@@ -462,11 +485,12 @@ printIndex(const struct options *opts, const index_header *h,
 			
 			if (h->packaged) {
 				fprintf(out, "0x%08x    Package #%d (%s):\n",
-						bufptr - buf, i + 1, (package->filename == NULL) ?
+						bufptr - buf, package->index,
+						(package->filename == NULL) ?
 						"<<INTERNAL>>" : package->filename);
 			} else {
 				fprintf(out, "0x%08x    Package #%d:\n",
-						bufptr - buf, i + 1);
+						bufptr - buf, package->index);
 			}
 
 			num_types = package->num_types;
@@ -487,15 +511,17 @@ printIndex(const struct options *opts, const index_header *h,
 				num_instances = type->num_instances;
 				for (k = 0; k < num_instances; k++) {
 					packdef_instance *instance = &type->instances[k];
+					uint32 resId = MAKE_RESOURCE(package->index, type->type,
+							type->first_instance + k);
 
 					if (h->packaged) {
-						fprintf(out, "0x%08x      Instance #%d of "
+						fprintf(out, "0x%08x      [%08x]: Instance #%d of "
 								"type %d: size %d bytes\n", bufptr - buf,
-								k + type->first_instance, type->type,
-								instance->size);
+								resId, k + type->first_instance,
+								type->type, instance->size);
 					} else {
-						fprintf(out, "0x%08x      Instance #%d of "
-								"type %d: %s\n", bufptr - buf,
+						fprintf(out, "0x%08x      [%08x]: Instance #%d of "
+								"type %d: %s\n", bufptr - buf, resId,
 								k + type->first_instance, type->type,
 								(instance->filename == NULL) ?
 								"<<UNNAMED>>" : instance->filename);
@@ -507,6 +533,208 @@ printIndex(const struct options *opts, const index_header *h,
 				}  // for k
 			}  // for j
 		} // for i
+	}
+}
+
+// Returns 1 more than the largest used file index, or 0 if there are
+// no file indices used at all (this can only happen if the package is
+// empty).
+size_t
+countFileIndexUpper(const index_header *h) {
+	int i;
+	size_t result;
+
+	result = 0;
+	for (i = 0; i < h->num_packages; i++) {
+		package_desc *package = &h->package_list[i];
+		
+		if (package->file_index >= result)
+			result = package->file_index + 1;
+	}
+	return result;
+}
+
+// returns "(uint32) -1" on error, in which case errno is set.
+uint32
+fileSize(const char *fileName) {
+	struct stat sb;
+
+	if (stat(fileName, &sb) == -1) {
+		// errno is set
+		return (uint32) -1;
+	}
+
+	return sb.st_size;
+}
+
+int
+packageOffsetComparator(package_desc **p1, package_desc **p2) {
+	if ((*p1)->file_index < (*p2)->file_index)
+		return -1;
+	if ((*p1)->file_index > (*p2)->file_index)
+		return 1;
+
+	if ((*p1)->data_loc < (*p2)->data_loc)
+		return -1;
+	if ((*p1)->data_loc > (*p2)->data_loc)
+		return 1;
+
+	return 0;
+}
+
+FilesStats *
+createFilesStats(const index_header *h, const uint8 *buf, size_t bufSize) {
+	FilesStats *result;
+	size_t statsI;
+	
+	assert(h->packaged);
+
+	result = malloc(sizeof(FilesStats));
+	result->indexUpper = countFileIndexUpper(h);
+	result->fileStats = malloc(result->indexUpper * sizeof(FileStats));
+
+	// Initialise the FileStats structures.
+	for (statsI = 0; statsI < result->indexUpper; statsI++) {
+		FileStats *stats = &result->fileStats[statsI];
+		stats->numPackages = 0;
+		stats->fileSize = 0;
+	}
+
+	// Count the references to each file.
+	{
+		int i;
+		for (i = 0; i < h->num_packages; i++) {
+			package_desc *package = &h->package_list[i];
+			result->fileStats[package->file_index].numPackages++;
+		}
+	}
+
+	// Allocate the instances arrays of the FileStat structures.
+	for (statsI = 0; statsI < result->indexUpper; statsI++) {
+		FileStats *stats = &result->fileStats[statsI];
+
+		stats->packages =
+				malloc(stats->numPackages * sizeof (packdef_instance *));
+	}
+	
+	// Clear the numPackages field of the FileStats structures,
+	// so it can grow again as the FileStats array is filled.
+	for (statsI = 0; statsI < result->indexUpper; statsI++) {
+		FileStats *stats = &result->fileStats[statsI];
+		stats->numPackages = 0;
+	}
+
+	// Fill the instances arrays of the FileStat structures.
+	{
+		int i;
+		for (i = 0; i < h->num_packages; i++) {
+			package_desc *package = &h->package_list[i];
+			FileStats *stats = &result->fileStats[package->file_index];
+
+			stats->packages[stats->numPackages] = package;
+			stats->numPackages++;
+		}
+	}
+
+	// Sort the packages array of each FileStats structure.
+	for (statsI = 0; statsI < result->indexUpper; statsI++) {
+		FileStats *stats = &result->fileStats[statsI];
+		qsort(stats->packages, stats->numPackages, sizeof (package_desc *),
+				(int (*)(const void *, const void *))
+				packageOffsetComparator);
+	}
+
+	// Determine the sizes of the files.
+	for (statsI = 0; statsI < result->indexUpper; statsI++) {
+		FileStats *stats = &result->fileStats[statsI];
+		const char *fileName;
+
+		fileName = getFileName(buf, h, statsI);
+		if (fileName == NULL) {
+			stats->fileSize = bufSize;
+		} else {
+			stats->fileSize = fileSize(fileName);
+			if (stats->fileSize == (uint32) -1) {
+				fprintf(stderr, "Could not determine size of file %s: %s\n",
+						fileName, strerror(errno));
+				stats->fileSize = 0;
+			}
+		}
+	}
+
+	return result;
+}
+
+packdef_instance *
+lastInstance(package_desc *pack) {
+	packtype_desc *type = &pack->type_list[pack->num_types - 1];
+	packdef_instance *instance = &type->instances[type->num_instances - 1];
+	return instance;
+}
+
+void
+analyzeFilesStats(struct options *opts, const index_header *h,
+		const FilesStats *filesStats) {
+	size_t filesStatsI;
+	int multiplier = resourceSizeMultiplier(opts->type);
+
+	for (filesStatsI = 0; filesStatsI < filesStats->indexUpper - 1;
+			filesStatsI++) {
+		FileStats *stats = &filesStats->fileStats[filesStatsI];
+		size_t packI;
+
+		for (packI = 0; packI < stats->numPackages; packI++) {
+			package_desc *pack = stats->packages[packI];
+			uint32 off1 = pack->data_loc;
+			uint32 off2;
+			uint32 expectedSize;
+
+			if (packI < stats->numPackages - 1) {
+				off2 = stats->packages[packI + 1]->data_loc;
+			} else {
+				off2 = stats->fileSize;
+				if (off2 == (uint32) -1)
+					break;
+			}
+			expectedSize = off2 - off1;
+
+			if (pack->size != expectedSize) {
+				uint32 missing = expectedSize - pack->size;
+				// The package format only reserves two bytes for the
+				// size of a resource, and a multiplier, dependant on
+				// the variant of the package format, is used to determine
+				// the real value.
+				// In the resource files of the PC version of Star Control
+				// II, there are eight files which are still too large for
+				// the field, so an overflow occurs, which must be
+				// corrected. Fortunately, the only occurances are in
+				// packages which only have one instance, so the difference
+				// in offset between consecutive packages can be used as the
+				// real size.
+				// In the PC version of the Horde, an overflow exists for
+				// two packages which consist of more than one resource
+				// instance. We assume that it is the last instance which
+				// has the invalid size. This is reasonable, as an invalid
+				// size would cause the wrong offset to be used for
+				// subsequent instances in the package, which would likely
+				// have been noticed due to corruption in the game.
+				// In the Amiga version of SC1, an overflow exists in
+				// one package with 2 instances.
+				// The DOS version of SC1 and the 3DO version of SC2 have
+				// no such overflows.
+				fprintf(stderr, "Package #%d: Size is 0x%08x; "
+						"Expected 0x%08x. %d instances. ", pack->index,
+						pack->size, expectedSize, pack->num_instances);
+				if (pack->size < expectedSize &&
+						(missing % (multiplier * 0x10000) == 0)) {
+					fprintf(stderr, "Correcting.\n");
+					pack->size = expectedSize;
+					lastInstance(pack)->size += missing;
+				} else {
+					fprintf(stderr, "KEPT VALUE!\n");
+				}
+			}
+		}
 	}
 }
 
@@ -536,7 +764,8 @@ listResources(const index_header *h, const uint8 *buf, FILE *out) {
 				if (!h->packaged)
 					filename = (instance->filename == NULL) ?
 							"<<UNNAMED>>" : instance->filename;
-				fprintf(out, "0x%08x  %s\n", MAKE_RESOURCE(i + 1, type->type,
+				fprintf(out, "0x%08x  %s\n", MAKE_RESOURCE(
+						package->index, type->type,
 						type->first_instance + k), filename);
 			}  // for k
 		}  // for j
@@ -732,14 +961,14 @@ writeFiles(const index_header *h, const uint8 *data, const char *path) {
 			for (k = 0; k < num_instances; k++) {
 				packdef_instance *instance = &type->instances[k];
 				sprintf(filename, "%s/%08x", path,
-						MAKE_RESOURCE(i + 1, type->type,
+						MAKE_RESOURCE(package->index, type->type,
 						type->first_instance + k));
 #if 0
 				sprintf(filename, "%s/%08x=%03x-%02x-%03x",
 						path,
-						MAKE_RESOURCE(i + 1, type->type,
-						type->first_instance + k), i + 1, type->type,
-						type->first_instance + k);
+						MAKE_RESOURCE(package->index, type->type,
+						type->first_instance + k), package->index,
+						type->type, type->first_instance + k);
 #endif
 				if (package->filename != NULL) {
 					// Resource is contained in a different file.

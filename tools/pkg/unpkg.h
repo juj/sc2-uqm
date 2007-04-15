@@ -43,6 +43,7 @@ typedef unsigned int uint32;
 typedef struct {
 	uint32 size;  // only low 18 bits used, multiple of 4
 	uint32 offset;
+	uint16 file_index;
 	char *filename;
 } packdef_instance;
 
@@ -64,13 +65,21 @@ typedef struct {
 } file_info;
 
 typedef struct {
+	uint16 index;
+			// Index of this package. Acquired by counting; not part of the
+			// package file.
+
 	uint8 num_types;
 	uint16 num_instances;  // only low 13 bits used
 	uint16 file_index;  // only low 11 bits used
 	uint8 flags;
 	uint32 data_loc;  // only low 24 bits used
+	uint32 size;
+			// Size of the package; derived from the sizes of the resource
+			// instances in the package.
 	char *filename;
 	packtype_desc *type_list;
+	
 } package_desc;
 
 typedef struct {
@@ -92,4 +101,23 @@ typedef struct {
 #endif /* PACKAGING */
 #endif
 } index_header;
+
+// Statistics for one file refered to from packages.
+typedef struct {
+	size_t numPackages;
+			// Number of packages that refer to this file.
+	package_desc **packages;
+			// Array of packages that refer to this file.
+			// Sorted on their offset.
+	uint32 fileSize;
+} FileStats;
+
+// Statistics for all files refered to from resource instances.
+typedef struct {
+	size_t indexUpper;
+			// 1 higher than the last valid index for fileStat.
+	FileStats *fileStats;
+			// array of pointers to FileStat structures
+} FilesStats;
+
 
