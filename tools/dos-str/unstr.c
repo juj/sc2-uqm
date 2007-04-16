@@ -1,7 +1,7 @@
 /*
  * DOS SC2 string extractor.
  * 
- * By Serge van den Boom (svdb@stack.nl), 20021027
+ * By Serge van den Boom (svdb@stack.nl), 20070415
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
