@@ -19,8 +19,6 @@
 
 #include "unstr.h"
 
-#include <png.h>
-
 
 struct options {
 	char *infile;

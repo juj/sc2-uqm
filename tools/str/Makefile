@@ -1,5 +1,5 @@
 unstr: unstr.c unstr.h
-	gcc -W -Wall -g -O0 unstr.c -o unstr -lpng -lz -lm
+	gcc -W -Wall -g -O0 unstr.c -o unstr
 
 clean:
 	rm unstr unstr.tgz
