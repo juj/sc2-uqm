@@ -39,7 +39,7 @@ ZIP="zip -X -q -n .ogg -8"
 
 make_content_list() {
 	cd "$CONTENT_DIR"
-	find . -type f -not -path '*/CVS*' -and -not -name "*.ogg" -and -not -name "version" | sort > "$CONTENT_LIST"
+	find . -type f -not -path '*/CVS*' -not -path '*/.svn*' -not -name "*.ogg" -not -name "version" | sort > "$CONTENT_LIST"
 }
 
 make_voice_list() {
