@@ -1,0 +1,167 @@
+# General purpose Makefile for GNU make
+# By Serge van den Boom (svdb@stack.nl), 2005-05-29
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+# In the actual makefile, do the following
+# 		TARGET := <target executable>
+# 		TARGET_A := <target .a file>
+# 		TARGET_SO := <target .so file>
+# 		CFILES := <all .c source files>
+# 		CXXFILES := <all .cpp source files>
+# 		HFILES := <all .h header files>
+# 		EXTRA_OFILES := <optional extra object files to link>
+# 		CPPFLAGS := <extra C/C++ preprocessor flags>
+# 		CFLAGS := <extra C flags>
+# 		CXXFLAGS := <extra C++ flags>
+# 		LDFLAGS := <extra linker flags>
+# 		DEBUG := <0|1>
+# 		ERROR := <0|1>
+# 		include Makefile.default
+
+
+#############################################################################
+
+DEBUG ?= 0
+ERROR ?= 0
+
+CC           ?= gcc
+CXX          ?= g++
+MKDEPEND_C   ?= gcc -MM
+MKDEPEND_CXX ?= g++ -MM
+WINDRES      ?= windres
+SED          ?= sed
+
+AR           ?= ar
+RANLIB       ?= ranlib
+
+TARGET       ?=
+CFILES       ?=
+CXXFILES     ?=
+HFILES       ?=
+EXTRA_OFILES ?=
+
+CPPFLAGS     ?=
+CFLAGS       ?=
+CXXFLAGS     ?=
+LDFLAGS      ?=
+
+
+ifeq ($(DEBUG),1)
+	CFLAGS+=-g -D_DEBUG -O0
+	CXXFLAGS+=-g -D_DEBUG -O0
+else
+	CFLAGS+=-O3 -Wuninitialized
+	CXXFLAGS+=-O3 -Wuninitialized
+			# -Wunitialized only works with -O1 or higher optimisation
+endif
+
+CFLAGS += -std=c99
+		# I want support for '//' comments and named structure initialisers.
+CFLAGS += -W -Wall \
+		-Wbad-function-cast -Wcast-qual -Wmissing-prototypes \
+		-Wstrict-prototypes -Wmissing-declarations \
+		-Wwrite-strings -Wimplicit -Wreturn-type -Wformat \
+		-Wswitch -Wcomment -Wchar-subscripts \
+		-Wparentheses -Wcast-align -Waggregate-return \
+		-Winline
+CFLAGS += -Wpointer-arith
+		# Some standard header won't even compile with this on
+CFLAGS += -Wshadow
+		# This gives absurd conflicts with standard files,
+		# like from 'y0' and 'y1'
+#CFLAGS += -pedantic-errors -ansi  # ANSI
+CFLAGS += -Wnested-externs
+ifeq ($(ERROR),1)
+	CFLAGS += -Werror
+endif
+
+CXXFLAGS += -W -Wall \
+		-Wcast-qual \
+		-Wwrite-strings -Wimplicit -Wreturn-type -Wformat \
+		-Wswitch -Wcomment -Wchar-subscripts \
+		-Wparentheses -Wcast-align -Winline
+CXXFLAGS += -Wpointer-arith
+		# Some standard header won't even compile with this on
+#CXXFLAGS += -pedantic-errors -ansi  # ANSI
+ifeq ($(ERROR),1)
+	CXXFLAGS += -Werror
+endif
+
+CFILES := $(strip $(CFILES))
+		# Remove excess whitespace
+CXXFILES := $(strip $(CXXFILES))
+		# Remove excess whitespace
+
+OFILES := $(CFILES:.c=.c.o)
+OFILES += $(CXXFILES:.cpp=.cpp.o)
+
+# Default target must be listed before including any dependencies.
+default: $(TARGET) $(TARGET_A) $(TARGET_SO)
+
+DFILES := $(CFILES:.c=.c.d)
+DFILES += $(CXXFILES:.cpp=.cpp.d)
+-include $(DFILES)
+
+ifeq ($(strip $(CXXFILES)),)
+	LINK := $(CC)
+else
+	LINK := $(CXX)
+endif
+
+$(TARGET): $(OFILES) $(EXTRA_OFILES)
+	$(LINK) $(LDFLAGS) -o "$@" $^
+
+$(TARGET_A): $(OFILES) $(EXTRA_OFILES)
+	if [ -e "$(TARGET_A)" ]; then \
+		rm -f -- "$(TARGET_A)"; \
+	fi
+	$(AR) -rc "$@" $^
+	$(RANLIB) $(TARGET_A)
+
+$(TARGET_SO): $(OFILES) $(EXTRA_OFILES)
+	$(LINK) -shared $(LDFLAGS) -o "$@" $^
+
+%.c.o: %.c
+	$(CC) -o "$@" -c $(CPPFLAGS) $(CFLAGS) "$<"
+
+%.cpp.o: %.cpp
+	$(CXX) -o "$@" -c $(CPPFLAGS) $(CXXFLAGS) "$<"
+
+%.rc.o: %.rc
+	$(WINDRES) --include-dir $(dir $<) -o "$@" "$<"
+
+%.c.d: %.c
+	$(MKDEPEND_C) $(CPPFLAGS) -o - "$<" | $(SED) -e 's/.o:/.c.o:/' > "$@"
+
+%.cpp.d: %.cpp
+	$(MKDEPEND_CXX) $(CPPFLAGS) -o - "$<" | $(SED) -e 's/.o:/.cpp.o:/' > "$@"
+
+
+tags: .tags
+
+.tags: $(CFILES) $(CXXFILES) $(HFILES)
+	$(CTAGS) $(CFILES) $(CXXFILES) $(HFILES)	
+
+clean:
+	rm -f -- $(OFILES) $(TARGET) $(DFILES)
+
+distclean: clean
+	rm -f tags cscope.out
+
+
+
+
