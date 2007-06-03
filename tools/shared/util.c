@@ -114,4 +114,203 @@ err:
 	return -1;
 }
 
+// Use base '0' for any base.
+// returns 0 if the entire string is ok.
+int
+parseU8(const char *str, int base, uint8_t *result) {
+	char *endPtr;
+	unsigned long temp;
+
+	if (str[0] == '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	errno = 0;
+	temp = strtoul (str, &endPtr, base);
+	if (errno != 0)
+		return -1;
+
+	if (*endPtr != '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (temp > UINT8_MAX) {
+		errno = ERANGE;
+		return -1;
+	}
+
+	*result = (uint8_t) temp;
+	return 0;
+}
+
+// Use base '0' for any base.
+// returns 0 if the entire string is ok.
+int
+parseS8(const char *str, int base, int8_t *result) {
+	char *endPtr;
+	long temp;
+
+	if (str[0] == '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	errno = 0;
+	temp = strtol (str, &endPtr, base);
+	if (errno != 0)
+		return -1;
+
+	if (*endPtr != '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (temp < INT8_MIN || temp > INT8_MAX) {
+		errno = ERANGE;
+		return -1;
+	}
+
+	*result = (int8_t) temp;
+	return 0;
+}
+
+// Use base '0' for any base.
+// returns 0 if the entire string is ok.
+int
+parseU16(const char *str, int base, uint16_t *result) {
+	char *endPtr;
+	unsigned long temp;
+
+	if (str[0] == '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	errno = 0;
+	temp = strtoul (str, &endPtr, base);
+	if (errno != 0)
+		return -1;
+
+	if (*endPtr != '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (temp > UINT16_MAX) {
+		errno = ERANGE;
+		return -1;
+	}
+
+	*result = (uint16_t) temp;
+	return 0;
+}
+
+// Use base '0' for any base.
+// returns 0 if the entire string is ok.
+int
+parseS16(const char *str, int base, int16_t *result) {
+	char *endPtr;
+	long temp;
+
+	if (str[0] == '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	errno = 0;
+	temp = strtol (str, &endPtr, base);
+	if (errno != 0)
+		return -1;
+
+	if (*endPtr != '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (temp < INT16_MIN || temp > INT16_MAX) {
+		errno = ERANGE;
+		return -1;
+	}
+
+	*result = (int16_t) temp;
+	return 0;
+}
+
+// Use base '0' for any base.
+// returns 0 if the entire string is ok.
+int
+parseU32(const char *str, int base, uint32_t *result) {
+	char *endPtr;
+	unsigned long temp;
+
+	if (str[0] == '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	errno = 0;
+	temp = strtoul (str, &endPtr, base);
+	if (errno != 0)
+		return -1;
+
+	if (*endPtr != '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (temp > UINT32_MAX) {
+		errno = ERANGE;
+		return -1;
+	}
+
+	*result = (uint32_t) temp;
+	return 0;
+}
+
+// Use base '0' for any base.
+// returns 0 if the entire string is ok.
+int
+parseS32(const char *str, int base, int32_t *result) {
+	char *endPtr;
+	long temp;
+
+	if (str[0] == '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	errno = 0;
+	temp = strtol (str, &endPtr, base);
+	if (errno != 0)
+		return -1;
+
+	if (*endPtr != '\0')
+	{
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (temp < INT32_MIN || temp > INT32_MAX) {
+		errno = ERANGE;
+		return -1;
+	}
+
+	*result = (int32_t) temp;
+	return 0;
+}
+
+
 

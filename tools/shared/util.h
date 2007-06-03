@@ -20,6 +20,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <sys/types.h>
+#include <stdint.h>
 
 
 void logError(bool useErrno, const char *format, ...)
@@ -30,6 +31,12 @@ void fatal(bool useErrno, const char *format, ...)
 
 int mmapOpen(const char *fileName, int flags, void **buf, size_t *len);
 
+int parseU8(const char *str, int base, uint8_t *res);
+int parseS8(const char *str, int base, int8_t *res);
+int parseU16(const char *str, int base, uint16_t *res);
+int parseS16(const char *str, int base, int16_t *res);
+int parseU32(const char *str, int base, uint32_t *res);
+int parseS32(const char *str, int base, int32_t *res);
 
 #endif  /* _UTIL_H */
 
