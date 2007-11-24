@@ -26,7 +26,7 @@ struct aifc_ChunkHeader {
 struct aifc_Chunk {
 	aifc_ID ckID;       /* Chunk ID */
 	uint32_t ckSize;    /* Chunk size, excluding header */
-	uint8_t ckData[1];  /* placeholder for data */
+	uint8_t ckData[];  /* placeholder for data */
 };
 
 struct aifc_ContainerChunk {
@@ -46,17 +46,17 @@ struct aifc_ExtCommonChunk {
 	aifc_ID ckID;          /* "COMM" */
 	uint32_t ckSize;       /* size of chunk data */
 	uint16_t numChannels;  /* number of channels */
-	uint32_t numSampleFrames __attribute__ ((packed));	
+	uint32_t numSampleFrames;	
 	                       /* number of sample frames */
-	uint16_t sampleSize __attribute__ ((packed));
+	uint16_t sampleSize;
 	                       /* number of bits per sample */
-	aifc_Extended sampleRate __attribute__ ((packed));
+	aifc_Extended sampleRate;
 	                       /* number of frames per second */
-	aifc_ID compressionType __attribute__ ((packed));
+	aifc_ID compressionType;
 	                       /* compression type ID */
 	char *compressionName;
 	                       /* compression type name */
-};
+} __attribute__ ((packed));
 
 
 struct aifc_SoundDataChunk {
@@ -64,6 +64,6 @@ struct aifc_SoundDataChunk {
 	uint32_t ckSize;     /* size of chunk data */
 	uint32_t offset;     /* offset to sound data */
 	uint32_t blocksize;  /* size of alignment blocks */
-	uint8_t data[1];     /* placeholder for data */
+	uint8_t data[];      /* placeholder for data */
 };
 

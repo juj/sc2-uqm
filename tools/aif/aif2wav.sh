@@ -13,7 +13,7 @@ echo "If this is not the case, files won't be converted correctly."
 echo "The sample rate is reported, so you can see if it goes wrong."
 
 echo "Press ENTER when ready."
-read
+read DUMMY
 
 for FILE in *.aif; do
 	echo "File $FILE"

@@ -190,7 +190,7 @@ free_chunks(struct aifc_Chunk **chunks) {
 }
 
 void
-convert_aif(FILE *in, FILE *out) { 
+convert_aif(FILE *in, FILE *out) {
 	struct aifc_Chunk **chunks;
 	struct aifc_FormatVersionChunk *fverChunk;
 	struct aifc_ExtCommonChunk *commChunk;
