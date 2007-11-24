@@ -11,9 +11,9 @@ echo "and are stereo."
 echo "N.B. This program isn't fast. Make a cup of tea or something."
 
 echo "Press ENTER when ready."
-read
+read DUMMY
 
-for FILE in *.{duk,DUK}; do
+for FILE in *.duk *.DUK; do
 	if [ ! -r "$FILE" ]; then
 		continue
 	fi
