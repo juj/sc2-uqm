@@ -12,6 +12,9 @@ def process (res):
 	if len(line) == 0:
             continue
         mapline = stridgen.makeid(line)
+        # Remap not to .lst files but to .ls2 ones.
+        if line.endswith('lst'):
+            line = os.path.splitext(line)[0]+'.ls2'
         if mapline is None:
             toadd = "# NO MATCH FOR %s" % line
         else:
@@ -37,7 +40,13 @@ if __name__ == "__main__":
         d = sys.argv[1]
     resources = get_resources(d)
     resmap = process(resources)
+    keys = []
     for r in resmap:
+        key = r.split(':')[0]
+        if key in keys:
+            print "# ERROR: DUPLICATE KEY %s" % key
+        else:
+            keys.append(key)
         print r
 
     
