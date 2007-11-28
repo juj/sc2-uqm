@@ -18,7 +18,7 @@ def process (res):
         if mapline is None:
             toadd = "# NO MATCH FOR %s" % line
         else:
-            toadd = "%s: %s" % (mapline, line)
+            toadd = "%s = %s" % (mapline, line)
         if toadd not in result:
             result.append(toadd)
     result.sort()
