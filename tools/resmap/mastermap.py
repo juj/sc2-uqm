@@ -33,20 +33,27 @@ def get_resources(d):
                 result.append(line[1])
     return result
 
+def create_map(d):
+    resources = get_resources(d)
+    resmap = process(resources)
+    keys = []
+    result = []
+    for r in resmap:
+        key = r.split(':')[0]
+        if key in keys:
+            result.append("# ERROR: DUPLICATE KEY %s" % key)
+        else:
+            keys.append(key)
+        result.append(r)
+    return result
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         d = os.path.join(os.path.pardir, os.path.pardir, "sc2", "content")
     else:
         d = sys.argv[1]
-    resources = get_resources(d)
-    resmap = process(resources)
-    keys = []
-    for r in resmap:
-        key = r.split(':')[0]
-        if key in keys:
-            print "# ERROR: DUPLICATE KEY %s" % key
-        else:
-            keys.append(key)
-        print r
-
-    
+    target = os.path.join(d, "uqm.rmp")
+    print target
+    print "-"*len(target)
+    for l in create_map(d):
+        print l
