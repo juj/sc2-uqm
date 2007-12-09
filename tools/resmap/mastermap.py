@@ -5,6 +5,8 @@ import os.path
 import explorer
 import stridgen
 
+from optparse import OptionParser
+
 def process (res):
     result = []
     for line in res:
@@ -24,22 +26,31 @@ def process (res):
     result.sort()
     return result
 
-def get_resources(d):
+def get_lists(d, ext):
     result = []
-    packages = [explorer.read_list(x) for x in explorer.get_lists(d)]
+    packages = [explorer.read_list(x) for x in explorer.collect_extension(d, ext)]
     for package in packages:
         for line in package:
             if line[1] not in result:
                 result.append(line[1])
     return result
 
-def create_map(d):
-    resources = get_resources(d)
+def get_resources(d, ext):
+    result = []
+    if not d.endswith(os.path.sep):
+        d += os.path.sep
+    for res in explorer.collect_extension (d, ext):
+        res = res[len(d):]
+        if res not in result:
+            result.append(res)
+    return result
+
+def create_map(resources):
     resmap = process(resources)
     keys = []
     result = []
     for r in resmap:
-        key = r.split(':')[0]
+        key = r.split('=')[0].strip()
         if key in keys:
             result.append("# ERROR: DUPLICATE KEY %s" % key)
         else:
@@ -48,12 +59,21 @@ def create_map(d):
     return result
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        d = os.path.join(os.path.pardir, os.path.pardir, "sc2", "content")
+    opts = OptionParser(usage="usage: %prog [options]")
+    opts.add_option("-d", "--content-dir", dest="d",
+                    help="Directory to search for resources",
+                    default=os.path.join(os.path.pardir, os.path.pardir, "sc2", "content"))
+    opts.add_option("-r", "--raw", action="store_true", default=False,
+                    dest="raw", help="do not treat target resources as lists")
+    opts.add_option("-e", "--extension", dest="ext",
+                    help="Extension for files to search", default=".lst")
+
+    (options, args)=opts.parse_args()
+
+    if options.raw:
+        l = get_resources(options.d, options.ext)
     else:
-        d = sys.argv[1]
-    target = os.path.join(d, "uqm.rmp")
-    print target
-    print "-"*len(target)
-    for l in create_map(d):
-        print l
+        l = get_lists(options.d, options.ext)
+
+    for line in create_map(l):
+        print line

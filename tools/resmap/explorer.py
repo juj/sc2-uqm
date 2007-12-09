@@ -3,10 +3,10 @@ import sys
 import os
 import os.path
 
-def get_lists(d):
+def collect_extension(d, ext):
     result = []
     for (dirpath, dirnames, filenames) in os.walk(d):
-        for l in [f for f in filenames if f.endswith('.lst')]:
+        for l in [f for f in filenames if f.endswith(ext)]:
             result.append(os.path.join(dirpath, l))
     return result
 
