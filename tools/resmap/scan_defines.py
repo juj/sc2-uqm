@@ -70,6 +70,8 @@ def get_index_from_header (h):
 
 def parse_headers(pkgdata, fnamemap):
 	result = []
+	used_indices = {}
+	used_ids = {}
 	headernames = explorer.collect_res_headers(srcdir)
 	headerdata = [(x, explorer.read_header(x)) for x in headernames]
 	for (name, defines) in headerdata:
@@ -79,26 +81,44 @@ def parse_headers(pkgdata, fnamemap):
 			for (sym, val) in defines:
 				try:
 					trueval = res_encode (*res_decode_str (val))
+					used_indices[trueval]=True
 					if trueval in resmap:
 						res_id = resmap[trueval]
+						used_ids[res_id]=True
 						if res_id in fnamemap:
 							fname = fnamemap[res_id]
 						else:
 							fname = '--'
-						result.append((sym, val, res_id, fname))
 					else:
-						print>>sys.stderr, "Warning: Unknown RESOURCE %s for %s in %s (index %s)" % (val, sym, name, index)
+						res_id = '--'
+						fname = '--'
+					result.append((sym, val, res_id, fname))
 				except ValueError:
 					# This was something that wasn't a resource index
 					pass
 		else:
 			print>>sys.stderr, "Warning: Unknown RES_INDEX '%s'" % index
+	for pkgname in pkgdata:
+		pkg = pkgdata[pkgname]
+		for id in pkg:
+			if id not in used_indices:
+				res_id = pkg[id]
+				used_ids[res_id]=True
+				if res_id in fnamemap:
+					fname = fnamemap[res_id]
+				else:
+					fname = '--'
+				result.append(('--', res_encode_str (res_decode (id)), res_id, fname))
+	for id in fnamemap:
+		if id not in used_ids:
+			result.append(('--', '--', id, fnamemap[id]))
 	return result
 
-def go():
-	ls2s = parse_packages()
-	rmp = parse_resmap()
-	vals = parse_headers (ls2s, rmp)
+def collect_data ():
+	return parse_headers (parse_packages(), parse_resmap())
+
+
+def dump_html(vals):
 	print """<html>
   <head>
     <title>UQM Resource Mappings as of 0.6.4</title>
@@ -116,5 +136,5 @@ def go():
 </html>"""   
     
 if __name__ == '__main__':
-    go()
+    dump_html(collect_data())
 
