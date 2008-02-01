@@ -32,7 +32,7 @@ def res_encode(pkg, instance, t):
     return ((pkg & 0x7ff) << 21) | ((instance & 0x1FFF) << 8) | (t & 0xFF)
 
 def res_encode_str (pkg, instance, t):
-    return "0x%08xL" % res_encode (p, i, t)
+    return "0x%08xL" % res_encode (pkg, instance, t)
 
 def res_decode_str (resnum):
     return res_decode (int(long(resnum, 16)))
