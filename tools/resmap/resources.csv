@@ -512,7 +512,6 @@ sc2code/comm/utwig/ifontres.h,comm/utwig.ls2,UTWIG_FONT,1,0,3,comm.utwig.font,FO
 sc2code/comm/utwig/istrtab.h,comm/utwig.ls2,UTWIG_CONVERSATION_PHRASES,1,0,4,comm.utwig.dialogue,STRTAB,comm/utwig/utwig.txt
 sc2code/comm/utwig/istrtab.h,comm/utwig.ls2,UTWIG_COLOR_MAP,1,1,4,comm.utwig.colortable,STRTAB,comm/utwig/utwig.ct
 sc2code/comm/utwig/igfxres.h,comm/utwig.ls2,UTWIG_PMAP_ANIM,1,0,2,comm.utwig.graphics,GFXRES,comm/utwig/utwig.ani
-sc2code/comm/urquan/icode.h,comm/urquan.ls2,URQUAN_CODE,1,0,6,comm.urquan.music,MUSICRES,comm/urquan/urquan.mod
 sc2code/comm/urquan/imusicre.h,comm/urquan.ls2,URQUAN_MUSIC,1,0,6,comm.urquan.music,MUSICRES,comm/urquan/urquan.mod
 sc2code/comm/urquan/ifontres.h,comm/urquan.ls2,URQUAN_FONT,1,0,3,comm.urquan.font,FONTRES,comm/urquan/urquan.fon
 sc2code/comm/urquan/istrtab.h,comm/urquan.ls2,URQUAN_CONVERSATION_PHRASES,1,0,4,comm.urquan.dialogue,STRTAB,comm/urquan/urquan.txt
