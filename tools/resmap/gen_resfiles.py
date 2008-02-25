@@ -22,6 +22,10 @@ class ResEntry(object):
 		self.res_file = res_file
 	def res_number(self):
 		return res_encode (self.package, self.instance, self.int_type)
+	def csv_line(self):
+		return "%s,%s,%s,%d,%d,%d,%s,%s,%s" % (self.hfile, self.ls2file, self.constant,
+				self.package, self.instance, self.int_type,
+				self.res_id, self.res_type, self.res_file)
 
 def res_encode(pkg, instance, t):
     return ((pkg & 0x7ff) << 21) | ((instance & 0x1FFF) << 8) | (t & 0xFF)
