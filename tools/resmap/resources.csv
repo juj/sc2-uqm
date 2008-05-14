@@ -575,7 +575,7 @@ sc2code/comm/orz/ifontres.h,starcon.ls2,ORZ_FONT,508,1,3,comm.orz.font,FONTRES,c
 sc2code/comm/orz/istrtab.h,starcon.ls2,ORZ_CONVERSATION_PHRASES,508,2,4,comm.orz.dialogue,STRTAB,comm/orz/orz.txt
 sc2code/comm/orz/istrtab.h,starcon.ls2,ORZ_COLOR_MAP,508,3,4,comm.orz.colortable,BINTAB,comm/orz/orz.ct
 sc2code/comm/orz/igfxres.h,starcon.ls2,ORZ_PMAP_ANIM,508,4,2,comm.orz.graphics,GFXRES,comm/orz/orz.ani
-sc2code/ships/druuge/icode.h,starcon.ls2,DRUUGE_CODE,705,0,8,ship.druuge.code,CODE,druuge/druuge.cod
+sc2code/ships/druuge/icode.h,starcon.ls2,DRUUGE_CODE,705,0,8,ship.druuge.code,SHIP,5
 sc2code/ships/druuge/imusicre.h,starcon.ls2,DRUUGE_VICTORY_SONG,705,0,6,ship.druuge.ditty,MUSICRES,druuge/druditty.mod
 sc2code/ships/druuge/istrtab.h,starcon.ls2,DRUUGE_RACE_STRINGS,705,1,4,ship.druuge.text,STRTAB,druuge/drutext.txt
 sc2code/ships/druuge/isndres.h,starcon.ls2,DRUUGE_SHIP_SOUNDS,705,2,5,ship.druuge.sounds,SNDRES,druuge/drusound.snd
@@ -588,7 +588,7 @@ sc2code/ships/druuge/igfxres.h,starcon.ls2,DRUUGE_CANNON_BIG_MASK_PMAP_ANIM,705,
 sc2code/ships/druuge/igfxres.h,starcon.ls2,DRUUGE_CANNON_MED_MASK_PMAP_ANIM,705,9,2,ship.druuge.graphics.can.medium,GFXRES,druuge/canmed.ani
 sc2code/ships/druuge/igfxres.h,starcon.ls2,DRUUGE_CANNON_SML_MASK_PMAP_ANIM,705,10,2,ship.druuge.graphics.can.small,GFXRES,druuge/cansml.ani
 sc2code/ships/druuge/igfxres.h,starcon.ls2,DRUUGE_CAPT_MASK_PMAP_ANIM,705,11,2,ship.druuge.graphics.captain,GFXRES,druuge/drucap.ani
-sc2code/ships/slylandr/icode.h,starcon.ls2,SLYLANDRO_CODE,717,0,8,ship.slylandro.code,CODE,slylandr/slylandr.cod
+sc2code/ships/slylandr/icode.h,starcon.ls2,SLYLANDRO_CODE,717,0,8,ship.slylandro.code,SHIP,14
 sc2code/ships/slylandr/imusicre.h,starcon.ls2,SLYLANDRO_VICTORY_SONG,717,0,6,ship.slylandro.ditty,MUSICRES,slylandr/slyditty.mod
 sc2code/ships/slylandr/istrtab.h,starcon.ls2,SLYLANDRO_RACE_STRINGS,717,1,4,ship.slylandro.text,STRTAB,slylandr/slytext.txt
 sc2code/ships/slylandr/isndres.h,starcon.ls2,SLYLANDRO_SHIP_SOUNDS,717,2,5,ship.slylandro.sounds,SNDRES,slylandr/slysound.snd
@@ -598,7 +598,7 @@ sc2code/ships/slylandr/igfxres.h,starcon.ls2,SLYLANDRO_BIG_MASK_PMAP_ANIM,717,5,
 sc2code/ships/slylandr/igfxres.h,starcon.ls2,SLYLANDRO_MED_MASK_PMAP_ANIM,717,6,2,ship.slylandro.graphics.slylandr.medium,GFXRES,slylandr/slylandr.med
 sc2code/ships/slylandr/igfxres.h,starcon.ls2,SLYLANDRO_SML_MASK_PMAP_ANIM,717,7,2,ship.slylandro.graphics.slylandr.small,GFXRES,slylandr/slylandr.sml
 sc2code/ships/slylandr/igfxres.h,starcon.ls2,SLYLANDRO_CAPTAIN_MASK_PMAP_ANIM,717,8,2,ship.slylandro.graphics.captain,GFXRES,slylandr/slycap.ani
-sc2code/ships/utwig/icode.h,starcon.ls2,UTWIG_CODE,724,0,8,ship.utwig.code,CODE,utwig/utwig.cod
+sc2code/ships/utwig/icode.h,starcon.ls2,UTWIG_CODE,724,0,8,ship.utwig.code,SHIP,21
 sc2code/ships/utwig/imusicre.h,starcon.ls2,UTWIG_VICTORY_SONG,724,0,6,ship.utwig.ditty,MUSICRES,utwig/utwditty.mod
 sc2code/ships/utwig/istrtab.h,starcon.ls2,UTWIG_RACE_STRINGS,724,1,4,ship.utwig.text,STRTAB,utwig/utwtext.txt
 sc2code/ships/utwig/isndres.h,starcon.ls2,UTWIG_SHIP_SOUNDS,724,2,5,ship.utwig.sounds,SNDRES,utwig/utwsound.snd
@@ -611,7 +611,7 @@ sc2code/ships/utwig/igfxres.h,starcon.ls2,LANCE_BIG_MASK_PMAP_ANIM,724,8,2,ship.
 sc2code/ships/utwig/igfxres.h,starcon.ls2,LANCE_MED_MASK_PMAP_ANIM,724,9,2,ship.utwig.graphics.lan.medium,GFXRES,utwig/lanmed.ani
 sc2code/ships/utwig/igfxres.h,starcon.ls2,LANCE_SML_MASK_PMAP_ANIM,724,10,2,ship.utwig.graphics.lan.small,GFXRES,utwig/lansml.ani
 sc2code/ships/utwig/igfxres.h,starcon.ls2,UTWIG_CAPTAIN_MASK_PMAP_ANIM,724,11,2,ship.utwig.graphics.captain,GFXRES,utwig/utwcap.ani
-sc2code/ships/urquan/icode.h,starcon.ls2,URQUAN_CODE,723,0,8,ship.urquan.code,CODE,urquan/urquan.cod
+sc2code/ships/urquan/icode.h,starcon.ls2,URQUAN_CODE,723,0,8,ship.urquan.code,SHIP,20
 sc2code/ships/urquan/imusicre.h,starcon.ls2,URQUAN_VICTORY_SONG,723,0,6,ship.urquan.ditty,MUSICRES,urquan/urqditty.mod
 sc2code/ships/urquan/istrtab.h,starcon.ls2,URQUAN_RACE_STRINGS,723,1,4,ship.urquan.text,STRTAB,urquan/urqtext.txt
 sc2code/ships/urquan/isndres.h,starcon.ls2,URQUAN_SHIP_SOUNDS,723,2,5,ship.urquan.sounds,SNDRES,urquan/urqsound.snd
@@ -627,7 +627,7 @@ sc2code/ships/urquan/igfxres.h,starcon.ls2,FIGHTER_BIG_MASK_PMAP_ANIM,723,11,2,s
 sc2code/ships/urquan/igfxres.h,starcon.ls2,FIGHTER_MED_MASK_PMAP_ANIM,723,12,2,ship.urquan.graphics.fight.medium,GFXRES,urquan/fight.med
 sc2code/ships/urquan/igfxres.h,starcon.ls2,FIGHTER_SML_MASK_PMAP_ANIM,723,13,2,ship.urquan.graphics.fight.small,GFXRES,urquan/fight.sml
 sc2code/ships/urquan/igfxres.h,starcon.ls2,URQUAN_CAPTAIN_MASK_PMAP_ANIM,723,14,2,ship.urquan.graphics.captain,GFXRES,urquan/urqcap.ani
-sc2code/ships/chmmr/icode.h,starcon.ls2,CHMMR_CODE,704,0,8,ship.chmmr.code,CODE,chmmr/chmmr.cod
+sc2code/ships/chmmr/icode.h,starcon.ls2,CHMMR_CODE,704,0,8,ship.chmmr.code,SHIP,4
 sc2code/ships/chmmr/imusicre.h,starcon.ls2,CHMMR_VICTORY_SONG,704,0,6,ship.chmmr.ditty,MUSICRES,chmmr/chmditty.mod
 sc2code/ships/chmmr/istrtab.h,starcon.ls2,CHMMR_RACE_STRINGS,704,1,4,ship.chmmr.text,STRTAB,chmmr/chmtext.txt
 sc2code/ships/chmmr/isndres.h,starcon.ls2,CHMMR_SHIP_SOUNDS,704,2,5,ship.chmmr.sounds,SNDRES,chmmr/chmsound.snd
@@ -643,7 +643,7 @@ sc2code/ships/chmmr/igfxres.h,starcon.ls2,SATELLITE_BIG_MASK_PMAP_ANIM,704,11,2,
 sc2code/ships/chmmr/igfxres.h,starcon.ls2,SATELLITE_MED_MASK_PMAP_ANIM,704,12,2,ship.chmmr.graphics.sat.medium,GFXRES,chmmr/satmed.ani
 sc2code/ships/chmmr/igfxres.h,starcon.ls2,SATELLITE_SML_MASK_PMAP_ANIM,704,13,2,ship.chmmr.graphics.sat.small,GFXRES,chmmr/satsml.ani
 sc2code/ships/chmmr/igfxres.h,starcon.ls2,CHMMR_CAPTAIN_MASK_PMAP_ANIM,704,14,2,ship.chmmr.graphics.captain,GFXRES,chmmr/chmcap.ani
-sc2code/ships/mycon/icode.h,starcon.ls2,MYCON_CODE,711,0,8,ship.mycon.code,CODE,mycon/mycon.cod
+sc2code/ships/mycon/icode.h,starcon.ls2,MYCON_CODE,711,0,8,ship.mycon.code,SHIP,10
 sc2code/ships/mycon/imusicre.h,starcon.ls2,MYCON_VICTORY_SONG,711,0,6,ship.mycon.ditty,MUSICRES,mycon/mycditty.mod
 sc2code/ships/mycon/istrtab.h,starcon.ls2,MYCON_RACE_STRINGS,711,1,4,ship.mycon.text,STRTAB,mycon/myctext.txt
 sc2code/ships/mycon/isndres.h,starcon.ls2,MYCON_SHIP_SOUNDS,711,2,5,ship.mycon.sounds,SNDRES,mycon/mycsound.snd
@@ -656,7 +656,7 @@ sc2code/ships/mycon/igfxres.h,starcon.ls2,PLASMA_BIG_MASK_PMAP_ANIM,711,8,2,ship
 sc2code/ships/mycon/igfxres.h,starcon.ls2,PLASMA_MED_MASK_PMAP_ANIM,711,9,2,ship.mycon.graphics.plasma.medium,GFXRES,mycon/plasma.med
 sc2code/ships/mycon/igfxres.h,starcon.ls2,PLASMA_SML_MASK_PMAP_ANIM,711,10,2,ship.mycon.graphics.plasma.small,GFXRES,mycon/plasma.sml
 sc2code/ships/mycon/igfxres.h,starcon.ls2,MYCON_CAPTAIN_MASK_PMAP_ANIM,711,11,2,ship.mycon.graphics.captain,GFXRES,mycon/myccap.ani
-sc2code/ships/shofixti/icode.h,starcon.ls2,SHOFIXTI_CODE,715,0,8,ship.shofixti.code,CODE,shofixti/shofixti.cod
+sc2code/ships/shofixti/icode.h,starcon.ls2,SHOFIXTI_CODE,715,0,8,ship.shofixti.code,SHIP,13
 sc2code/ships/shofixti/imusicre.h,starcon.ls2,SHOFIXTI_VICTORY_SONG,715,0,6,ship.shofixti.ditty,MUSICRES,shofixti/shoditty.mod
 sc2code/ships/shofixti/istrtab.h,starcon.ls2,SHOFIXTI_RACE_STRINGS,715,1,4,ship.shofixti.text,STRTAB,shofixti/shotext.txt
 sc2code/ships/shofixti/isndres.h,starcon.ls2,SHOFIXTI_SHIP_SOUNDS,715,2,5,ship.shofixti.sounds,SNDRES,shofixti/shosound.snd
@@ -676,7 +676,7 @@ sc2code/ships/shofixti/igfxres.h,starcon.ls2,OLDSHOF_CAPTAIN_MASK_PMAP_ANIM,715,
 sc2code/ships/shofixti/igfxres.h,starcon.ls2,DART_BIG_MASK_PMAP_ANIM,715,16,2,ship.shofixti.graphics.missile.large,GFXRES,shofixti/missile.big
 sc2code/ships/shofixti/igfxres.h,starcon.ls2,DART_MED_MASK_PMAP_ANIM,715,17,2,ship.shofixti.graphics.missile.medium,GFXRES,shofixti/missile.med
 sc2code/ships/shofixti/igfxres.h,starcon.ls2,DART_SML_MASK_PMAP_ANIM,715,18,2,ship.shofixti.graphics.missile.small,GFXRES,shofixti/missile.sml
-sc2code/ships/blackurq/icode.h,starcon.ls2,KOHR_AH_CODE,702,0,8,ship.kohrah.code,CODE,blackurq/blackurq.cod
+sc2code/ships/blackurq/icode.h,starcon.ls2,KOHR_AH_CODE,702,0,8,ship.kohrah.code,SHIP,2
 sc2code/ships/blackurq/imusicre.h,starcon.ls2,KOHR_AH_VICTORY_SONG,702,0,6,ship.kohrah.ditty,MUSICRES,blackurq/bladitty.mod
 sc2code/ships/blackurq/istrtab.h,starcon.ls2,KOHR_AH_RACE_STRINGS,702,1,4,ship.kohrah.text,STRTAB,blackurq/blatext.txt
 sc2code/ships/blackurq/isndres.h,starcon.ls2,KOHR_AH_SHIP_SOUNDS,702,2,5,ship.kohrah.sounds,SNDRES,blackurq/blasound.snd
@@ -692,7 +692,7 @@ sc2code/ships/blackurq/igfxres.h,starcon.ls2,GAS_BIG_MASK_PMAP_ANIM,702,11,2,shi
 sc2code/ships/blackurq/igfxres.h,starcon.ls2,GAS_MED_MASK_PMAP_ANIM,702,12,2,ship.kohrah.graphics.gas.medium,GFXRES,blackurq/gasmed.ani
 sc2code/ships/blackurq/igfxres.h,starcon.ls2,GAS_SML_MASK_PMAP_ANIM,702,13,2,ship.kohrah.graphics.gas.small,GFXRES,blackurq/gassml.ani
 sc2code/ships/blackurq/igfxres.h,starcon.ls2,KOHR_AH_CAPTAIN_MASK_PMAP_ANIM,702,14,2,ship.kohrah.graphics.captain,GFXRES,blackurq/blacap.ani
-sc2code/ships/melnorme/icode.h,starcon.ls2,MELNORME_CODE,709,0,8,ship.melnorme.code,CODE,melnorme/melnorme.cod
+sc2code/ships/melnorme/icode.h,starcon.ls2,MELNORME_CODE,709,0,8,ship.melnorme.code,SHIP,8
 sc2code/ships/melnorme/imusicre.h,starcon.ls2,MELNORME_VICTORY_SONG,709,0,6,ship.melnorme.ditty,MUSICRES,melnorme/melditty.mod
 sc2code/ships/melnorme/istrtab.h,starcon.ls2,MELNORME_RACE_STRINGS,709,1,4,ship.melnorme.text,STRTAB,melnorme/meltext.txt
 sc2code/ships/melnorme/isndres.h,starcon.ls2,MELNORME_SHIP_SOUNDS,709,2,5,ship.melnorme.sounds,SNDRES,melnorme/melsound.snd
@@ -708,7 +708,7 @@ sc2code/ships/melnorme/igfxres.h,starcon.ls2,CONFUSE_BIG_MASK_PMAP_ANIM,709,11,2
 sc2code/ships/melnorme/igfxres.h,starcon.ls2,CONFUSE_MED_MASK_PMAP_ANIM,709,12,2,ship.melnorme.graphics.confu.medium,GFXRES,melnorme/confumed.ani
 sc2code/ships/melnorme/igfxres.h,starcon.ls2,CONFUSE_SML_MASK_PMAP_ANIM,709,13,2,ship.melnorme.graphics.confu.small,GFXRES,melnorme/confusml.ani
 sc2code/ships/melnorme/igfxres.h,starcon.ls2,MELNORME_CAPTAIN_MASK_PMAP_ANIM,709,14,2,ship.melnorme.graphics.captain,GFXRES,melnorme/melcap.ani
-sc2code/ships/zoqfot/icode.h,starcon.ls2,ZOQFOTPIK_CODE,727,0,8,ship.zoqfotpik.code,CODE,zoqfot/zoqfot.cod
+sc2code/ships/zoqfot/icode.h,starcon.ls2,ZOQFOTPIK_CODE,727,0,8,ship.zoqfotpik.code,SHIP,24
 sc2code/ships/zoqfot/imusicre.h,starcon.ls2,ZOQFOTPIK_VICTORY_SONG,727,0,6,ship.zoqfotpik.ditty,MUSICRES,zoqfot/zoqditty.mod
 sc2code/ships/zoqfot/istrtab.h,starcon.ls2,ZOQFOTPIK_RACE_STRINGS,727,1,4,ship.zoqfotpik.text,STRTAB,zoqfot/zoqtext.txt
 sc2code/ships/zoqfot/isndres.h,starcon.ls2,ZOQFOTPIK_SHIP_SOUNDS,727,2,5,ship.zoqfotpik.sounds,SNDRES,zoqfot/zoqsound.snd
@@ -724,7 +724,7 @@ sc2code/ships/zoqfot/igfxres.h,starcon.ls2,STINGER_BIG_MASK_PMAP_ANIM,727,11,2,s
 sc2code/ships/zoqfot/igfxres.h,starcon.ls2,STINGER_MED_MASK_PMAP_ANIM,727,12,2,ship.zoqfotpik.graphics.sti.medium,GFXRES,zoqfot/stimed.ani
 sc2code/ships/zoqfot/igfxres.h,starcon.ls2,STINGER_SML_MASK_PMAP_ANIM,727,13,2,ship.zoqfotpik.graphics.sti.small,GFXRES,zoqfot/stisml.ani
 sc2code/ships/zoqfot/igfxres.h,starcon.ls2,ZOQFOTPIK_CAPTAIN_MASK_PMAP_ANIM,727,14,2,ship.zoqfotpik.graphics.captain,GFXRES,zoqfot/zoqcap.ani
-sc2code/ships/vux/icode.h,starcon.ls2,VUX_CODE,725,0,8,ship.vux.code,CODE,vux/vux.cod
+sc2code/ships/vux/icode.h,starcon.ls2,VUX_CODE,725,0,8,ship.vux.code,SHIP,22
 sc2code/ships/vux/imusicre.h,starcon.ls2,VUX_VICTORY_SONG,725,0,6,ship.vux.ditty,MUSICRES,vux/vuxditty.mod
 sc2code/ships/vux/istrtab.h,starcon.ls2,VUX_RACE_STRINGS,725,1,4,ship.vux.text,STRTAB,vux/vuxtext.txt
 sc2code/ships/vux/isndres.h,starcon.ls2,VUX_SHIP_SOUNDS,725,2,5,ship.vux.sounds,SNDRES,vux/vuxsound.snd
@@ -738,7 +738,7 @@ sc2code/ships/vux/igfxres.h,starcon.ls2,LIMPETS_MED_MASK_PMAP_ANIM,725,9,2,ship.
 sc2code/ships/vux/igfxres.h,starcon.ls2,LIMPETS_SML_MASK_PMAP_ANIM,725,10,2,ship.vux.graphics.limpets.small,GFXRES,vux/limpets.sml
 sc2code/ships/vux/igfxres.h,starcon.ls2,SLIME_MASK_PMAP_ANIM,725,11,2,ship.vux.graphics.slime,GFXRES,vux/slime.ani
 sc2code/ships/vux/igfxres.h,starcon.ls2,VUX_CAPTAIN_MASK_PMAP_ANIM,725,12,2,ship.vux.graphics.captain,GFXRES,vux/vuxcap.ani
-sc2code/ships/arilou/icode.h,starcon.ls2,ARILOU_CODE,701,0,8,ship.arilou.code,CODE,arilou/arilou.cod
+sc2code/ships/arilou/icode.h,starcon.ls2,ARILOU_CODE,701,0,8,ship.arilou.code,SHIP,1
 sc2code/ships/arilou/imusicre.h,starcon.ls2,ARILOU_VICTORY_SONG,701,0,6,ship.arilou.ditty,MUSICRES,arilou/ariditty.mod
 sc2code/ships/arilou/istrtab.h,starcon.ls2,ARILOU_RACE_STRINGS,701,1,4,ship.arilou.text,STRTAB,arilou/aritext.txt
 sc2code/ships/arilou/isndres.h,starcon.ls2,ARILOU_SHIP_SOUNDS,701,2,5,ship.arilou.sounds,SNDRES,arilou/arisound.snd
@@ -751,7 +751,7 @@ sc2code/ships/arilou/igfxres.h,starcon.ls2,WARP_BIG_MASK_PMAP_ANIM,701,8,2,ship.
 sc2code/ships/arilou/igfxres.h,starcon.ls2,WARP_MED_MASK_PMAP_ANIM,701,9,2,ship.arilou.graphics.warp.medium,GFXRES,arilou/warp.med
 sc2code/ships/arilou/igfxres.h,starcon.ls2,WARP_SML_MASK_PMAP_ANIM,701,10,2,ship.arilou.graphics.warp.small,GFXRES,arilou/warp.sml
 sc2code/ships/arilou/igfxres.h,starcon.ls2,ARILOU_CAPTAIN_MASK_PMAP_ANIM,701,11,2,ship.arilou.graphics.captain,GFXRES,arilou/aricap.ani
-sc2code/ships/spathi/icode.h,starcon.ls2,SPATHI_CODE,718,0,8,ship.spathi.code,CODE,spathi/spathi.cod
+sc2code/ships/spathi/icode.h,starcon.ls2,SPATHI_CODE,718,0,8,ship.spathi.code,SHIP,15
 sc2code/ships/spathi/imusicre.h,starcon.ls2,SPATHI_VICTORY_SONG,718,0,6,ship.spathi.ditty,MUSICRES,spathi/spaditty.mod
 sc2code/ships/spathi/istrtab.h,starcon.ls2,SPATHI_RACE_STRINGS,718,1,4,ship.spathi.text,STRTAB,spathi/spatext.txt
 sc2code/ships/spathi/isndres.h,starcon.ls2,SPATHI_SHIP_SOUNDS,718,2,5,ship.spathi.sounds,SNDRES,spathi/spasound.snd
@@ -767,7 +767,7 @@ sc2code/ships/spathi/igfxres.h,starcon.ls2,DISCRIM_BIG_MASK_PMAP_ANIM,718,11,2,s
 sc2code/ships/spathi/igfxres.h,starcon.ls2,DISCRIM_MED_MASK_PMAP_ANIM,718,12,2,ship.spathi.graphics.discrim.medium,GFXRES,spathi/discrim.med
 sc2code/ships/spathi/igfxres.h,starcon.ls2,DISCRIM_SML_MASK_PMAP_ANIM,718,13,2,ship.spathi.graphics.discrim.small,GFXRES,spathi/discrim.sml
 sc2code/ships/spathi/igfxres.h,starcon.ls2,SPATHI_CAPTAIN_MASK_PMAP_ANIM,718,14,2,ship.spathi.graphics.captain,GFXRES,spathi/spacap.ani
-sc2code/ships/pkunk/icode.h,starcon.ls2,PKUNK_CODE,713,0,8,ship.pkunk.code,CODE,pkunk/pkunk.cod
+sc2code/ships/pkunk/icode.h,starcon.ls2,PKUNK_CODE,713,0,8,ship.pkunk.code,SHIP,12
 sc2code/ships/pkunk/imusicre.h,starcon.ls2,PKUNK_VICTORY_SONG,713,0,6,ship.pkunk.ditty,MUSICRES,pkunk/pkuditty.mod
 sc2code/ships/pkunk/istrtab.h,starcon.ls2,PKUNK_RACE_STRINGS,713,1,4,ship.pkunk.text,STRTAB,pkunk/pkutext.txt
 sc2code/ships/pkunk/isndres.h,starcon.ls2,PKUNK_SHIP_SOUNDS,713,2,5,ship.pkunk.sounds,SNDRES,pkunk/pkusound.snd
@@ -780,7 +780,7 @@ sc2code/ships/pkunk/igfxres.h,starcon.ls2,BUG_BIG_MASK_PMAP_ANIM,713,8,2,ship.pk
 sc2code/ships/pkunk/igfxres.h,starcon.ls2,BUG_MED_MASK_PMAP_ANIM,713,9,2,ship.pkunk.graphics.bug.medium,GFXRES,pkunk/bugmed.ani
 sc2code/ships/pkunk/igfxres.h,starcon.ls2,BUG_SML_MASK_PMAP_ANIM,713,10,2,ship.pkunk.graphics.bug.small,GFXRES,pkunk/bugsml.ani
 sc2code/ships/pkunk/igfxres.h,starcon.ls2,PKUNK_CAPTAIN_MASK_PMAP_ANIM,713,11,2,ship.pkunk.graphics.captain,GFXRES,pkunk/pkucap.ani
-sc2code/ships/human/icode.h,starcon.ls2,HUMAN_CODE,706,0,8,ship.earthling.code,CODE,human/human.cod
+sc2code/ships/human/icode.h,starcon.ls2,HUMAN_CODE,706,0,8,ship.earthling.code,SHIP,6
 sc2code/ships/human/imusicre.h,starcon.ls2,HUMAN_VICTORY_SONG,706,0,6,ship.earthling.ditty,MUSICRES,human/humditty.mod
 sc2code/ships/human/istrtab.h,starcon.ls2,HUMAN_RACE_STRINGS,706,1,4,ship.earthling.text,STRTAB,human/humtext.txt
 sc2code/ships/human/isndres.h,starcon.ls2,HUMAN_SHIP_SOUNDS,706,2,5,ship.earthling.sounds,SNDRES,human/humsound.snd
@@ -793,7 +793,7 @@ sc2code/ships/human/igfxres.h,starcon.ls2,SATURN_BIG_MASK_PMAP_ANIM,706,8,2,ship
 sc2code/ships/human/igfxres.h,starcon.ls2,SATURN_MED_MASK_PMAP_ANIM,706,9,2,ship.earthling.graphics.saturn.medium,GFXRES,human/saturn.med
 sc2code/ships/human/igfxres.h,starcon.ls2,SATURN_SML_MASK_PMAP_ANIM,706,10,2,ship.earthling.graphics.saturn.small,GFXRES,human/saturn.sml
 sc2code/ships/human/igfxres.h,starcon.ls2,HUMAN_CAPTAIN_MASK_PMAP_ANIM,706,11,2,ship.earthling.graphics.captain,GFXRES,human/humcap.ani
-sc2code/ships/umgah/icode.h,starcon.ls2,UMGAH_CODE,722,0,8,ship.umgah.code,CODE,umgah/umgah.cod
+sc2code/ships/umgah/icode.h,starcon.ls2,UMGAH_CODE,722,0,8,ship.umgah.code,SHIP,19
 sc2code/ships/umgah/imusicre.h,starcon.ls2,UMGAH_VICTORY_SONG,722,0,6,ship.umgah.ditty,MUSICRES,umgah/umgditty.mod
 sc2code/ships/umgah/istrtab.h,starcon.ls2,UMGAH_RACE_STRINGS,722,1,4,ship.umgah.text,STRTAB,umgah/umgtext.txt
 sc2code/ships/umgah/isndres.h,starcon.ls2,UMGAH_SHIP_SOUNDS,722,2,5,ship.umgah.sounds,SNDRES,umgah/umgsound.snd
@@ -807,7 +807,7 @@ sc2code/ships/umgah/igfxres.h,starcon.ls2,CONE_BIG_MASK_ANIM,722,9,2,ship.umgah.
 sc2code/ships/umgah/igfxres.h,starcon.ls2,CONE_MED_MASK_ANIM,722,10,2,ship.umgah.graphics.cone.medium,GFXRES,umgah/cone.med
 sc2code/ships/umgah/igfxres.h,starcon.ls2,CONE_SML_MASK_ANIM,722,11,2,ship.umgah.graphics.cone.small,GFXRES,umgah/cone.sml
 sc2code/ships/umgah/igfxres.h,starcon.ls2,UMGAH_CAPTAIN_MASK_PMAP_ANIM,722,12,2,ship.umgah.graphics.captain,GFXRES,umgah/umgcap.ani
-sc2code/ships/chenjesu/icode.h,starcon.ls2,CHENJESU_CODE,703,0,8,ship.chenjesu.code,CODE,chenjesu/chenjesu.cod
+sc2code/ships/chenjesu/icode.h,starcon.ls2,CHENJESU_CODE,703,0,8,ship.chenjesu.code,SHIP,3
 sc2code/ships/chenjesu/imusicre.h,starcon.ls2,CHENJESU_VICTORY_SONG,703,0,6,ship.chenjesu.ditty,MUSICRES,chenjesu/cheditty.mod
 sc2code/ships/chenjesu/istrtab.h,starcon.ls2,CHENJESU_RACE_STRINGS,703,1,4,ship.chenjesu.text,STRTAB,chenjesu/chetext.txt
 sc2code/ships/chenjesu/isndres.h,starcon.ls2,CHENJESU_SHIP_SOUNDS,703,2,5,ship.chenjesu.sounds,SNDRES,chenjesu/chesound.snd
@@ -823,7 +823,7 @@ sc2code/ships/chenjesu/igfxres.h,starcon.ls2,DOGGY_BIG_MASK_PMAP_ANIM,703,11,2,s
 sc2code/ships/chenjesu/igfxres.h,starcon.ls2,DOGGY_MED_MASK_PMAP_ANIM,703,12,2,ship.chenjesu.graphics.doggy.medium,GFXRES,chenjesu/doggy.med
 sc2code/ships/chenjesu/igfxres.h,starcon.ls2,DOGGY_SML_MASK_PMAP_ANIM,703,13,2,ship.chenjesu.graphics.doggy.small,GFXRES,chenjesu/doggy.sml
 sc2code/ships/chenjesu/igfxres.h,starcon.ls2,CHENJESU_CAPTAIN_MASK_PMAP_ANIM,703,14,2,ship.chenjesu.graphics.captain,GFXRES,chenjesu/checap.ani
-sc2code/ships/sis_ship/icode.h,starcon.ls2,SIS_CODE,716,0,8,ship.sis_ship.code,CODE,sis_ship/sis.cod
+sc2code/ships/sis_ship/icode.h,starcon.ls2,SIS_CODE,716,0,8,ship.sis_ship.code,SHIP,26
 sc2code/ships/sis_ship/imusicre.h,starcon.ls2,SIS_VICTORY_SONG,716,0,6,ship.sis_ship.ditty,MUSICRES,sis_ship/sisditty.mod
 sc2code/ships/sis_ship/isndres.h,starcon.ls2,SIS_SHIP_SOUNDS,716,1,5,ship.sis_ship.sounds,SNDRES,sis_ship/sissound.snd
 sc2code/ships/sis_ship/igfxres.h,starcon.ls2,SIS_ICON_MASK_PMAP_ANIM,716,2,2,ship.sis_ship.icons,GFXRES,sis_ship/sisicons.ani
@@ -835,7 +835,7 @@ sc2code/ships/sis_ship/igfxres.h,starcon.ls2,BLASTER_MED_MASK_PMAP_ANIM,716,7,2,
 sc2code/ships/sis_ship/igfxres.h,starcon.ls2,BLASTER_SML_MASK_PMAP_ANIM,716,8,2,ship.sis_ship.graphics.blas.small,GFXRES,sis_ship/blassml.ani
 sc2code/ships/sis_ship/igfxres.h,starcon.ls2,SIS_CAPTAIN_MASK_PMAP_ANIM,716,9,2,ship.sis_ship.graphics.captain,GFXRES,sis_ship/siscap.ani
 sc2code/ships/sis_ship/igfxres.h,starcon.ls2,SIS_HYPER_MASK_PMAP_ANIM,716,10,2,ship.sis_ship.graphics.sishyper,GFXRES,sis_ship/sishyper.ani
-sc2code/ships/ilwrath/icode.h,starcon.ls2,ILWRATH_CODE,707,0,8,ship.ilwrath.code,CODE,ilwrath/ilwrath.cod
+sc2code/ships/ilwrath/icode.h,starcon.ls2,ILWRATH_CODE,707,0,8,ship.ilwrath.code,SHIP,7
 sc2code/ships/ilwrath/imusicre.h,starcon.ls2,ILWRATH_VICTORY_SONG,707,0,6,ship.ilwrath.ditty,MUSICRES,ilwrath/ilwditty.mod
 sc2code/ships/ilwrath/istrtab.h,starcon.ls2,ILWRATH_RACE_STRINGS,707,1,4,ship.ilwrath.text,STRTAB,ilwrath/ilwtext.txt
 sc2code/ships/ilwrath/isndres.h,starcon.ls2,ILWRATH_SHIP_SOUNDS,707,2,5,ship.ilwrath.sounds,SNDRES,ilwrath/ilwsound.snd
@@ -848,7 +848,7 @@ sc2code/ships/ilwrath/igfxres.h,starcon.ls2,FIRE_BIG_MASK_PMAP_ANIM,707,8,2,ship
 sc2code/ships/ilwrath/igfxres.h,starcon.ls2,FIRE_MED_MASK_PMAP_ANIM,707,9,2,ship.ilwrath.graphics.fire.medium,GFXRES,ilwrath/fire.med
 sc2code/ships/ilwrath/igfxres.h,starcon.ls2,FIRE_SML_MASK_PMAP_ANIM,707,10,2,ship.ilwrath.graphics.fire.small,GFXRES,ilwrath/fire.sml
 sc2code/ships/ilwrath/igfxres.h,starcon.ls2,ILWRATH_CAPTAIN_MASK_PMAP_ANIM,707,11,2,ship.ilwrath.graphics.captain,GFXRES,ilwrath/ilwcap.ani
-sc2code/ships/syreen/icode.h,starcon.ls2,SYREEN_CODE,720,0,8,ship.syreen.code,CODE,syreen/syreen.cod
+sc2code/ships/syreen/icode.h,starcon.ls2,SYREEN_CODE,720,0,8,ship.syreen.code,SHIP,17
 sc2code/ships/syreen/imusicre.h,starcon.ls2,SYREEN_VICTORY_SONG,720,0,6,ship.syreen.ditty,MUSICRES,syreen/syrditty.mod
 sc2code/ships/syreen/istrtab.h,starcon.ls2,SYREEN_RACE_STRINGS,720,1,4,ship.syreen.text,STRTAB,syreen/syrtext.txt
 sc2code/ships/syreen/isndres.h,starcon.ls2,SYREEN_SHIP_SOUNDS,720,2,5,ship.syreen.sounds,SNDRES,syreen/syrsound.snd
@@ -861,9 +861,9 @@ sc2code/ships/syreen/igfxres.h,starcon.ls2,DAGGER_BIG_MASK_PMAP_ANIM,720,8,2,shi
 sc2code/ships/syreen/igfxres.h,starcon.ls2,DAGGER_MED_MASK_PMAP_ANIM,720,9,2,ship.syreen.graphics.dagger.medium,GFXRES,syreen/dagger.med
 sc2code/ships/syreen/igfxres.h,starcon.ls2,DAGGER_SML_MASK_PMAP_ANIM,720,10,2,ship.syreen.graphics.dagger.small,GFXRES,syreen/dagger.sml
 sc2code/ships/syreen/igfxres.h,starcon.ls2,SYREEN_CAPTAIN_MASK_PMAP_ANIM,720,11,2,ship.syreen.graphics.captain,GFXRES,syreen/syrcap.ani
-sc2code/ships/probe/icode.h,starcon.ls2,PROBE_CODE,714,0,8,ship.probe.code,CODE,probe/probe.cod
+sc2code/ships/probe/icode.h,starcon.ls2,PROBE_CODE,714,0,8,ship.probe.code,SHIP,27
 sc2code/ships/probe/igfxres.h,starcon.ls2,PROBE_MICON_MASK_PMAP_ANIM,714,0,2,ship.probe.meleeicons,GFXRES,probe/promicon.ani
-sc2code/ships/mmrnmhrm/icode.h,starcon.ls2,MMRNMHRM_CODE,710,0,8,ship.mmrnmhrm.code,CODE,mmrnmhrm/mmrnmhrm.cod
+sc2code/ships/mmrnmhrm/icode.h,starcon.ls2,MMRNMHRM_CODE,710,0,8,ship.mmrnmhrm.code,SHIP,9
 sc2code/ships/mmrnmhrm/imusicre.h,starcon.ls2,MMRNMHRM_VICTORY_SONG,710,0,6,ship.mmrnmhrm.ditty,MUSICRES,mmrnmhrm/mmrditty.mod
 sc2code/ships/mmrnmhrm/istrtab.h,starcon.ls2,MMRNMHRM_RACE_STRINGS,710,1,4,ship.mmrnmhrm.text,STRTAB,mmrnmhrm/mmrtext.txt
 sc2code/ships/mmrnmhrm/isndres.h,starcon.ls2,MMRNMHRM_SHIP_SOUNDS,710,2,5,ship.mmrnmhrm.sounds,SNDRES,mmrnmhrm/mmrsound.snd
@@ -879,7 +879,7 @@ sc2code/ships/mmrnmhrm/igfxres.h,starcon.ls2,YWING_BIG_MASK_PMAP_ANIM,710,11,2,s
 sc2code/ships/mmrnmhrm/igfxres.h,starcon.ls2,YWING_MED_MASK_PMAP_ANIM,710,12,2,ship.mmrnmhrm.graphics.ywing.medium,GFXRES,mmrnmhrm/ywing.med
 sc2code/ships/mmrnmhrm/igfxres.h,starcon.ls2,YWING_SML_MASK_PMAP_ANIM,710,13,2,ship.mmrnmhrm.graphics.ywing.small,GFXRES,mmrnmhrm/ywing.sml
 sc2code/ships/mmrnmhrm/igfxres.h,starcon.ls2,MMRNMHRM_CAPTAIN_MASK_PMAP_ANIM,710,14,2,ship.mmrnmhrm.graphics.captain,GFXRES,mmrnmhrm/mmrcap.ani
-sc2code/ships/yehat/icode.h,starcon.ls2,YEHAT_CODE,726,0,8,ship.yehat.code,CODE,yehat/yehat.cod
+sc2code/ships/yehat/icode.h,starcon.ls2,YEHAT_CODE,726,0,8,ship.yehat.code,SHIP,23
 sc2code/ships/yehat/imusicre.h,starcon.ls2,YEHAT_VICTORY_SONG,726,0,6,ship.yehat.ditty,MUSICRES,yehat/yehditty.mod
 sc2code/ships/yehat/istrtab.h,starcon.ls2,YEHAT_RACE_STRINGS,726,1,4,ship.yehat.text,STRTAB,yehat/yehtext.txt
 sc2code/ships/yehat/isndres.h,starcon.ls2,YEHAT_SHIP_SOUNDS,726,2,5,ship.yehat.sounds,SNDRES,yehat/yehsound.snd
@@ -895,7 +895,7 @@ sc2code/ships/yehat/igfxres.h,starcon.ls2,SHIELD_BIG_MASK_ANIM,726,11,2,ship.yeh
 sc2code/ships/yehat/igfxres.h,starcon.ls2,SHIELD_MED_MASK_ANIM,726,12,2,ship.yehat.graphics.shield.medium,GFXRES,yehat/shield.med
 sc2code/ships/yehat/igfxres.h,starcon.ls2,SHIELD_SML_MASK_ANIM,726,13,2,ship.yehat.graphics.shield.small,GFXRES,yehat/shield.sml
 sc2code/ships/yehat/igfxres.h,starcon.ls2,YEHAT_CAPTAIN_MASK_PMAP_ANIM,726,14,2,ship.yehat.graphics.captain,GFXRES,yehat/yehcap.ani
-sc2code/ships/lastbat/icode.h,starcon.ls2,SAMATRA_CODE,708,0,8,ship.lastbat.code,CODE,lastbat/lastbat.cod
+sc2code/ships/lastbat/icode.h,starcon.ls2,SAMATRA_CODE,708,0,8,ship.lastbat.code,SHIP,25
 sc2code/ships/lastbat/imusicre.h,starcon.ls2,SAMATRA_VICTORY_SONG,708,0,6,ship.lastbat.ditty,--,--
 sc2code/ships/lastbat/isndres.h,starcon.ls2,SAMATRA_SHIP_SOUNDS,708,1,5,ship.lastbat.sounds,SNDRES,lastbat/lassound.snd
 sc2code/ships/lastbat/igfxres.h,starcon.ls2,SAMATRA_BIG_MASK_ANIM,708,2,2,ship.lastbat.graphics.lastbat.large,GFXRES,lastbat/lastbat.big
@@ -908,7 +908,7 @@ sc2code/ships/lastbat/igfxres.h,starcon.ls2,GENERATOR_BIG_MASK_ANIM,708,8,2,ship
 sc2code/ships/lastbat/igfxres.h,starcon.ls2,GENERATOR_MED_MASK_PMAP_ANIM,708,9,2,ship.lastbat.graphics.gen.medium,GFXRES,lastbat/genmed.ani
 sc2code/ships/lastbat/igfxres.h,starcon.ls2,GENERATOR_SML_MASK_PMAP_ANIM,708,10,2,ship.lastbat.graphics.gen.small,GFXRES,lastbat/gensml.ani
 sc2code/ships/lastbat/igfxres.h,starcon.ls2,SAMATRA_CAPTAIN_MASK_PMAP_ANIM,708,11,2,ship.lastbat.graphics.captain,GFXRES,lastbat/lascap.ani
-sc2code/ships/supox/icode.h,starcon.ls2,SUPOX_CODE,719,0,8,ship.supox.code,CODE,supox/supox.cod
+sc2code/ships/supox/icode.h,starcon.ls2,SUPOX_CODE,719,0,8,ship.supox.code,SHIP,16
 sc2code/ships/supox/imusicre.h,starcon.ls2,SUPOX_VICTORY_SONG,719,0,6,ship.supox.ditty,MUSICRES,supox/supditty.mod
 sc2code/ships/supox/istrtab.h,starcon.ls2,SUPOX_RACE_STRINGS,719,1,4,ship.supox.text,STRTAB,supox/suptext.txt
 sc2code/ships/supox/isndres.h,starcon.ls2,SUPOX_SHIP_SOUNDS,719,2,5,ship.supox.sounds,SNDRES,supox/supsound.snd
@@ -921,7 +921,7 @@ sc2code/ships/supox/igfxres.h,starcon.ls2,GOB_BIG_MASK_PMAP_ANIM,719,8,2,ship.su
 sc2code/ships/supox/igfxres.h,starcon.ls2,GOB_MED_MASK_PMAP_ANIM,719,9,2,ship.supox.graphics.gob.medium,GFXRES,supox/gobmed.ani
 sc2code/ships/supox/igfxres.h,starcon.ls2,GOB_SML_MASK_PMAP_ANIM,719,10,2,ship.supox.graphics.gob.small,GFXRES,supox/gobsml.ani
 sc2code/ships/supox/igfxres.h,starcon.ls2,SUPOX_CAPTAIN_MASK_PMAP_ANIM,719,11,2,ship.supox.graphics.captain,GFXRES,supox/supcap.ani
-sc2code/ships/thradd/icode.h,starcon.ls2,THRADDASH_CODE,721,0,8,ship.thraddash.code,CODE,thradd/thradd.cod
+sc2code/ships/thradd/icode.h,starcon.ls2,THRADDASH_CODE,721,0,8,ship.thraddash.code,SHIP,18
 sc2code/ships/thradd/imusicre.h,starcon.ls2,THRADDASH_VICTORY_SONG,721,0,6,ship.thraddash.ditty,MUSICRES,thradd/thrditty.mod
 sc2code/ships/thradd/istrtab.h,starcon.ls2,THRADDASH_RACE_STRINGS,721,1,4,ship.thraddash.text,STRTAB,thradd/thrtext.txt
 sc2code/ships/thradd/isndres.h,starcon.ls2,THRADDASH_SHIP_SOUNDS,721,2,5,ship.thraddash.sounds,SNDRES,thradd/thrsound.snd
@@ -937,7 +937,7 @@ sc2code/ships/thradd/igfxres.h,starcon.ls2,NAPALM_BIG_MASK_PMAP_ANIM,721,11,2,sh
 sc2code/ships/thradd/igfxres.h,starcon.ls2,NAPALM_MED_MASK_PMAP_ANIM,721,12,2,ship.thraddash.graphics.nap.medium,GFXRES,thradd/napmed.ani
 sc2code/ships/thradd/igfxres.h,starcon.ls2,NAPALM_SML_MASK_PMAP_ANIM,721,13,2,ship.thraddash.graphics.nap.small,GFXRES,thradd/napsml.ani
 sc2code/ships/thradd/igfxres.h,starcon.ls2,THRADDASH_CAPTAIN_MASK_PMAP_ANIM,721,14,2,ship.thraddash.graphics.captain,GFXRES,thradd/thrcap.ani
-sc2code/ships/androsyn/icode.h,starcon.ls2,ANDROSYNTH_CODE,700,0,8,ship.androsynth.code,CODE,androsyn/androsyn.cod
+sc2code/ships/androsyn/icode.h,starcon.ls2,ANDROSYNTH_CODE,700,0,8,ship.androsynth.code,SHIP,0
 sc2code/ships/androsyn/imusicre.h,starcon.ls2,ANDROSYNTH_VICTORY_SONG,700,0,6,ship.androsynth.ditty,MUSICRES,androsyn/andditty.mod
 sc2code/ships/androsyn/istrtab.h,starcon.ls2,ANDROSYNTH_RACE_STRINGS,700,1,4,ship.androsynth.text,STRTAB,androsyn/andtext.txt
 sc2code/ships/androsyn/isndres.h,starcon.ls2,ANDROSYNTH_SHIP_SOUNDS,700,2,5,ship.androsynth.sounds,SNDRES,androsyn/andsound.snd
@@ -953,7 +953,7 @@ sc2code/ships/androsyn/igfxres.h,starcon.ls2,BLAZER_BIG_MASK_PMAP_ANIM,700,11,2,
 sc2code/ships/androsyn/igfxres.h,starcon.ls2,BLAZER_MED_MASK_PMAP_ANIM,700,12,2,ship.androsynth.graphics.blazer.medium,GFXRES,androsyn/blazer.med
 sc2code/ships/androsyn/igfxres.h,starcon.ls2,BLAZER_SML_MASK_PMAP_ANIM,700,13,2,ship.androsynth.graphics.blazer.small,GFXRES,androsyn/blazer.sml
 sc2code/ships/androsyn/igfxres.h,starcon.ls2,ANDROSYNTH_CAPT_MASK_PMAP_ANIM,700,14,2,ship.androsynth.graphics.captain,GFXRES,androsyn/andcap.ani
-sc2code/ships/orz/icode.h,starcon.ls2,ORZ_CODE,712,0,8,ship.orz.code,CODE,orz/orz.cod
+sc2code/ships/orz/icode.h,starcon.ls2,ORZ_CODE,712,0,8,ship.orz.code,SHIP,11
 sc2code/ships/orz/imusicre.h,starcon.ls2,ORZ_VICTORY_SONG,712,0,6,ship.orz.ditty,MUSICRES,orz/orzditty.mod
 sc2code/ships/orz/istrtab.h,starcon.ls2,ORZ_RACE_STRINGS,712,1,4,ship.orz.text,STRTAB,orz/orztext.txt
 sc2code/ships/orz/isndres.h,starcon.ls2,ORZ_SHIP_SOUNDS,712,2,5,ship.orz.sounds,SNDRES,orz/orzsound.snd
