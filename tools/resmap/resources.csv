@@ -189,7 +189,7 @@ sc2code/igfxres.h,starcon.ls2,BLAST_MED_MASK_PMAP_ANIM,34,11,2,graphics.blamed,G
 sc2code/igfxres.h,starcon.ls2,BLAST_SML_MASK_PMAP_ANIM,34,12,2,graphics.blasml,GFXRES,base/battle/blasml.ani
 sc2code/igfxres.h,starcon.ls2,BOOM_BIG_MASK_PMAP_ANIM,34,13,2,graphics.boobig,GFXRES,base/battle/boobig.ani
 sc2code/igfxres.h,starcon.ls2,BOOM_MED_MASK_PMAP_ANIM,34,14,2,graphics.boomed,GFXRES,base/battle/boomed.ani
-sc2code/igfxres.h,starcon.ls2,BOOM_SML_MASK_PMAP_ANIM,34,15,2,graphics.boosml,GFXRES,base/planets/boosml.ani
+sc2code/igfxres.h,starcon.ls2,BOOM_SML_MASK_PMAP_ANIM,34,15,2,graphics.boosml,GFXRES,base/battle/boosml.ani
 sc2code/igfxres.h,starcon.ls2,AMBIENT_MASK_PMAP_ANIM,35,16,2,graphics.ambanim,GFXRES,base/nav/ambientanim.ani
 sc2code/igfxres.h,starcon.ls2,HYPERSTARS_MASK_PMAP_ANIM,36,17,2,graphics.hyperstr,GFXRES,base/nav/hyperstr.ani
 sc2code/igfxres.h,starcon.ls2,ARISPACE_MASK_PMAP_ANIM,37,18,2,graphics.arispace,GFXRES,base/nav/quasispace.ani
