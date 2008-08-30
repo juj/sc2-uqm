@@ -1,0 +1,30 @@
+TARGET		  SDL_image.lib
+TARGETTYPE	  lib
+UID			 0
+
+USERINCLUDE	 ..\inc
+SYSTEMINCLUDE   \epoc32\include\stdapis
+SYSTEMINCLUDE   \epoc32\include
+SYSTEMINCLUDE   \epoc32\include\SDL
+
+SOURCEPATH	  ..\src
+
+SOURCE png.c
+SOURCE pngerror.c
+SOURCE pnggccrd.c
+SOURCE pngget.c
+SOURCE pngmem.c
+SOURCE pngpread.c
+SOURCE pngread.c
+SOURCE pngrio.c
+SOURCE pngrtran.c
+SOURCE pngrutil.c
+SOURCE pngset.c
+SOURCE pngtest.c
+SOURCE pngtrans.c
+SOURCE pngvcrd.c
+SOURCE pngwio.c
+SOURCE pngwrite.c
+SOURCE pngwtran.c
+SOURCE pngwutil.c
+SOURCE SDL_image.c

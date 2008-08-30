@@ -1,0 +1,7 @@
+Libpng and a small subset of SDL_image ported to Symbian, to be used with
+Ur-Quan Masters.
+
+TODO: a proper port of both libraries.
+
+http://www.libpng.org/pub/png/libpng.html
+http://www.libsdl.org/projects/SDL_image/
