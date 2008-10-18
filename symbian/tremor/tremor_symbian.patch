@@ -1,0 +1,319 @@
+Index: misc.h
+===================================================================
+--- misc.h	(revision 15409)
++++ misc.h	(working copy)
+@@ -33,6 +33,11 @@
+ #include <sys/types.h>
+ #endif
+ 
++#ifdef __SYMBIAN32__
++#  define LITTLE_ENDIAN 1
++#  define BYTE_ORDER LITTLE_ENDIAN
++#endif
++
+ #if BYTE_ORDER==LITTLE_ENDIAN
+ union magic {
+   struct {
+Index: floor0.c
+===================================================================
+--- floor0.c	(revision 15409)
++++ floor0.c	(working copy)
+@@ -145,7 +145,7 @@
+   int i;
+   int ampoffseti=ampoffset*4096;
+   int ampi=amp;
+-  ogg_int32_t *ilsp=(ogg_int32_t *)alloca(m*sizeof(*ilsp));
++  ogg_int32_t *ilsp=(ogg_int32_t *)_ogg_malloc(m*sizeof(*ilsp));
+   /* lsp is in 8.24, range 0 to PI; coslook wants it in .16 0 to 1*/
+   for(i=0;i<m;i++){
+ #ifndef _LOW_ACCURACY_
+@@ -157,6 +157,7 @@
+     /* safeguard against a malicious stream */
+     if(val<0 || (val>>COS_LOOKUP_I_SHIFT)>=COS_LOOKUP_I_SZ){
+       memset(curve,0,sizeof(*curve)*n);
++     _ogg_free(ilsp);
+       return;
+     }
+ 
+Index: os_types.h
+===================================================================
+--- os_types.h	(revision 15409)
++++ os_types.h	(working copy)
+@@ -32,8 +32,15 @@
+ #define _ogg_realloc realloc
+ #define _ogg_free    free
+ 
+-#ifdef _WIN32 
++#ifdef __SYMBIAN32__
+ 
++   typedef long long ogg_int64_t;
++   typedef int ogg_int32_t;
++   typedef unsigned long int ogg_uint32_t;
++   typedef short int ogg_int16_t;
++
++#elif defined(_WIN32)
++
+ #  ifndef __GNUC__
+    /* MSVC/Borland */
+    typedef __int64 ogg_int64_t;
+Index: mapping0.c
+===================================================================
+--- mapping0.c	(revision 15409)
++++ mapping0.c	(working copy)
+@@ -188,11 +188,11 @@
+   int                   i,j;
+   long                  n=vb->pcmend=ci->blocksizes[vb->W];
+ 
+-  ogg_int32_t **pcmbundle=(ogg_int32_t **)alloca(sizeof(*pcmbundle)*vi->channels);
+-  int    *zerobundle=(int *)alloca(sizeof(*zerobundle)*vi->channels);
++  ogg_int32_t **pcmbundle=(ogg_int32_t **)_ogg_malloc(sizeof(*pcmbundle)*vi->channels);
++  int    *zerobundle=(int *)_ogg_malloc(sizeof(*zerobundle)*vi->channels);
+   
+-  int   *nonzero  =(int *)alloca(sizeof(*nonzero)*vi->channels);
+-  void **floormemo=(void **)alloca(sizeof(*floormemo)*vi->channels);
++  int   *nonzero  =(int *)_ogg_malloc(sizeof(*nonzero)*vi->channels);
++  void **floormemo=(void **)_ogg_malloc(sizeof(*floormemo)*vi->channels);
+   
+   /* time domain information decode (note that applying the
+      information would have to happen later; we'll probably add a
+@@ -309,6 +309,10 @@
+ 
+   seq+=vi->channels;
+   /* all done! */
++  _ogg_free(pcmbundle);
++  _ogg_free(zerobundle);
++  _ogg_free(nonzero);
++  _ogg_free(floormemo);
+   return(0);
+ }
+ 
+Index: codebook.c
+===================================================================
+--- codebook.c	(revision 15409)
++++ codebook.c	(working copy)
+@@ -229,15 +229,20 @@
+ 			      oggpack_buffer *b,int n,int point){
+   if(book->used_entries>0){  
+     int step=n/book->dim;
+-    long *entry = (long *)alloca(sizeof(*entry)*step);
+-    ogg_int32_t **t = (ogg_int32_t **)alloca(sizeof(*t)*step);
++    long *entry = (long *)_ogg_malloc(sizeof(*entry)*step);
++    ogg_int32_t **t = (ogg_int32_t **)_ogg_malloc(sizeof(*t)*step);
+     int i,j,o;
+     int shift=point-book->binarypoint;
+     
+     if(shift>=0){
+       for (i = 0; i < step; i++) {
+ 	entry[i]=decode_packed_entry_number(book,b);
+-	if(entry[i]==-1)return(-1);
++      if(entry[i]==-1)
++      	{
++      	_ogg_free(entry);
++      	_ogg_free(t);
++      	return(-1);
++      	}
+ 	t[i] = book->valuelist+entry[i]*book->dim;
+       }
+       for(i=0,o=0;i<book->dim;i++,o+=step)
+Index: os.h
+===================================================================
+--- os.h	(revision 15409)
++++ os.h	(working copy)
+@@ -27,16 +27,17 @@
+ #    define STIN static __inline__
+ #  elif _WIN32
+ #    define STIN static __inline
++#  else
++#    define STIN static
+ #  endif
+-#else
+-#  define STIN static
++
+ #endif
+ 
+ #ifndef M_PI
+ #  define M_PI (3.1415926536f)
+ #endif
+ 
+-#ifdef _WIN32
++#if defined(_WIN32) && !defined(__SYMBIAN32__)
+ #  include <malloc.h>
+ #  define rint(x)   (floor((x)+0.5f)) 
+ #  define NO_FLOAT_MATH_LIB
+Index: bld.inf
+===================================================================
+--- bld.inf	(revision 0)
++++ bld.inf	(revision 0)
+@@ -0,0 +1,11 @@
++PRJ_PLATFORMS
++DEFAULT
++
++PRJ_EXPORTS
++ivorbiscodec.h tremor/ivorbiscodec.h
++ivorbisfile.h tremor/ivorbisfile.h
++ogg.h tremor/ogg.h
++os_types.h tremor/os_types.h
++
++PRJ_MMPFILES
++tremor.mmp
+Index: info.c
+===================================================================
+--- info.c	(revision 15409)
++++ info.c	(working copy)
+@@ -56,7 +56,7 @@
+   long i;
+   int found = 0;
+   int taglen = strlen(tag)+1; /* +1 for the = we append */
+-  char *fulltag = (char *)alloca(taglen+ 1);
++  char *fulltag = (char *)_ogg_malloc(taglen+ 1);
+ 
+   strcpy(fulltag, tag);
+   strcat(fulltag, "=");
+@@ -70,13 +70,14 @@
+ 	found++;
+     }
+   }
++  _ogg_free(fulltag);
+   return NULL; /* didn't find anything */
+ }
+ 
+ int vorbis_comment_query_count(vorbis_comment *vc, char *tag){
+   int i,count=0;
+   int taglen = strlen(tag)+1; /* +1 for the = we append */
+-  char *fulltag = (char *)alloca(taglen+1);
++  char *fulltag = (char *)_ogg_malloc(taglen+1);
+   strcpy(fulltag,tag);
+   strcat(fulltag, "=");
+ 
+@@ -85,6 +86,7 @@
+       count++;
+   }
+ 
++	_ogg_free(fulltag);
+   return count;
+ }
+ 
+Index: window.c
+===================================================================
+--- window.c	(revision 15409)
++++ window.c	(working copy)
+@@ -56,7 +56,7 @@
+ 			  long *blocksizes,
+ 			  int lW,int W,int nW){
+   
+-  LOOKUP_T *window[2]={window_p[0],window_p[1]};
++  LOOKUP_T *window[2];
+   long n=blocksizes[W];
+   long ln=blocksizes[lW];
+   long rn=blocksizes[nW];
+@@ -69,6 +69,9 @@
+   
+   int i,p;
+ 
++  window[0]=window_p[0];
++  window[1]=window_p[1];
++  
+   for(i=0;i<leftbegin;i++)
+     d[i]=0;
+ 
+Index: res012.c
+===================================================================
+--- res012.c	(revision 15409)
++++ res012.c	(working copy)
+@@ -190,11 +190,12 @@
+   int max=vb->pcmend>>1;
+   int end=(info->end<max?info->end:max);
+   int n=end-info->begin;
++  int ***partword  = 0;
+ 
+   if(n>0){
+     int partvals=n/samples_per_partition;
+     int partwords=(partvals+partitions_per_word-1)/partitions_per_word;
+-    int ***partword=(int ***)alloca(ch*sizeof(*partword));
++    partword=(int ***)_ogg_malloc(ch*sizeof(*partword));
+     
+     for(j=0;j<ch;j++)
+       partword[j]=(int **)_vorbis_block_alloc(vb,partwords*sizeof(*partword[j]));
+@@ -231,6 +232,7 @@
+   }
+  errout:
+  eopbreak:
++ _ogg_free(partword);
+   return(0);
+ }
+ 
+Index: tremor.mmp
+===================================================================
+--- tremor.mmp	(revision 0)
++++ tremor.mmp	(revision 0)
+@@ -0,0 +1,29 @@
++TARGET tremor.lib
++TARGETTYPE lib
++UID 0
++
++USERINCLUDE	.
++SYSTEMINCLUDE \epoc32\include\stdapis
++SYSTEMINCLUDE \epoc32\include
++
++SOURCEPATH .
++SOURCE bitwise.c 
++SOURCE codebook.c 
++SOURCE floor1.c
++SOURCE info.c
++SOURCE mapping0.c
++SOURCE registry.c
++SOURCE sharedbook.c
++SOURCE vorbisfile.c
++SOURCE block.c
++SOURCE floor0.c
++SOURCE framing.c
++SOURCE mdct.c
++SOURCE res012.c
++SOURCE synthesis.c
++SOURCE window.c
++
++MACRO _LOW_ACCURACY_
++
++OPTION_REPLACE ARMCC --cpu ARM926EJ-S -O3 -Otime
++ALWAYS_BUILD_AS_ARM
+Index: sharedbook.c
+===================================================================
+--- sharedbook.c	(revision 15409)
++++ sharedbook.c	(working copy)
+@@ -347,7 +347,7 @@
+     
+     /* perform sort */
+     ogg_uint32_t *codes=_make_words(s->lengthlist,s->entries,c->used_entries);
+-    ogg_uint32_t **codep=(ogg_uint32_t **)alloca(sizeof(*codep)*n);
++    ogg_uint32_t **codep=(ogg_uint32_t **)_ogg_malloc(sizeof(*codep)*n);
+     
+     if(codes==NULL)goto err_out;
+ 
+@@ -358,7 +358,7 @@
+ 
+     qsort(codep,n,sizeof(*codep),sort32a);
+ 
+-    sortindex=(int *)alloca(n*sizeof(*sortindex));
++     sortindex=(int *)_ogg_malloc(n*sizeof(*sortindex));
+     c->codelist=(ogg_uint32_t *)_ogg_malloc(n*sizeof(*c->codelist));
+     /* the index is a reverse index */
+     for(i=0;i<n;i++){
+@@ -368,6 +368,7 @@
+ 
+     for(i=0;i<n;i++)
+       c->codelist[sortindex[i]]=codes[i];
++   	_ogg_free(codep);
+     _ogg_free(codes);
+     
+     
+@@ -431,8 +432,10 @@
+     }
+   }
+ 
++_ogg_free(sortindex);
+   return(0);
+  err_out:
++ _ogg_free(sortindex);
+   vorbis_book_clear(c);
+   return(-1);
+ }
