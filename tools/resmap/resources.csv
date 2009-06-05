@@ -182,7 +182,7 @@ FLAGSTAT_MASK_PMAP_ANIM,graphics.flagstat,sc2code/igfxres.h,GFXRES,base/ui/flags
 MISCDATA_MASK_PMAP_ANIM,graphics.miscdata,sc2code/igfxres.h,GFXRES,base/ui/miscdata.ani
 STAR_MASK_PMAP_ANIM,graphics.stars,sc2code/igfxres.h,GFXRES,base/battle/stars.ani
 ASTEROID_BIG_MASK_PMAP_ANIM,graphics.astbig,sc2code/igfxres.h,GFXRES,base/battle/asteroid.big
-ASTEROID_MED_MASK_PMAP_ANIM,graphics.astmed,sc2code/igfxres.h,GFXRES,base/battle/asteroid.mid
+ASTEROID_MED_MASK_PMAP_ANIM,graphics.astmed,sc2code/igfxres.h,GFXRES,base/battle/asteroid.med
 ASTEROID_SML_MASK_PMAP_ANIM,graphics.astsml,sc2code/igfxres.h,GFXRES,base/battle/asteroid.sml
 BLAST_BIG_MASK_PMAP_ANIM,graphics.blabig,sc2code/igfxres.h,GFXRES,base/battle/blabig.ani
 BLAST_MED_MASK_PMAP_ANIM,graphics.blamed,sc2code/igfxres.h,GFXRES,base/battle/blamed.ani
