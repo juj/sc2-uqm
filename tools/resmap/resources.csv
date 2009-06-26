@@ -445,7 +445,7 @@ MENUBKG_PMAP_ANIM,graphics.setupmenu,sc2code/igfxres.h,GFXRES,base/ui/setupmenu.
 FONTGRAD_PMAP_ANIM,graphics.fontgradient,sc2code/igfxres.h,GFXRES,base/fonts/fontgradient.ani
 LANDER_FONTEFF_PMAP_ANIM,graphics.landerfonteffect,sc2code/igfxres.h,GFXRES,base/lander/fonteffect.ani
 DRUUGE_MUSIC,comm.druuge.music,sc2code/comm/druuge/imusicre.h,MUSICRES,base/comm/druuge/druuge.mod
-DRUUGE_FONT,comm.druuge.font,sc2code/comm/druuge/ifontres.h,FONTRES,base/fonts/druuge.fon
+DRUUGE_FONT,comm.druuge.font,sc2code/comm/druuge/ifontres.h,FONTRES,base/fonts/micro.fon
 DRUUGE_CONVERSATION_PHRASES,comm.druuge.dialogue,sc2code/comm/druuge/istrtab.h,CONVERSATION,base/comm/druuge/druuge.txt
 DRUUGE_COLOR_MAP,comm.druuge.colortable,sc2code/comm/druuge/istrtab.h,BINTAB,base/comm/druuge/druuge.ct
 DRUUGE_PMAP_ANIM,comm.druuge.graphics,sc2code/comm/druuge/igfxres.h,GFXRES,base/comm/druuge/druuge.ani
@@ -498,7 +498,7 @@ ARILOU_COLOR_MAP,comm.arilou.colortable,sc2code/comm/arilou/igfxres.h,BINTAB,bas
 COMMANDER_MUSIC,comm.commander.music,sc2code/comm/comandr/imusicre.h,MUSICRES,base/comm/commander/commander.mod
 STARBASE_ALT_MUSIC,comm.starbase.music,sc2code/comm/comandr/imusicre.h,--,--
 COMMANDER_LOWPOW_MUSIC,comm.commander.lowpower.music,sc2code/comm/comandr/imusicre.h,--,--
-COMMANDER_FONT,comm.commander.font,sc2code/comm/comandr/ifontres.h,FONTRES,base/fonts/commander.fon
+COMMANDER_FONT,comm.commander.font,sc2code/comm/comandr/ifontres.h,FONTRES,base/fonts/player.fon
 COMMANDER_COLOR_MAP,comm.commander.colortable,sc2code/comm/comandr/istrtab.h,BINTAB,base/comm/commander/commander.ct
 COMMANDER_CONVERSATION_PHRASES,comm.commander.dialogue,sc2code/comm/comandr/istrtab.h,CONVERSATION,base/comm/commander/commander.txt
 STARBASE_CONVERSATION_PHRASES,comm.starbase.dialogue,sc2code/comm/comandr/istrtab.h,CONVERSATION,base/comm/starbase/starbase.txt
@@ -539,7 +539,7 @@ SYREEN_CONVERSATION_PHRASES,comm.syreen.dialogue,sc2code/comm/syreen/istrtab.h,C
 SYREEN_COLOR_MAP,comm.syreen.colortable,sc2code/comm/syreen/istrtab.h,BINTAB,base/comm/syreen/syreen.ct
 SYREEN_PMAP_ANIM,comm.syreen.graphics,sc2code/comm/syreen/igfxres.h,GFXRES,base/comm/syreen/syreen.ani
 MELNORME_MUSIC,comm.melnorme.music,sc2code/comm/melnorm/imusicre.h,MUSICRES,base/comm/melnorme/melnorme.mod
-MELNORME_FONT,comm.melnorme.font,sc2code/comm/melnorm/ifontres.h,FONTRES,base/fonts/melnorme.fon
+MELNORME_FONT,comm.melnorme.font,sc2code/comm/melnorm/ifontres.h,FONTRES,base/fonts/micro.fon
 MELNORME_CONVERSATION_PHRASES,comm.melnorme.dialogue,sc2code/comm/melnorm/istrtab.h,CONVERSATION,base/comm/melnorme/melnorme.txt
 MELNORME_COLOR_MAP,comm.melnorme.colortable,sc2code/comm/melnorm/istrtab.h,BINTAB,base/comm/melnorme/melnorme.ct
 MELNORME_PMAP_ANIM,comm.melnorme.graphics,sc2code/comm/melnorm/igfxres.h,GFXRES,base/comm/melnorme/melnorme.ani
