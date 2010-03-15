@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-VERSION=0.6.0
+VERSION=0.7.0
 
 # THESE MUST BE DEFINED, PREFERABLY AS ABSOLUTE PATHS, BEFORE RUNNING
 # THIS SCRIPT
@@ -39,17 +39,17 @@ ZIP="zip -X -q -n .ogg -8"
 
 make_content_list() {
 	cd "$CONTENT_DIR"
-	find . -type f -not -path '*/CVS*' -not -path '*/.svn*' -not -name "*.ogg" -not -name "version" | sort > "$CONTENT_LIST"
+	find . -type f -not -path '*/CVS*' -not -path '*/.svn*' -not -path '*/addons*' -not -name "version" | sort > "$CONTENT_LIST"
 }
 
 make_voice_list() {
-	cd "$CONTENT_DIR"
-	find . -type f -name '*[0-9][0-9][0-9].ogg' | sort > "$VOICE_LIST"
+	cd "$CONTENT_DIR/addons"
+	find 3dovoice -type f -not -path '*/CVS*' -not -path '*/.svn*' | sort > "$VOICE_LIST"
 }
 
 make_3domusic_list() {
-	cd "$CONTENT_DIR"
-	find . -type f -name "*.ogg" -and -not -name '*[0-9][0-9][0-9].ogg' | sort > "$MUSIC_LIST"
+	cd "$CONTENT_DIR/addons"
+	find 3domusic -type f -not -path '*/CVS*' -not -path '*/.svn*' | sort > "$MUSIC_LIST"
 }
 
 make_content_pkg() {
@@ -59,13 +59,13 @@ make_content_pkg() {
 }
 
 make_voice_pkg() {
-	cd "$CONTENT_DIR"
+	cd "$CONTENT_DIR/addons"
 	rm -f -- "$VOICE_PKG"
 	$ZIP "$VOICE_PKG" -r . -i@"$VOICE_LIST"
 }
 
 make_3domusic_pkg() {
-	cd "$CONTENT_DIR"
+	cd "$CONTENT_DIR/addons"
 	rm -f -- "$MUSIC_PKG"
 	$ZIP "$MUSIC_PKG" -r . -i@"$MUSIC_LIST"
 }
