@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import sys
+import zipfile
 
-def read_rmp(fname):
-    lines = file(fname).readlines()
+def read_rmp(f):
+    lines = f.readlines()
     result = {}
     errors = []
     for (l, i) in zip(lines, xrange(1, 99999)):
@@ -44,18 +45,27 @@ def check_rmp(base, target):
         if t not in valid_types:
             print "%d: new type '%s'" % (i, t)
 
+def loot_uqm(fname):
+    zf = zipfile.ZipFile(fname)
+    files = zf.namelist()
+    rmps = [x for x in files if x.endswith(".rmp")]
+    result = {}
+    errors = []
+    for rmp in rmps:
+        (b, e) = read_rmp(zf.open(rmp))
+        result.update(b)
+        errors.extend(e)
+        for k in b:
+            (i, t, v) = b[k]
+            if v.startswith("addons/"):
+                v = v[7:]
+            if v not in files:
+                errors.append((i, "Unknown file '%s'" % v))
+    return (result, errors)
 
 if __name__ == '__main__':
-    base = sys.argv[1]
-    target = sys.argv[2]
-    (b, e) = read_rmp(base)
-    if e != []:
-        for (i, x) in e:
-            print "%d: %s" % (i, x)
-        print "Errors found in base resource index, cannot continue"
-    else:
-        (t, e) = read_rmp(target)
+    for uqm in sys.argv[1:]:
+        (b, e) = loot_uqm(uqm)
         if e != []:
             for (i, x) in e:
                 print "%d: %s" % (i, x)
-        check_rmp(b, t)
