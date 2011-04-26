@@ -162,6 +162,7 @@ BURV_RUINS_STRTAB,text.burvixeseruins,uqm/istrtab.h,STRTAB,base/lander/energy/bu
 ANDROSYNTH_RUINS_STRTAB,text.androsynthruins,uqm/istrtab.h,STRTAB,base/lander/energy/androsynth_ruins.txt
 DRUUGE_RUINS_STRTAB,text.sphere,uqm/istrtab.h,STRTAB,base/lander/energy/sphere.txt
 PKUNK_RUINS_STRTAB,text.spindle,uqm/istrtab.h,STRTAB,base/lander/energy/spindle.txt
+SUPOX_RUINS_STRTAB,text.ultron,uqm/istrtab.h,STRTAB,base/lander/energy/ultron.txt
 RUINS_STRTAB,text.ruins,uqm/istrtab.h,STRTAB,base/lander/energy/ruins.txt
 UMGAH_BCS_STRTAB,text.umgahcaster,uqm/istrtab.h,STRTAB,base/lander/energy/umgahcaster.txt
 IPSUN_COLOR_MAP,colortable.truespace,uqm/istrtab.h,BINTAB,base/nav/truespace.ct
