@@ -219,36 +219,22 @@ bool wave_open(wave_File *wave, const char *filename)
 		wave_close(wave);
 		return false;
 	}
-	if (wave->fmtHdr.channels != 1 && wave->fmtHdr.channels != 2)
-	{
-		fprintf(stderr, "wave_open(): unsupported number of channels %u",
-				(unsigned)wave->fmtHdr.channels);
-		wave_close(wave);
-		return false;
-	}
 
 	if (dataLeft != 0)
 	{
 		fprintf(stderr, "wave_open(): bad or unsupported wave file, "
 				"size in header does not match read chunks");
 	}
-#if 0
-	wave->format = (wave->fmtHdr.channels == 1 ?
-			(wave->fmtHdr.bitsPerSample == 8 ?
-				wava_formats->mono8 : wava_formats->mono16)
-			:
-			(wave->fmtHdr.bitsPerSample == 8 ?
-				wava_formats->stereo8 : wava_formats->stereo16)
-			);
-	wave->frequency = wave->fmtHdr.samplesPerSec;
-#endif
+
+	wave->bytesPerSample = (wave->fmtHdr.bitsPerSample + 7) >> 3;
+	if (wave->bytesPerSample == 3)
+	{
+		fprintf(stderr, "wave_open(): 24-bit data is not fully supported\n");
+	}
 
 	fseek(wave->fp, wave->data_ofs, SEEK_SET);
 	wave->max_pcm = wave->data_size / wave->fmtHdr.blockAlign;
 	wave->cur_pcm = 0;
-#if 0
-	wave->length = (float) wave->max_pcm / wave->fmtHdr.samplesPerSec;
-#endif
 	wave->last_error = 0;
 
 	return true;
@@ -333,8 +319,13 @@ bool wave_setFormat(wave_File *wave, uint16_t chans, uint16_t bitsPerSample,
 	wave->fmtHdr.format = WAVE_FORMAT_PCM;
 	wave->fmtHdr.channels = chans;
 	wave->fmtHdr.bitsPerSample = bitsPerSample;
+	wave->bytesPerSample = (bitsPerSample + 7) >> 3;
+	if (wave->bytesPerSample == 3)
+	{
+		fprintf(stderr, "wave_setFormat(): 24-bit data is not fully supported\n");
+	}
 	wave->fmtHdr.samplesPerSec = freq;
-	wave->fmtHdr.blockAlign = (bitsPerSample / 8) * chans;
+	wave->fmtHdr.blockAlign = wave->bytesPerSample * chans;
 	wave->fmtHdr.bytesPerSec = wave->fmtHdr.blockAlign * freq;
 	return true;
 }
@@ -342,6 +333,9 @@ bool wave_setFormat(wave_File *wave, uint16_t chans, uint16_t bitsPerSample,
 uint32_t wave_readData(wave_File *wave, void *buf, uint32_t bufsize)
 {
 	uint32_t pcm;
+	uint8_t *ptr = (uint8_t*)buf;
+	uint32_t size;
+	uint32_t left;
 
 	pcm = bufsize / wave->fmtHdr.blockAlign;
 	if (pcm > wave->max_pcm - wave->cur_pcm)
@@ -349,20 +343,74 @@ uint32_t wave_readData(wave_File *wave, void *buf, uint32_t bufsize)
 
 	pcm = fread(buf, wave->fmtHdr.blockAlign, pcm, wave->fp);
 	wave->cur_pcm += pcm;
-	
-	return pcm * wave->fmtHdr.blockAlign;
+	size = pcm * wave->fmtHdr.blockAlign;
+
+	// WAVE files store data little-endian and we need it in machine order
+	// Let the compiler optimize this away if it is not necessary
+	switch (wave->bytesPerSample)
+	{
+	case 2:
+		for (left = size / 2; left > 0; --left, ptr += 2)
+			*(int16_t*)ptr = (ptr[1] << 8) | ptr[0];
+		break;
+
+	case 3:
+		// TODO
+		break;
+		
+	case 4:
+		for (left = size / 4; left > 0; --left, ptr += 4)
+			*(int32_t*)ptr = (ptr[3] << 24) | (ptr[2] << 16) | (ptr[1] << 8) | ptr[0];
+		break;
+	}
+
+	return size;
 }
 
 uint32_t wave_writeData(wave_File *wave, void *buf, uint32_t bufsize)
 {
 	uint32_t pcm;
+	uint8_t *ptr = (uint8_t*)buf;
+	uint32_t size;
+	uint32_t left;
 
 	pcm = bufsize / wave->fmtHdr.blockAlign;
+
+	size = pcm * wave->fmtHdr.blockAlign;
+	// WAVE files store data little-endian and we have it in machine order
+	// Let the compiler optimize this away if it is not necessary
+	switch (wave->bytesPerSample)
+	{
+	case 2:
+		for (left = size / 2; left > 0; --left, ptr += 2)
+		{
+			int16_t v = *(int16_t*)ptr;
+			ptr[0] = (v & 0xff);
+			ptr[1] = (v >> 8);
+		}
+		break;
+
+	case 3:
+		// TODO
+		break;
+		
+	case 4:
+		for (left = size / 4; left > 0; --left, ptr += 4)
+		{
+			int32_t v = *(int32_t*)ptr;
+			ptr[0] = (v & 0xff);
+			ptr[1] = (v >> 8);
+			ptr[2] = (v >> 16);
+			ptr[3] = (v >> 24);
+		}
+		break;
+	}
 
 	pcm = fwrite(buf, wave->fmtHdr.blockAlign, pcm, wave->fp);
 	wave->cur_pcm += pcm;
 	wave->max_pcm = wave->cur_pcm;
-	wave->data_size += pcm * wave->fmtHdr.blockAlign;
-	
-	return pcm * wave->fmtHdr.blockAlign;
+	size = pcm * wave->fmtHdr.blockAlign;
+	wave->data_size += size;
+
+	return size;
 }

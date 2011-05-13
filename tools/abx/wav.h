@@ -64,6 +64,7 @@ typedef struct
 	// internal
 	bool writing;
 	FILE *fp;
+	unsigned bytesPerSample;
 	uint32_t data_ofs;
 	uint32_t data_size;
 	uint32_t max_pcm;
