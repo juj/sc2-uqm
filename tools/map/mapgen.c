@@ -30,10 +30,12 @@
 #endif
 
 extern const mg_driver_t sdlpng_drv;
+extern const mg_driver_t sdlsvg_drv;
 
 static const mg_driver_t* drvs[] =
 {
 	&sdlpng_drv,
+	&sdlsvg_drv,
 	0 /* term */
 };
 static const mg_driver_t* drv;
@@ -355,7 +357,7 @@ static void usage()
 
 static void parseArguments(int argc, char *argv[], options_t *opts)
 {
-	char ch;
+	int ch;
 	
 	opterr = 0;
 	memset(opts, 0, sizeof (options_t));
@@ -395,6 +397,7 @@ static void parseArguments(int argc, char *argv[], options_t *opts)
 			;
 		}
 	}
+	// TODO: this does not work with all versions of getopt()
 	optind = 1; // let the driver handle the rest
 }
 

@@ -3,22 +3,27 @@
 #
 # You may need to compile or install libpng and/or zlib before
 # compiling this.
+# When building on Cygwin, do not use Cygwin-supplied libpng.
 #
 
 TARGET = mapgen
 # These flags are needed to get it to compile with libpngX.dll on CYGWIN
 #CYGWINFLAGS = -DPNG_USE_DLL
-CYGWINFLAGS =
-PNGFLAGS = -I. 
+PNGFLAGS = -I/usr/include/libpng12
 SDLFLAGS = $(shell sdl-config --cflags)
 
 CC = gcc
 CFLAGS += -W -Wall -O0 # -g
-LIBS = -L/usr/local/lib -lpng -lm -lSDL_ttf -lSDL_image
+LIBS = -L/usr/local/lib -lpng12 -lSDL_ttf -lSDL_image
 LDFLAGS += $(shell sdl-config --libs)
+# This is needed for Cygwin; -L. so that we can link with private libpng
+#LDFLAGS += -mconsole -L.
 
 BINS = $(TARGET) $(TARGET).exe
-OBJS = mapgen.o alist.o scriptlib.o stringbank.o unicode.o sdlpngdrv.o SDL_gfxPrimitives.o port.o
+OBJS = mapgen.o alist.o scriptlib.o stringbank.o unicode.o port.o
+OBJS += SDL_gfxPrimitives.o
+OBJS += sdlpngdrv.o
+OBJS += sdlsvgdrv.o
 
 .SUFFIXES: .c .o
 
@@ -28,7 +33,7 @@ OBJS = mapgen.o alist.o scriptlib.o stringbank.o unicode.o sdlpngdrv.o SDL_gfxPr
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(LIBS) $(LDFLAGS)
+	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS) $(LIBS)
 
 clean:
 	rm -f $(BINS) *.o

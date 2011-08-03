@@ -126,21 +126,6 @@ static const char* outdev = "starmap.png";
 static FILE* fout;
 static int dpix, dpiy;
 
-static char* strcopy(const char* str)
-{
-	int l;
-	char* s;
-
-	if (!str)
-		return 0;
-	l = strlen(str);
-	s = malloc(l + 1);
-	if (!s)
-		return 0;
-	memcpy(s, str, l + 1);
-	return s;
-}
-
 static int drv_init(int argc, char *argv[])
 {
 	int ret;
@@ -197,7 +182,7 @@ static void drv_usage(void)
 
 static int parseArguments(int argc, char* argv[])
 {
-	char ch;
+	int ch;
 	
 	while (-1 != (ch = getopt(argc, argv, "-f:no:")))
 	{
@@ -401,9 +386,42 @@ static int drv_write(void)
 	return EXIT_SUCCESS;
 }
 
-static mg_font_t drv_loadFont(const char* name, double size, const char* filename)
+static TTF_Font* openFont(const char* filename, int size)
 {
 	char buf[512];
+	char namebuf[128];
+	TTF_Font* font;
+
+	strncpy(namebuf, filename, sizeof(namebuf));
+	namebuf[sizeof(namebuf) - 1] = '\0';
+
+	// first try the proper case filename
+	snprintf(buf, sizeof(buf), "%s/%s", fontdir, namebuf);
+	font = TTF_OpenFont(buf, size);
+	if (font)
+		return font;
+
+	// then try the lowercase filename
+	strlwr(namebuf);
+	snprintf(buf, sizeof(buf), "%s/%s", fontdir, namebuf);
+	font = TTF_OpenFont(buf, size);
+	if (font)
+		return font;
+
+	// last try the uppercase filename
+	strupr(namebuf);
+	snprintf(buf, sizeof(buf), "%s/%s", fontdir, namebuf);
+	font = TTF_OpenFont(buf, size);
+	if (font)
+		return font;
+
+	mg_verbose(2, "TTF_OpenFont(): %s\n", TTF_GetError());
+
+	return 0;
+}
+
+static mg_font_t drv_loadFont(const char* name, double size, const char* filename)
+{
 	struct mg_font* fnt;
 
 	if (!filename)
@@ -416,9 +434,8 @@ static mg_font_t drv_loadFont(const char* name, double size, const char* filenam
 	if (!fnt)
 		return 0;
 	fnt->size = inchToPixelsY(size);
-	fnt->name = strcopy(name ? name : "<Unknown>");
-	sprintf(buf, "%s/%s", fontdir, filename);
-	fnt->font = TTF_OpenFont(buf, fnt->size);
+	fnt->name = strdup(name ? name : "<Unknown>");
+	fnt->font = openFont(filename, fnt->size);
 	if (!fnt->font)
 	{
 		free(fnt);
