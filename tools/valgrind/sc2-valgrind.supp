@@ -1,0 +1,47 @@
+# Valgrind suppression file.
+# Usage:
+#   valgrind --suppressions=sc2-valgrind.supp --log-file=sc2.vglog ./uqm-debug
+{
+   memory leaks in SDL
+   Memcheck:Leak
+   ...
+   obj:*/lib/libSDL*
+}
+{
+   memory leaks in PulseAudio
+   Memcheck:Leak
+   ...
+   obj:*/lib/libpulse*
+}
+{
+   memory leaks in libasound
+   Memcheck:Leak
+   ...
+   obj:*/lib/libasound*
+}
+{
+   ioctl param in libasound
+   Memcheck:Param
+   ioctl(arg)
+   ...
+   obj:*/lib/libasound*
+}
+{
+   semctl param in libasound
+   Memcheck:Param
+   semctl(IPC_SET, arg.buf)
+   ...
+   obj:*/lib/libasound*
+}
+{
+   memory leaks in libX11
+   Memcheck:Leak
+   ...
+   obj:*/lib/libX11*
+}
+{
+   memory leaks in libmikmod
+   Memcheck:Leak
+   ...
+   obj:*/lib/libmikmod*
+}
