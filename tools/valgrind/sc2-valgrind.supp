@@ -20,6 +20,12 @@
    obj:*/lib/libasound*
 }
 {
+   memory leaks in libasound
+   Memcheck:Overlap
+   ...
+   obj:*/lib/libasound*
+}
+{
    ioctl param in libasound
    Memcheck:Param
    ioctl(arg)
