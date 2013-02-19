@@ -18,3 +18,6 @@
 !define PKG_REMIX3_FILE "uqm-remix-disc3.uqm"
 !define PKG_REMIX3_MD5SUM "5ccc6d4ac301ae98e172ac6835dcdead"
 !define PKG_REMIX3_SIZE 38989
+!define PKG_REMIX4_FILE "uqm-remix-disc4.uqm"
+!define PKG_REMIX4_MD5SUM "d3dc6036588662391a3820ca6b222dd6"
+!define PKG_REMIX4_SIZE 84517

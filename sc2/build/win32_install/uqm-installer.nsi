@@ -14,6 +14,10 @@ Var UQMUSERDATA
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
 
+; The INSTALLER_VERSION is a suffix to the version number for installer patches or to mark
+; alpha/beta/release candidate status. In normal releases it is the empty string.
+!define INSTALLER_VERSION "-1"
+
 ; UQM Package definitions
 !include "packages.nsh"
 
@@ -80,7 +84,7 @@ var ICONS_GROUP
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "uqm-${PRODUCT_VERSION}-installer.exe"
+OutFile "uqm-${PRODUCT_VERSION}${INSTALLER_VERSION}-installer.exe"
 InstallDir "$PROGRAMFILES\The Ur-Quan Masters\"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -125,114 +129,74 @@ FunctionEnd
 
 Function RandomServer
   Push $0
-  Push 27
+  Push 17
   Call Random
   Pop  $0
   IntCmp $0 0 0 +4 +4
-  StrCpy $0 "ovh"
-  Exch $0
-  Return
-  IntCmp $0 1 0 +4 +4
-  StrCpy $0 "mesh"
-  Exch $0
-  Return
-  IntCmp $0 2 0 +4 +4
   StrCpy $0 "aarnet"
   Exch $0
   Return
-  IntCmp $0 3 0 +4 +4
-  StrCpy $0 "switch"
+  IntCmp $0 1 0 +4 +4
+  StrCpy $0 "citylan"
   Exch $0
   Return
-  IntCmp $0 4 0 +4 +4
-  StrCpy $0 "superb-sea2"
-  Exch $0
-  Return
-  IntCmp $0 5 0 +4 +4
-  StrCpy $0 "jaist"
-  Exch $0
-  Return
-  IntCmp $0 6 0 +4 +4
-  StrCpy $0 "voxel"
-  Exch $0
-  Return
-  IntCmp $0 7 0 +4 +4
-  StrCpy $0 "heanet"
-  Exch $0
-  Return
-  IntCmp $0 8 0 +4 +4
-  StrCpy $0 "cdnetworks-us-1"
-  Exch $0
-  Return
-  IntCmp $0 9 0 +4 +4
-  StrCpy $0 "cdnetworks-us-2"
-  Exch $0
-  Return
-  IntCmp $0 10 0 +4 +4
-  StrCpy $0 "cdnetworks-kr-1"
-  Exch $0
-  Return
-  IntCmp $0 11 0 +4 +4
-  StrCpy $0 "surfnet"
-  Exch $0
-  Return
-  IntCmp $0 12 0 +4 +4
-  StrCpy $0 "cdnetworks-kr-2"
-  Exch $0
-  Return
-  IntCmp $0 13 0 +4 +4
-  StrCpy $0 "kent"
-  Exch $0
-  Return
-  IntCmp $0 14 0 +4 +4
-  StrCpy $0 "nchc"
-  Exch $0
-  Return
-  IntCmp $0 15 0 +4 +4
-  StrCpy $0 "dfn"
-  Exch $0
-  Return
-  IntCmp $0 16 0 +4 +4
+  IntCmp $0 2 0 +4 +4
   StrCpy $0 "freefr"
   Exch $0
   Return
-  IntCmp $0 17 0 +4 +4
+  IntCmp $0 3 0 +4 +4
   StrCpy $0 "garr"
   Exch $0
   Return
-  IntCmp $0 18 0 +4 +4
+  IntCmp $0 4 0 +4 +4
+  StrCpy $0 "heanet"
+  Exch $0
+  Return
+  IntCmp $0 5 0 +4 +4
+  StrCpy $0 "hivelocity"
+  Exch $0
+  Return
+  IntCmp $0 6 0 +4 +4
   StrCpy $0 "ignum"
   Exch $0
   Return
-  IntCmp $0 19 0 +4 +4
+  IntCmp $0 7 0 +4 +4
   StrCpy $0 "internode"
   Exch $0
   Return
-  IntCmp $0 20 0 +4 +4
+  IntCmp $0 8 0 +4 +4
   StrCpy $0 "iweb"
   Exch $0
   Return
-  IntCmp $0 21 0 +4 +4
+  IntCmp $0 9 0 +4 +4
+  StrCpy $0 "jaist"
+  Exch $0
+  Return
+  IntCmp $0 10 0 +4 +4
+  StrCpy $0 "nchc"
+  Exch $0
+  Return
+  IntCmp $0 11 0 +4 +4
   StrCpy $0 "netcologne"
   Exch $0
   Return
-  IntCmp $0 22 0 +4 +4
-  StrCpy $0 "leaseweb"
+  IntCmp $0 12 0 +4 +4
+  StrCpy $0 "switch"
   Exch $0
   Return
-  IntCmp $0 23 0 +4 +4
-  StrCpy $0 "ncu"
-  Exch $0
-  Return
-  IntCmp $0 24 0 +4 +4
+  IntCmp $0 13 0 +4 +4
   StrCpy $0 "tenet"
   Exch $0
   Return
-  IntCmp $0 25 0 +4 +4
-  StrCpy $0 "transact"
+  IntCmp $0 14 0 +4 +4
+  StrCpy $0 "ufpr"
   Exch $0
   Return
-  StrCpy $0 "citylan"
+  IntCmp $0 15 0 +4 +4
+  StrCpy $0 "voxel"
+  Exch $0
+  Return
+  StrCpy $0 "waix"
   Exch $0
 FunctionEnd
 
@@ -251,6 +215,7 @@ Function HandlePackage
   Exch $1 # File name
   Push $2
   Push $3
+  StrCpy $R9 0 # failure count
   # Check to make sure the file wasn't already installed
   IfFileExists "$0\$1" 0 NotThere
      md5dll::GetFileMD5 "$0\$1"
@@ -289,6 +254,12 @@ AttemptDownload:
   StrCmp $2 "success" DownloadSuccessful
   StrCmp $2 "cancel" DownloadCanceled
   StrCpy $2 "Could not install the package $1 due to the following error: $\"$2$\"."
+  # Only actually display the error every third try, unless it's a user cancellation. We can't
+  # really rely on SF.net to have everything at every mirror.
+  IntOp $R9 $R9 + 1
+  IntCmp $R9 3 0 AttemptDownload
+  # If we fell through, reset the count.
+  StrCpy $R9 0
   Goto CheckMandatory
 DownloadCanceled:
   StrCpy $2 "Download was canceled by user."
@@ -411,7 +382,7 @@ SectionGroup "!UQM" SECGRP01
     AddSize ${PKG_CONTENT_SIZE}
     StrCpy $MANDATORY 1
     StrCpy $MD5SUM "${PKG_CONTENT_MD5SUM}"
-    File "content\version"
+    File "..\..\content\version"
     StrCpy $DOWNLOADPATH "UQM/0.7/"
     Push "${PKG_CONTENT_FILE}"
     Push "$INSTDIR\content\packages"
@@ -504,20 +475,20 @@ SectionGroup "Modern Remixes" SECGRP03
     !insertmacro MUI_STARTMENU_WRITE_END
   SectionEnd
 
-#  Section "Pack 4" SEC08
-#    SectionIn 6
-#    AddSize ${PKG_REMIX4_SIZE}
-#    StrCpy $MANDATORY 0
-#    StrCpy $MD5SUM "${PKG_REMIX4_MD5SUM}"
-#    StrCpy $DOWNLOADPATH "UQM%20Remix%20Packs/UQM%20Remix%20Pack%204/"
-#    Push "${PKG_REMIX4_FILE}"
-#    Push "$INSTDIR\content\addons"
-#    Call HandlePackage
-#    Call EnableRemixes
-#  ; Shortcuts
-#    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-#    !insertmacro MUI_STARTMENU_WRITE_END
-#  SectionEnd
+  Section "Pack 4" SEC08
+    SectionIn 6
+    AddSize ${PKG_REMIX4_SIZE}
+    StrCpy $MANDATORY 0
+    StrCpy $MD5SUM "${PKG_REMIX4_MD5SUM}"
+    StrCpy $DOWNLOADPATH "UQM%20Remix%20Packs/UQM%20Remix%20Pack%204/"
+    Push "${PKG_REMIX4_FILE}"
+    Push "$INSTDIR\content\addons"
+    Call HandlePackage
+    Call EnableRemixes
+  ; Shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    !insertmacro MUI_STARTMENU_WRITE_END
+  SectionEnd
 SectionGroupEnd
 
 Section -ShortcutsAndIcons
@@ -588,7 +559,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} `Ur-Quan Masters Remix Pack 1 - 'Super Melee!'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} `Ur-Quan Masters Remix Pack 2 - 'Neutral Aliens - Don't Shoot!'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} `Ur-Quan Masters Remix Pack 3 - 'The Ur-Quan Hierarchy.'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
-#  !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} `Ur-Quan Masters Remix Pack 4 - 'The New Alliance of Free Stars.'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} `Ur-Quan Masters Remix Pack 4 - 'The New Alliance of Free Stars.'  Optional add-on music package.  If this package is selected and not present in the packages directory, the installer will attempt to download it.`
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
