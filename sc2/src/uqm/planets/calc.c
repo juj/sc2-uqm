@@ -166,6 +166,11 @@ GeneratePlanetComposition (PLANET_INFO *PlanetInfoPtr, SIZE SurfaceTemp,
 // have the colour you'd expect based on the true temperature.
 // (eg. Beta Corvi I). I don't know what the idea behind this is,
 // but the if statement must be there for a reason. -- SvdB
+// Update 2013-03-28: The contents of the if() block is probably there to
+// model a greenhouse effect. It seems that it is taken into account when
+// calculating the actual temperature (when landing or scanning), but not
+// when determining the colors of the drawn orbits. (Thanks to James Scott
+// for this insight.)
 static SIZE
 CalcTemp (SYSTEM_INFO *SysInfoPtr, SIZE radius)
 {
