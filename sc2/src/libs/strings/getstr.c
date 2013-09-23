@@ -108,15 +108,15 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 	DWORD slen[MAX_STRINGS];
 			// Length of each of the dialog strings.
 	DWORD StringOffs;
-	DWORD tot_string_size;
+	size_t tot_string_size;
 	DWORD clen[MAX_STRINGS];
 			// Length of each of the speech file names.
 	DWORD ClipOffs;
-	DWORD tot_clip_size;
+	size_t tot_clip_size;
 	DWORD tslen[MAX_STRINGS];
 			// Length of each of the timestamp strings.
 	DWORD TSOffs;
-	DWORD tot_ts_size = 0;
+	size_t tot_ts_size = 0;
 	char CurrentLine[1024];
 	char paths[1024];
 	char *clip_path;
@@ -423,7 +423,7 @@ _GetStringData (uio_Stream *fp, DWORD length)
 	DWORD opos;
 	DWORD slen[MAX_STRINGS];
 	DWORD StringOffs;
-	DWORD tot_string_size;
+	size_t tot_string_size;
 	char CurrentLine[1024];
 	char *strdata = NULL;
 
