@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 extern void SaveProblem (void);
-extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc);
+extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc, const char *name);
 
 #if defined(__cplusplus)
 }

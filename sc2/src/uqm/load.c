@@ -368,7 +368,7 @@ LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh)
 		cread_ptr (fh); /* useless ptr; FRAME icons */
 		cread_ptr (fh); /* useless ptr; FRAME melee_icon */
 	}
-	
+
 	// Load the stuff after the BRIEF_SHIP_INFO array
 	cread_32s (fh, &EncounterPtr->log_x);
 	cread_32s (fh, &EncounterPtr->log_y);
@@ -405,7 +405,7 @@ DummyLoadQueue (QUEUE *QueuePtr, DECODE_REF fh)
 	cread_16  (fh, NULL); /* MEM_HANDLE hq_tab */
 	cread_16  (fh, NULL); /* COUNT object_size */
 	cread_8   (fh, NULL); /* BYTE num_objects */
-	
+
 	cread_8   (fh, NULL); /* padding */
 	cread_16  (fh, NULL); /* padding */
 }
@@ -438,7 +438,7 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh)
 	cread_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
 	cread_ptr (fh); /* not loading ptr; PRIMITIVE *DisplayArray */
 	cread_16  (fh, &GSPtr->CurrentActivity);
-	
+
 	cread_16  (fh, NULL); /* CLOCK_STATE alignment padding */
 	LoadClockState (&GSPtr->GameClock, fh);
 
@@ -466,7 +466,7 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh)
 	cread_16  (fh, NULL); /* VELOCITY_DESC padding */
 
 	cread_32  (fh, &GSPtr->BattleGroupRef);
-	
+
 	DummyLoadQueue (&GSPtr->avail_race_q, fh);
 	DummyLoadQueue (&GSPtr->npc_built_ship_q, fh);
 	// Not loading ip_group_q, was not there originally
@@ -480,10 +480,10 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh)
 }
 
 static BOOLEAN
-LoadSisState (SIS_STATE *SSPtr, void *fp)
+LoadSisState (SIS_STATE *SSPtr, void *fp, SDWORD first)
 {
+	SSPtr->log_x = first;
 	if (
-			read_32s (fp, &SSPtr->log_x) != 1 ||
 			read_32s (fp, &SSPtr->log_y) != 1 ||
 			read_32  (fp, &SSPtr->ResUnits) != 1 ||
 			read_32  (fp, &SSPtr->FuelOnBoard) != 1 ||
@@ -510,7 +510,26 @@ LoadSisState (SIS_STATE *SSPtr, void *fp)
 static BOOLEAN
 LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 {
-	if (!LoadSisState (&SummPtr->SS, fp))
+	SDWORD magic;
+	BOOLEAN legacy;
+	SummPtr->SaveName[0] = 0;
+	if (!read_32s (fp, &magic))
+		return FALSE;
+	if (magic == SAVE_MAGIC)
+	{
+		legacy = FALSE;
+		// Read in the real first value for LoadSisState
+		if (read_32 (fp, &magic) != 1)
+			return FALSE;
+	}
+	else
+	{
+		// Otherwise, we're legacy and the "magic" number was
+		// really LoadSisState's first value
+		legacy = TRUE;
+	}
+
+	if (!LoadSisState (&SummPtr->SS, fp, magic))
 		return FALSE;
 
 	if (
@@ -524,10 +543,14 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 			read_8  (fp, &SummPtr->NumShips) != 1 ||
 			read_8  (fp, &SummPtr->NumDevices) != 1 ||
 			read_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
-			read_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
-
-			read_16  (fp, NULL) != 1 /* padding */
+			read_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1
 		)
+		return FALSE;
+	if (!legacy && (read_a8 (fp, SummPtr->SaveName, SAVE_NAME_SIZE) != 1))
+		return FALSE;
+	// Don't trust the savefile to properly null-terminate!
+	SummPtr->SaveName[SAVE_NAME_SIZE-1] = 0;
+	if (read_16  (fp, NULL) != 1) /* padding */
 		return FALSE;
 	else
 		return TRUE;
@@ -760,5 +783,3 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 
 	return TRUE;
 }
-
-

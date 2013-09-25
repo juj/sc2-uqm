@@ -76,7 +76,7 @@ enum
 	CANNON_WEAPON,
 	TRACKING_SYSTEM,
 	ANTIMISSILE_DEFENSE,
-	
+
 	NUM_PURCHASE_MODULES,
 
 	BOMB_MODULE_0 = NUM_PURCHASE_MODULES,
@@ -160,6 +160,8 @@ typedef struct
 //   is only used for displaying savegame summaries. There is also
 //   room for only 16 devices on screen.
 #define MAX_EXCLUSIVE_DEVICES 16
+#define SAVE_MAGIC 0x01534d55
+#define SAVE_NAME_SIZE 24
 
 typedef struct
 {
@@ -172,6 +174,7 @@ typedef struct
 	BYTE NumShips, NumDevices;
 	BYTE ShipList[MAX_BUILT_SHIPS];
 	BYTE DeviceList[MAX_EXCLUSIVE_DEVICES];
+	UNICODE SaveName[SAVE_NAME_SIZE];
 } SUMMARY_DESC;
 
 #define OVERRIDE_LANDER_FLAGS (1 << 7)

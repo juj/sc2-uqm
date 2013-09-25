@@ -305,7 +305,7 @@ SaveEncounter (const ENCOUNTER *EncounterPtr, DECODE_REF fh)
 		cwrite_ptr (fh); /* useless ptr; FRAME icons */
 		cwrite_ptr (fh); /* useless ptr; FRAME melee_icon */
 	}
-	
+
 	// Save the stuff after the BRIEF_SHIP_INFO array
 	cwrite_32  (fh, EncounterPtr->log_x);
 	cwrite_32  (fh, EncounterPtr->log_y);
@@ -340,7 +340,7 @@ DummySaveQueue (const QUEUE *QueuePtr, DECODE_REF fh)
 	cwrite_16  (fh, 0); /* MEM_HANDLE hq_tab */
 	cwrite_16  (fh, 0); /* COUNT object_size */
 	cwrite_8   (fh, 0); /* BYTE num_objects */
-	
+
 	cwrite_8   (fh, 0); /* padding */
 	cwrite_16  (fh, 0); /* padding */
 }
@@ -371,7 +371,7 @@ SaveGameState (const GAME_STATE *GSPtr, DECODE_REF fh)
 	cwrite_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
 	cwrite_ptr (fh); /* useless ptr; PRIMITIVE *DisplayArray */
 	cwrite_16  (fh, GSPtr->CurrentActivity);
-	
+
 	cwrite_16  (fh, 0); /* CLOCK_STATE alignment padding */
 	SaveClockState (&GSPtr->GameClock, fh);
 
@@ -399,7 +399,7 @@ SaveGameState (const GAME_STATE *GSPtr, DECODE_REF fh)
 	cwrite_16  (fh, 0); /* VELOCITY_DESC padding */
 
 	cwrite_32  (fh, GSPtr->BattleGroupRef);
-	
+
 	DummySaveQueue (&GSPtr->avail_race_q, fh);
 	DummySaveQueue (&GSPtr->npc_built_ship_q, fh);
 	// Not saving ip_group_q, was not there originally
@@ -443,6 +443,8 @@ SaveSisState (const SIS_STATE *SSPtr, void *fp)
 static BOOLEAN
 SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 {
+	if (write_32 (fp, SAVE_MAGIC) != 1)
+		return FALSE;
 	if (!SaveSisState (&SummPtr->SS, fp))
 		return FALSE;
 
@@ -458,6 +460,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 			write_8  (fp, SummPtr->NumDevices) != 1 ||
 			write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
 			write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
+			write_a8 (fp, SummPtr->SaveName, SAVE_NAME_SIZE) != 1 ||
 
 			write_16  (fp, 0) != 1 /* padding */
 		)
@@ -478,8 +481,9 @@ SaveStarDesc (const STAR_DESC *SDPtr, DECODE_REF fh)
 }
 
 static void
-PrepareSummary (SUMMARY_DESC *SummPtr)
+PrepareSummary (SUMMARY_DESC *SummPtr, const char *name)
 {
+	int i;
 	SummPtr->SS = GlobData.SIS_state;
 
 	SummPtr->Activity = LOBYTE (GLOBAL (CurrentActivity));
@@ -535,6 +539,8 @@ PrepareSummary (SUMMARY_DESC *SummPtr)
 	SummPtr->day_index = GLOBAL (GameClock.day_index);
 	SummPtr->month_index = GLOBAL (GameClock.month_index);
 	SummPtr->year_index = GLOBAL (GameClock.year_index);
+	SummPtr->SaveName[SAVE_NAME_SIZE-1] = 0;
+	strncpy (SummPtr->SaveName, name, SAVE_NAME_SIZE-1);
 }
 
 static void
@@ -549,7 +555,7 @@ SaveProblemMessage (STAMP *MsgStamp)
 	// TODO: This should probably just use DoPopupWindow()
 
 	ppStr[0] = GAME_STRING (SAVEGAME_STRING_BASE + 2);
- 
+
 	SetContextFont (StarConFont);
 
 	t.baseline.x = t.baseline.y = 0;
@@ -579,7 +585,7 @@ SaveProblemMessage (STAMP *MsgStamp)
 	r.extent.height += 8;
 
 	*MsgStamp = SaveContextFrame (&r);
-	
+
 	BatchGraphics ();
 	DrawStarConBox (&r, 2,
 			BUILD_COLOR (MAKE_RGB15 (0x10, 0x10, 0x10), 0x19),
@@ -605,7 +611,7 @@ SaveProblem (void)
 {
 	STAMP s;
 	CONTEXT OldContext;
-	
+
 	OldContext = SetContext (SpaceContext);
 	SaveProblemMessage (&s);
 	FlushGraphics ();
@@ -635,7 +641,7 @@ SaveFlagshipState (void)
 // This function first writes to a memory file, and then writes the whole
 // lot to the actual save file at once.
 BOOLEAN
-SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr)
+SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 {
 	BOOLEAN success, made_room;
 	void *out_fp, *h;
@@ -833,7 +839,7 @@ RetrySave:
 				flen + sizeof (*SummPtr));
 		if (flen && (out_fp = res_OpenResFile (saveDir, file, "wb")))
 		{
-			PrepareSummary (SummPtr);
+			PrepareSummary (SummPtr, name);
 
 			success = SaveSummary (SummPtr, out_fp);
 			// Then write the rest of the data.
@@ -846,7 +852,7 @@ RetrySave:
 		}
 		else
 			success = FALSE;
-			
+
 		if (!success)
 			DeleteResFile (saveDir, file);
 	}
@@ -858,4 +864,3 @@ RetrySave:
 
 	return (success);
 }
-
