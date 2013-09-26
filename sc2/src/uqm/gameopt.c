@@ -26,7 +26,6 @@
 #include "sis.h"
 #include "units.h"
 #include "gamestr.h"
-#include "load.h"
 #include "options.h"
 #include "save.h"
 #include "settings.h"

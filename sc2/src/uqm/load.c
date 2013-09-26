@@ -18,16 +18,14 @@
 
 #include <assert.h>
 
-#include "load.h"
-
 #include "build.h"
 #include "libs/declib.h"
 #include "encount.h"
 #include "starmap.h"
 #include "libs/file.h"
 #include "globdata.h"
-#include "load.h"
 #include "options.h"
+#include "save.h"
 #include "setup.h"
 #include "state.h"
 #include "grpinfo.h"
