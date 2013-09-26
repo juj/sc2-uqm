@@ -161,6 +161,18 @@ read_a8 (void *fp, BYTE *ar, COUNT count)
 }
 
 static inline size_t
+skip_8 (void *fp, COUNT count)
+{
+	int i;
+	for (i = 0; i < count; ++i)
+	{
+		if (read_8(fp, NULL) != 1)
+			return 0;
+	}
+	return 1;
+}
+
+static inline size_t
 read_str (void *fp, char *str, COUNT count)
 {
 	// no type conversion needed for strings
@@ -478,7 +490,7 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh)
 }
 
 static BOOLEAN
-LoadSisState (SIS_STATE *SSPtr, void *fp, SDWORD first)
+LoadSisState (SIS_STATE *SSPtr, void *fp, SDWORD first, BOOLEAN legacy)
 {
 	SSPtr->log_x = first;
 	if (
@@ -496,26 +508,31 @@ LoadSisState (SIS_STATE *SSPtr, void *fp, SDWORD first)
 
 			read_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
 			read_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1 ||
-
-			read_16  (fp, NULL) != 1 /* padding */
+			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1
 		)
 		return FALSE;
-	else
-		return TRUE;
+	if (legacy && (read_16 (fp, NULL) != 1))
+		return FALSE;
+	return TRUE;
 }
 
 static BOOLEAN
-LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
+LoadSummary (SUMMARY_DESC *SummPtr, void *fp, BOOLEAN *legacy_ptr)
 {
 	SDWORD magic;
+	DWORD nameSize = 0;
 	BOOLEAN legacy;
-	SummPtr->SaveName[0] = 0;
 	if (!read_32s (fp, &magic))
 		return FALSE;
 	if (magic == SAVE_MAGIC)
 	{
 		legacy = FALSE;
+		*legacy_ptr = FALSE;
+		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_MAGIC)
+			return FALSE;
+		if (read_32 (fp, &magic) != 1 || magic < 161)
+			return FALSE;
+		nameSize = magic - 160;
 		// Read in the real first value for LoadSisState
 		if (read_32 (fp, &magic) != 1)
 			return FALSE;
@@ -525,9 +542,10 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 		// Otherwise, we're legacy and the "magic" number was
 		// really LoadSisState's first value
 		legacy = TRUE;
+		*legacy_ptr = TRUE;
 	}
 
-	if (!LoadSisState (&SummPtr->SS, fp, magic))
+	if (!LoadSisState (&SummPtr->SS, fp, magic, legacy))
 		return FALSE;
 
 	if (
@@ -544,14 +562,32 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 			read_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1
 		)
 		return FALSE;
-	if (!legacy && (read_a8 (fp, SummPtr->SaveName, SAVE_NAME_SIZE) != 1))
-		return FALSE;
-	// Don't trust the savefile to properly null-terminate!
-	SummPtr->SaveName[SAVE_NAME_SIZE-1] = 0;
-	if (read_16  (fp, NULL) != 1) /* padding */
-		return FALSE;
+	
+	if (!legacy)
+	{
+		if (nameSize < SAVE_NAME_SIZE)
+		{
+			if (read_a8 (fp, SummPtr->SaveName, nameSize) != 1)
+				return FALSE;
+			SummPtr->SaveName[nameSize] = 0;
+		}
+		else
+		{
+			DWORD remaining = nameSize - SAVE_NAME_SIZE + 1;
+			if (read_a8 (fp, SummPtr->SaveName, SAVE_NAME_SIZE-1) != 1)
+				return FALSE;
+			SummPtr->SaveName[SAVE_NAME_SIZE-1] = 0;
+			if (skip_8 (fp, remaining) != 1)
+				return FALSE;
+		}
+	}
 	else
-		return TRUE;
+	{
+		SummPtr->SaveName[0] = 0;
+		if (read_16  (fp, NULL) != 1) /* padding */
+			return FALSE;
+	}
+	return TRUE;
 }
 
 static void
@@ -577,13 +613,15 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	COUNT num_links;
 	STAR_DESC SD;
 	ACTIVITY Activity;
+	BOOLEAN legacy;
+	DWORD chunk, chunkSize;
 
 	sprintf (file, "starcon2.%02u", which_game);
 	in_fp = res_OpenResFile (saveDir, file, "rb");
 	if (!in_fp)
 		return FALSE;
 
-	if (!LoadSummary (&loc_sd, in_fp))
+	if (!LoadSummary (&loc_sd, in_fp, &legacy))
 	{
 		log_add (log_Error, "Warning: Savegame is corrupt");
 		res_CloseResFile (in_fp);
@@ -617,6 +655,33 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	}
 
 	GlobData.SIS_state = SummPtr->SS;
+
+	if (!legacy)
+	{
+		chunk = 0;
+		while (chunk != OMNIZIP_MAGIC)
+		{
+			if (read_32(in_fp, &chunk) != 1)
+			{
+				res_CloseResFile (in_fp);
+				return FALSE;
+			}
+			if (read_32(in_fp, &chunkSize) != 1)
+			{
+				res_CloseResFile (in_fp);
+				return FALSE;
+			}
+			if (chunk == OMNIZIP_MAGIC)
+				break;
+
+			log_add (log_Debug, "Skipping chunk of tag %08X (size %u)", chunk, chunkSize);
+			if (skip_8(in_fp, chunkSize) != 1)
+				return FALSE;
+		}
+		/* Fortunately for us, the OmnZ chunk is internally
+		 * self-sizing, so we can ignore the chunk size as long as we
+		 * aren't skipping it. */
+	}
 
 	if ((fh = copen (in_fp, FILE_STREAM, STREAM_READ)) == 0)
 	{

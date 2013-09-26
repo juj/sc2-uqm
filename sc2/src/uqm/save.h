@@ -31,8 +31,10 @@ extern "C" {
 //   is only used for displaying savegame summaries. There is also
 //   room for only 16 devices on screen.
 #define MAX_EXCLUSIVE_DEVICES 16
-#define SAVE_MAGIC 0x01534d55
-#define SAVE_NAME_SIZE 24
+#define SAVE_MAGIC 0x01534d55     // "UMS\x01": UQM Save version 1
+#define SUMMARY_MAGIC 0x6d6d7553  // "Summ": Summary. Must be first!
+#define OMNIZIP_MAGIC 0x5a6e6d4f  // "OmnZ": All data compressed.
+#define SAVE_NAME_SIZE 64
 
 typedef struct
 {

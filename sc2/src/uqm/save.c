@@ -431,9 +431,7 @@ SaveSisState (const SIS_STATE *SSPtr, void *fp)
 
 			write_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
 			write_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
-			write_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1 ||
-
-			write_16  (fp, 0) != 1 /* padding */
+			write_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1
 		)
 		return FALSE;
 	else
@@ -443,7 +441,11 @@ SaveSisState (const SIS_STATE *SSPtr, void *fp)
 static BOOLEAN
 SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 {
-	if (write_32 (fp, SAVE_MAGIC) != 1)
+	if (
+			write_32 (fp, SAVE_MAGIC) != 1 ||
+			write_32 (fp, SUMMARY_MAGIC) != 1 ||
+			write_32 (fp, 161 + strlen(SummPtr->SaveName)) != 1
+		)
 		return FALSE;
 	if (!SaveSisState (&SummPtr->SS, fp))
 		return FALSE;
@@ -460,9 +462,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 			write_8  (fp, SummPtr->NumDevices) != 1 ||
 			write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
 			write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
-			write_a8 (fp, SummPtr->SaveName, SAVE_NAME_SIZE) != 1 ||
-
-			write_16  (fp, 0) != 1 /* padding */
+			write_a8 (fp, SummPtr->SaveName, strlen(SummPtr->SaveName)+1) != 1
 		)
 		return FALSE;
 	else
@@ -835,13 +835,17 @@ RetrySave:
 		// Write the memory file to the actual savegame file.
 		sprintf (file, "starcon2.%02u", which_game);
 		log_add (log_Debug, "'%s' is %u bytes long", file,
-				flen + sizeof (*SummPtr));
+				 flen + 181 + strlen(SummPtr->SaveName));
 		if (flen && (out_fp = res_OpenResFile (saveDir, file, "wb")))
 		{
 			PrepareSummary (SummPtr, name);
 
 			success = SaveSummary (SummPtr, out_fp);
 			// Then write the rest of the data.
+			if (success && write_32 (out_fp, OMNIZIP_MAGIC) != 1)
+				success = FALSE;
+			if (success && write_32 (out_fp, flen) != 1)
+				success = FALSE;
 			if (success && WriteResFile (h, flen, 1, out_fp) != 1)
 				success = FALSE;
 
