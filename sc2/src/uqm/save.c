@@ -483,7 +483,6 @@ SaveStarDesc (const STAR_DESC *SDPtr, DECODE_REF fh)
 static void
 PrepareSummary (SUMMARY_DESC *SummPtr, const char *name)
 {
-	int i;
 	SummPtr->SS = GlobData.SIS_state;
 
 	SummPtr->Activity = LOBYTE (GLOBAL (CurrentActivity));

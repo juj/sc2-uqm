@@ -34,7 +34,6 @@
 #include "sounds.h"
 #include "util.h"
 #include "libs/graphics/gfx_common.h"
-#include "libs/log.h"
 
 #include <ctype.h>
 
@@ -994,10 +993,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		{
 			DateToString (buf2, sizeof buf2, desc->month_index,
 					desc->day_index, desc->year_index);
-			if (desc->SaveName[0])
-				snprintf (buf, sizeof buf, "%s: %s", buf2, desc->SaveName);
-			else
-				snprintf (buf, sizeof buf, "%s", buf2);
+			snprintf (buf, sizeof buf, "%s: %s", buf2, desc->SaveName[0] ? desc->SaveName : GAME_STRING (SAVEGAME_STRING_BASE + 4));
 		}
 		font_DrawText (&t);
 	}

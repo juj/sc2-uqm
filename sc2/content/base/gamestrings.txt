@@ -1831,7 +1831,7 @@ Empty Slot
 
 
 #(Saved Game - Date:)
-Saved Game - Date:
+Saved Game
 
 
 #(Sound) -- OPTION_STRING_BASE
