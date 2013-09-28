@@ -54,7 +54,7 @@
 #	define HashTable_FREEKEY(hashTable, hashKey) \
 		(hashTable)->freeKeyFunction(hashKey)
 #	define HashTable_FREEVALUE(hashTable, hashValue) \
-		(hashTable)->freeValueFunction(hashKey)
+		(hashTable)->freeValueFunction(hashValue)
 #endif
 
 
