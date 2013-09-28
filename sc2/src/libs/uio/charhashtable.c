@@ -56,21 +56,21 @@ CharHashTable_hash(CharHashTable_HashTable *hashTable, const char *key) {
 static inline uio_bool
 CharHashTable_equal(CharHashTable_HashTable *hashTable,
 		const char *key1, const char *key2) {
-	(void) *hashTable;
+	(void) hashTable;
 	return strcmp(key1, key2) == 0;
 }
 
 static inline char *
 CharHashTable_copy(CharHashTable_HashTable *hashTable,
 		const char *key) {
-	(void) *hashTable;
+	(void) hashTable;
 	return uio_strdup(key);
 }
 
 static inline void
 CharHashTable_freeKey(CharHashTable_HashTable *hashTable,
 		char *key) {
-	(void) *hashTable;
+	(void) hashTable;
 	uio_free(key);
 }
 

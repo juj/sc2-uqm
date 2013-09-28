@@ -29,8 +29,8 @@ typedef void HASHTABLE_(Value);
 #define CharHashTable_EQUAL CharHashTable_equal
 #define CharHashTable_COPY CharHashTable_copy
 #define CharHashTable_FREEKEY CharHashTable_freeKey
-#define CharHashTable_FREEVALUE(hashTable, key) \
-		((void) (hashTable), (void) (key))
+#define CharHashTable_FREEVALUE(hashTable, value) \
+		((void) (hashTable), (void) (value))
 
 #include "hashtable.h"
 
