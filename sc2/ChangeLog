@@ -1,4 +1,7 @@
 Changes towards version 0.8:
+- Some added documentation for UIO.
+- Added a StringHashTable type.
+- A few superficial fixes to charhashtable.
 - Removed GraphicsLock and made comm callbacks queued - Alex
 - Split debug key function into sync and async parts, paving the way
   for GraphicsLock removal - Alex
