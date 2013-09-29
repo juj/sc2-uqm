@@ -16,8 +16,6 @@
  *
  */
 
-// A hashtable using strings as indices.
-
 #ifndef _STRINGHASHTABLE_H
 #define _STRINGHASHTABLE_H
 

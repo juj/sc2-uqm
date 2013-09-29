@@ -16,8 +16,6 @@
  *
  */
 
-// A hashtable using strings as indices.
-
 #define HASHTABLE_INTERNAL
 #include "stringhashtable.h"
 #include "types.h"
