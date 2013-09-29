@@ -23,6 +23,7 @@
 #include <string.h>
 #include "libs/strlib.h"
 #include "libs/reslib.h"
+#include "stringhashtable.h"
 
 struct string_table_entry
 {
@@ -37,10 +38,12 @@ struct string_table
 	unsigned short flags;
 	int size;
 	STRING_TABLE_ENTRY_DESC *strings;
+	StringHashTable_HashTable *nameIndex;
 };
 
-#define HAS_SOUND_CLIPS (1 << 0)
-#define HAS_TIMESTAMP (1 << 1)
+#define HAS_SOUND_CLIPS  (1 << 0)
+#define HAS_TIMESTAMP    (1 << 1)
+#define HAS_NAMEINDEX    (1 << 2)
 
 STRING_TABLE AllocStringTable (int num_entries, int flags);
 void FreeStringTable (STRING_TABLE strtab);

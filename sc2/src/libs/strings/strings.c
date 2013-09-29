@@ -25,6 +25,10 @@ AllocStringTable (int num_entries, int flags)
 	STRING_TABLE strtab = HMalloc (sizeof (STRING_TABLE_DESC));
 	int i, multiplier = 1;
 
+	if (flags & HAS_NAMEINDEX)
+	{
+		multiplier++;
+	}
 	if (flags & HAS_SOUND_CLIPS)
 	{
 		multiplier++;
@@ -44,6 +48,7 @@ AllocStringTable (int num_entries, int flags)
 		strtab->strings[i].parent = strtab;
 		strtab->strings[i].index = i;
 	}
+	strtab->nameIndex = NULL;
 	return strtab;
 }
 
@@ -209,6 +214,40 @@ GetStringLengthBin (STRING String)
 }
 
 STRINGPTR
+GetStringName (STRING String)
+{
+	STRING_TABLE StringTablePtr;
+	COUNT StringIndex;
+
+	if (String == NULL)
+	{
+		return NULL;
+	}
+
+	StringTablePtr = String->parent;
+	if (StringTablePtr == NULL)
+	{
+		return NULL;
+	}
+
+	StringIndex = String->index;
+
+	if (!(StringTablePtr->flags & HAS_NAMEINDEX))
+	{
+		return NULL;
+	}
+	StringIndex += StringTablePtr->size;
+
+	String = &StringTablePtr->strings[StringIndex];
+	if (String->length == 0)
+	{
+		return NULL;
+	}
+
+	return String->data;
+}
+
+STRINGPTR
 GetStringSoundClip (STRING String)
 {
 	STRING_TABLE StringTablePtr;
@@ -230,8 +269,13 @@ GetStringSoundClip (STRING String)
 	{
 		return NULL;
 	}
-
 	StringIndex += StringTablePtr->size;
+
+	if (StringTablePtr->flags & HAS_NAMEINDEX)
+	{
+		StringIndex += StringTablePtr->size;
+	}
+
 	String = &StringTablePtr->strings[StringIndex];
 	if (String->length == 0)
 	{
@@ -246,7 +290,6 @@ GetStringTimeStamp (STRING String)
 {
 	STRING_TABLE StringTablePtr;
 	COUNT StringIndex;
-	int offset;
 
 	if (String == NULL)
 	{
@@ -264,9 +307,18 @@ GetStringTimeStamp (STRING String)
 	{
 		return NULL;
 	}
+	StringIndex += StringTablePtr->size;
 
-	offset = (StringTablePtr->flags & HAS_SOUND_CLIPS) ? 1 : 0;
-	StringIndex += StringTablePtr->size << offset;
+	if (StringTablePtr->flags & HAS_NAMEINDEX)
+	{
+		StringIndex += StringTablePtr->size;
+	}
+	
+	if (StringTablePtr->flags & HAS_SOUND_CLIPS)
+	{
+		StringIndex += StringTablePtr->size;
+	}
+
 	String = &StringTablePtr->strings[StringIndex];
 	if (String->length == 0)
 	{
@@ -285,3 +337,11 @@ GetStringAddress (STRING String)
 	}
 	return String->data;
 }
+
+STRING
+GetStringByName (STRING_TABLE StringTable, const char *index)
+{
+	return (STRING) StringHashTable_find (StringTable->nameIndex, index);
+}
+
+

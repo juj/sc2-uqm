@@ -57,8 +57,10 @@ extern STRING SetRelStringTableIndex (STRING String, SIZE
 extern COUNT GetStringLength (STRING String);
 extern COUNT GetStringLengthBin (STRING String);
 extern STRINGPTR GetStringAddress (STRING String);
+extern STRINGPTR GetStringName (STRING String);
 extern STRINGPTR GetStringSoundClip (STRING String);
 extern STRINGPTR GetStringTimeStamp (STRING String);
+extern STRING GetStringByName (STRING_TABLE StringTable, const char *index);
 
 #define UNICHAR_DEGREE_SIGN   0x00b0
 #define STR_DEGREE_SIGN     "\xC2\xB0"

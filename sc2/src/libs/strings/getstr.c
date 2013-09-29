@@ -42,8 +42,9 @@ dword_convert (DWORD *dword_array, COUNT num_dwords)
 	} while (--num_dwords);
 }
 
-static void
-set_strtab_entry (STRING_TABLE_DESC *strtab, int index, const char *value, int len)
+static STRING
+set_strtab_entry (STRING_TABLE_DESC *strtab, int index, const char *value,
+		int len)
 {
 	STRING str = &strtab->strings[index];
 
@@ -58,6 +59,22 @@ set_strtab_entry (STRING_TABLE_DESC *strtab, int index, const char *value, int l
 		str->data = HMalloc (len);
 		str->length = len;
 		memcpy (str->data, value, len);
+	}
+	return str;
+}
+
+static void
+copy_strings_to_strtab (STRING_TABLE_DESC *strtab, size_t firstIndex,
+		size_t count, const char *data, const DWORD *lens)
+{
+	size_t stringI;
+	const char *off = data;
+
+	for (stringI = 0; stringI < count; stringI++)
+	{
+		set_strtab_entry(strtab, firstIndex + stringI,
+				off, lens[stringI]);
+		off += lens[stringI];
 	}
 }
 
@@ -98,37 +115,52 @@ ensureBufSize (char **buf, size_t *curSize, size_t minSize, size_t increment)
 void
 _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 {
-	uio_Stream *fp;
 	unsigned long dataLen;
 	void *result;
-	int n;
+	int stringI;
 	int path_len;
 	int num_data_sets;
 	DWORD opos;
+	
+	char *namedata = NULL;
+			// Contains the names (indexes) of the dialogs.
+	DWORD nlen[MAX_STRINGS];
+			// Length of each of the names.
+	DWORD NameOffs;
+	size_t tot_name_size;
+
+	char *strdata = NULL;
+			// Contains the dialog strings.
 	DWORD slen[MAX_STRINGS];
 			// Length of each of the dialog strings.
 	DWORD StringOffs;
 	size_t tot_string_size;
+
+	char *clipdata = NULL;
+			// Contains the file names of the speech files.
 	DWORD clen[MAX_STRINGS];
 			// Length of each of the speech file names.
 	DWORD ClipOffs;
 	size_t tot_clip_size;
+
+	char *ts_data = NULL;
+			// Contains the timestamp data for synching the text with the
+			// speech.
 	DWORD tslen[MAX_STRINGS];
 			// Length of each of the timestamp strings.
 	DWORD TSOffs;
 	size_t tot_ts_size = 0;
+
 	char CurrentLine[1024];
 	char paths[1024];
 	char *clip_path;
 	char *ts_path;
-	char *strdata = NULL;
-			// Contains the dialog strings.
-	char *clipdata = NULL;
-			// Contains the file names of the speech files.
-	char *ts_data = NULL;
-			// Contains the timestamp data for synching the text with the
-			// speech.
+
+	uio_Stream *fp = NULL;
 	uio_Stream *timestamp_fp = NULL;
+	StringHashTable_HashTable *nameHashTable = NULL;
+			// Hash table of string names (such as "GLAD_WHEN_YOU_COME_BACK")
+			// to a STRING.
 
 	/* Parse out the conversation components. */
 	strncpy (paths, path, 1023);
@@ -183,11 +215,21 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 	if (strdata == 0)
 		goto err;
 	
+	tot_name_size = POOL_SIZE;
+	namedata = HMalloc (tot_name_size);
+	if (namedata == 0)
+		goto err;
+	
 	tot_clip_size = POOL_SIZE;
 	clipdata = HMalloc (tot_clip_size);
 	if (clipdata == 0)
 		goto err;
 	ts_data = NULL;
+
+	nameHashTable = StringHashTable_newHashTable(
+			NULL, NULL, NULL, NULL, NULL, 0, 0.85, 0.9);
+	if (nameHashTable == NULL)
+		goto err;
 	
 	path_len = clip_path ? strlen (clip_path) : 0;
 
@@ -204,7 +246,8 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 	}
 	
 	opos = uio_ftell (fp);
-	n = -1;
+	stringI = -1;
+	NameOffs = 0;
 	StringOffs = 0;
 	ClipOffs = 0;
 	TSOffs = 0;
@@ -218,7 +261,7 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 			break;
 		}
 	
-		if (n >= MAX_STRINGS - 1)
+		if (stringI >= MAX_STRINGS - 1)
 		{
 			// Too many strings.
 			break;
@@ -229,25 +272,35 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 			// String header, of the following form:
 			//     #(GLAD_WHEN_YOU_COME_BACK) commander-000.ogg
 			char CopyLine[1024];
-			char *s;
+			char *name;
+			char *ts;
 
 			strcpy (CopyLine, CurrentLine);
-			s = strtok (&CopyLine[1], "()");
-			if (s)
+			name = strtok (&CopyLine[1], "()");
+			if (name)
 			{
-				if (n >= 0)
+				if (stringI >= 0)
 				{
-					while (slen[n] > 1 &&
+					while (slen[stringI] > 1 &&
 							(strdata[StringOffs - 2] == '\n' ||
 							strdata[StringOffs - 2] == '\r'))
 					{
-						--slen[n];
+						--slen[stringI];
 						--StringOffs;
 						strdata[StringOffs - 1] = '\0';
 					}
 				}
 
-				slen[++n] = 0;
+				slen[++stringI] = 0;
+
+				// Store the string name.
+				l = strlen (name) + 1;
+				if (!ensureBufSize (&namedata, &tot_name_size,
+						NameOffs + l, POOL_SIZE))
+					goto err;
+				strcpy (&namedata[NameOffs], name);
+				NameOffs += l;
+				nlen[stringI] = l;
 
 				// now lets check for timestamp data
 				if (timestamp_fp)
@@ -261,11 +314,11 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 					{
 						// Line is of the following form:
 						//     #(GIVE_FUEL_AGAIN) 3304,3255
-						tslen[n] = 0;
-						tsptr = strstr (TimeStampLine, s);
+						tslen[stringI] = 0;
+						tsptr = strstr (TimeStampLine, name);
 						if (tsptr)
 						{
-							tsptr += strlen(s) + 1;
+							tsptr += strlen(name) + 1;
 							ts_ok = TRUE;
 							while (! strcspn(tsptr," \t\r\n") && *tsptr)
 								tsptr++;
@@ -278,7 +331,7 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 
 								strcpy (&ts_data[TSOffs], tsptr);
 								TSOffs += l;
-								tslen[n] = l;
+								tslen[stringI] = l;
 							}
 						}
 					}
@@ -286,7 +339,7 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 					{
 						// timestamp data is invalid, remove all of it
 						log_add (log_Warning, "Invalid timestamp data "
-								"for '%s'.  Disabling timestamps", s);
+								"for '%s'.  Disabling timestamps", name);
 						HFree (ts_data);
 						ts_data = NULL;
 						uio_fclose (timestamp_fp);
@@ -294,24 +347,24 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 						TSOffs = 0;
 					}
 				}
-				clen[n] = 0;
-				s = strtok (NULL, " \t\r\n)");
-				if (s)
+				clen[stringI] = 0;
+				ts = strtok (NULL, " \t\r\n)");
+				if (ts)
 				{
-					l = path_len + strlen (s) + 1;
+					l = path_len + strlen (ts) + 1;
 					if (!ensureBufSize (&clipdata, &tot_clip_size,
 							ClipOffs + l, POOL_SIZE))
 						goto err;
 
 					if (clip_path)
 						strcpy (&clipdata[ClipOffs], clip_path);
-					strcpy (&clipdata[ClipOffs + path_len], s);
+					strcpy (&clipdata[ClipOffs + path_len], ts);
 					ClipOffs += l;
-					clen[n] = l;
+					clen[stringI] = l;
 				}
 			}
 		}
-		else if (n >= 0)
+		else if (stringI >= 0)
 		{
 			char *s;
 			l = strlen (CurrentLine) + 1;
@@ -320,13 +373,13 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 					POOL_SIZE))
 				goto err;
 
-			if (slen[n])
+			if (slen[stringI])
 			{
-				--slen[n];
+				--slen[stringI];
 				--StringOffs;
 			}
 			s = &strdata[StringOffs];
-			slen[n] += l;
+			slen[stringI] += l;
 			StringOffs += l;
 
 			strcpy (s, CurrentLine);
@@ -335,12 +388,12 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 		if ((int)uio_ftell (fp) - (int)opos >= (int)dataLen)
 			break;
 	}
-	if (n >= 0)
+	if (stringI >= 0)
 	{
-		while (slen[n] > 1 && (strdata[StringOffs - 2] == '\n'
+		while (slen[stringI] > 1 && (strdata[StringOffs - 2] == '\n'
 				|| strdata[StringOffs - 2] == '\r'))
 		{
-			--slen[n];
+			--slen[stringI];
 			--StringOffs;
 			strdata[StringOffs - 1] = '\0';
 		}
@@ -351,59 +404,75 @@ _GetConversationData (const char *path, RESOURCE_DATA *resdata)
 
 	result = NULL;
 	num_data_sets = (ClipOffs ? 1 : 0) + (TSOffs ? 1 : 0) + 1;
-	if (++n)
+	if (++stringI)
 	{
 		int flags = 0;
+		int stringCount = stringI;
+
 		if (ClipOffs)
 			flags |= HAS_SOUND_CLIPS;
 		if (TSOffs)
 			flags |= HAS_TIMESTAMP;
+		flags |= HAS_NAMEINDEX;
 
-		result = AllocStringTable (n, flags);
+		result = AllocStringTable (stringCount, flags);
 		if (result)
 		{
-			int StringIndex;
-			int ClipIndex;
-			int TSIndex;
-			STRING_TABLE_DESC *lpST;
+			// Copy all the gatherered data in a STRING_TABLE
+			STRING_TABLE_DESC *lpST = (STRING_TABLE) result;
+			STRING str;
+			stringI = 0;
 
-			lpST = (STRING_TABLE) result;
-
-			StringIndex = 0;
-			ClipIndex = n;
-			TSIndex = n * ((flags & HAS_SOUND_CLIPS) ? 2 : 1);
-
-			StringOffs = 0;
-			ClipOffs = 0;
-			TSOffs = 0;
-
-			for (n = 0; n < (int)lpST->size;
-					++n, ++StringIndex, ++ClipIndex, ++TSIndex)
+			// Store the dialog string.
+			copy_strings_to_strtab (
+					lpST, stringI, stringCount, strdata, slen);
+			stringI += stringCount;
+			
+			// Store the dialog names.
+			copy_strings_to_strtab (
+					lpST, stringI, stringCount, namedata, nlen);
+			stringI += stringCount;
+				
+			// Store sound clip file names.
+			if (lpST->flags & HAS_SOUND_CLIPS)
 			{
-				set_strtab_entry(lpST, StringIndex, strdata + StringOffs, slen[n]);
-				StringOffs += slen[n];
-				if (lpST->flags & HAS_SOUND_CLIPS)
-				{
-					set_strtab_entry(lpST, ClipIndex, clipdata + ClipOffs, clen[n]);
-					ClipOffs += clen[n];
-				}
-				if (lpST->flags & HAS_TIMESTAMP)
-				{
-					set_strtab_entry(lpST, TSIndex, ts_data + TSOffs, tslen[n]);
-					TSOffs += tslen[n];
-				}
+				copy_strings_to_strtab (
+						lpST, stringI, stringCount, clipdata, clen);
+				stringI += stringCount;
 			}
+
+			// Store time stamp data.
+			if (lpST->flags & HAS_TIMESTAMP)
+			{
+				copy_strings_to_strtab (
+						lpST, stringI, stringCount, ts_data, tslen);
+				//stringI += stringCount;
+			}
+
+			// Store the STRING in the hash table indexed by the dialog
+			// name.
+			str = &lpST->strings[stringCount];
+			for (stringI = 0; stringI < stringCount; stringI++)
+			{
+				StringHashTable_add (nameHashTable, str[stringI].data,
+						&str[stringI]);
+			}
+
+			lpST->nameIndex = nameHashTable;
 		}
 	}
 	HFree (strdata);
-	HFree (clipdata);
-	if (ts_data)
+	if (clipdata != NULL)
+		HFree (clipdata);
+	if (ts_data != NULL)
 		HFree (ts_data);
 
 	resdata->ptr = result;
 	return;
 
 err:
+	if (nameHashTable != NULL)
+		StringHashTable_deleteHashTable (nameHashTable);
 	if (ts_data != NULL)
 		HFree (ts_data);
 	if (clipdata != NULL)
@@ -419,7 +488,7 @@ _GetStringData (uio_Stream *fp, DWORD length)
 {
 	void *result;
 
-	int n;
+	int stringI;
 	DWORD opos;
 	DWORD slen[MAX_STRINGS];
 	DWORD StringOffs;
@@ -433,7 +502,7 @@ _GetStringData (uio_Stream *fp, DWORD length)
 		goto err;
 
 	opos = uio_ftell (fp);
-	n = -1;
+	stringI = -1;
 	StringOffs = 0;
 	for (;;)
 	{
@@ -445,7 +514,7 @@ _GetStringData (uio_Stream *fp, DWORD length)
 			break;
 		}
 	
-		if (n >= MAX_STRINGS - 1)
+		if (stringI >= MAX_STRINGS - 1)
 		{
 			// Too many strings.
 			break;
@@ -460,22 +529,22 @@ _GetStringData (uio_Stream *fp, DWORD length)
 			s = strtok (&CopyLine[1], "()");
 			if (s)
 			{
-				if (n >= 0)
+				if (stringI >= 0)
 				{
-					while (slen[n] > 1 && 
+					while (slen[stringI] > 1 && 
 							(strdata[StringOffs - 2] == '\n' ||
 							strdata[StringOffs - 2] == '\r'))
 					{
-						--slen[n];
+						--slen[stringI];
 						--StringOffs;
 						strdata[StringOffs - 1] = '\0';
 					}
 				}
 
-				slen[++n] = 0;
+				slen[++stringI] = 0;
 			}
 		}
-		else if (n >= 0)
+		else if (stringI >= 0)
 		{
 			char *s;
 			l = strlen (CurrentLine) + 1;
@@ -484,13 +553,13 @@ _GetStringData (uio_Stream *fp, DWORD length)
 					POOL_SIZE))
 				goto err;
 
-			if (slen[n])
+			if (slen[stringI])
 			{
-				--slen[n];
+				--slen[stringI];
 				--StringOffs;
 			}
 			s = &strdata[StringOffs];
-			slen[n] += l;
+			slen[stringI] += l;
 			StringOffs += l;
 
 			strcpy (s, CurrentLine);
@@ -499,39 +568,28 @@ _GetStringData (uio_Stream *fp, DWORD length)
 		if ((int)uio_ftell (fp) - (int)opos >= (int)length)
 			break;
 	}
-	if (n >= 0)
+	if (stringI >= 0)
 	{
-		while (slen[n] > 1 && (strdata[StringOffs - 2] == '\n'
+		while (slen[stringI] > 1 && (strdata[StringOffs - 2] == '\n'
 				|| strdata[StringOffs - 2] == '\r'))
 		{
-			--slen[n];
+			--slen[stringI];
 			--StringOffs;
 			strdata[StringOffs - 1] = '\0';
 		}
 	}
 
 	result = NULL;
-	if (++n)
+	if (++stringI)
 	{
 		int flags = 0;
-		result = AllocStringTable (n, flags);
+		int stringCount = stringI;
+
+		result = AllocStringTable (stringI, flags);
 		if (result)
 		{
-			int StringIndex;
-			STRING_TABLE_DESC *lpST;
-
-			lpST = (STRING_TABLE) result;
-
-			StringIndex = 0;
-
-			StringOffs = 0;
-
-			for (n = 0; n < (int)lpST->size;
-					++n, ++StringIndex)
-			{
-				set_strtab_entry(lpST, StringIndex, strdata + StringOffs, slen[n]);
-				StringOffs += slen[n];
-			}
+			STRING_TABLE_DESC *lpST = (STRING_TABLE) result;
+			copy_strings_to_strtab (lpST, 0, stringCount, strdata, slen);
 		}
 	}
 	HFree (strdata);
