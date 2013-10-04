@@ -48,6 +48,7 @@
 static RACE_DESC chenjesu_desc =
 {
 	{ /* SHIP_INFO */
+		"broodhome",
 		FIRES_FORE | SEEKING_SPECIAL | SEEKING_WEAPON,
 		28, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

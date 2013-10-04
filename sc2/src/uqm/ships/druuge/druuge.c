@@ -41,6 +41,7 @@
 static RACE_DESC druuge_desc =
 {
 	{ /* SHIP_INFO */
+		"mauler",
 		FIRES_FORE,
 		17, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

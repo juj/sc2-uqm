@@ -44,6 +44,7 @@
 static RACE_DESC syreen_desc =
 {
 	{ /* SHIP_INFO */
+		"penetrator",
 		FIRES_FORE,
 		13, /* Super Melee cost */
 		MAX_CREW, SYREEN_MAX_CREW_SIZE,

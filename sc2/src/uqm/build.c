@@ -25,6 +25,8 @@
 #include "libs/compiler.h"
 #include "libs/mathlib.h"
 
+#include <stdlib.h>
+
 
 // Allocate a new STARSHIP or SHIP_FRAGMENT and put it in the queue
 HLINK
@@ -93,13 +95,97 @@ GetEscortByStarShipIndex (COUNT index)
 	return hStarShip;
 }
 
+SPECIES_ID
+ShipIdStrToIndex (const char *shipIdStr)
+{
+	HMASTERSHIP hStarShip;
+	HMASTERSHIP hNextShip;
+	SPECIES_ID result = NO_ID;
+
+	for (hStarShip = GetHeadLink (&master_q);
+			hStarShip != 0; hStarShip = hNextShip)
+	{
+		MASTER_SHIP_INFO *MasterPtr;
+
+		MasterPtr = LockMasterShip (&master_q, hStarShip);
+		hNextShip = _GetSuccLink (MasterPtr);
+
+		if (strcmp (shipIdStr, MasterPtr->ShipInfo.idStr) == 0)
+		{
+			result = MasterPtr->SpeciesID;
+			UnlockMasterShip (&master_q, hStarShip);
+			break;
+		}
+
+		UnlockMasterShip (&master_q, hStarShip);
+	}
+
+	return result;
+}
+
+typedef struct {
+	const char *idStr;
+	RACE_ID id;
+} RaceIdMap;
+
+// We would eventually want to unhardcode this.
+static RaceIdMap raceIdMap[] = {
+	// Sorted on the name, for the binary search.
+	{ /* .idStr = */ "arilou",      /* .id = */ ARILOU_SHIP },
+	{ /* .idStr = */ "chmmr",       /* .id = */ CHMMR_SHIP },
+	{ /* .idStr = */ "druuge",      /* .id = */ DRUUGE_SHIP },
+	{ /* .idStr = */ "human",       /* .id = */ HUMAN_SHIP },
+	{ /* .idStr = */ "ilwrath",     /* .id = */ ILWRATH_SHIP },
+	{ /* .idStr = */ "kohrah",      /* .id = */ BLACK_URQUAN_SHIP },
+	{ /* .idStr = */ "melnorme",    /* .id = */ MELNORME_SHIP },
+	{ /* .idStr = */ "mycon",       /* .id = */ MYCON_SHIP },
+	{ /* .idStr = */ "orz",         /* .id = */ ORZ_SHIP },
+	{ /* .idStr = */ "pkunk",       /* .id = */ PKUNK_SHIP },
+	{ /* .idStr = */ "samatra",     /* .id = */ SAMATRA_SHIP },
+	{ /* .idStr = */ "shofixti",    /* .id = */ SHOFIXTI_SHIP },
+	{ /* .idStr = */ "slylandro",   /* .id = */ SLYLANDRO_SHIP },
+	{ /* .idStr = */ "spathi",      /* .id = */ SPATHI_SHIP },
+	{ /* .idStr = */ "supox",       /* .id = */ SUPOX_SHIP },
+	{ /* .idStr = */ "syreen",      /* .id = */ SYREEN_SHIP },
+	{ /* .idStr = */ "thraddash",   /* .id = */ THRADDASH_SHIP },
+	{ /* .idStr = */ "umgah",       /* .id = */ UMGAH_SHIP },
+	{ /* .idStr = */ "urquandrone", /* .id = */ URQUAN_DRONE_SHIP },
+	{ /* .idStr = */ "urquan",      /* .id = */ URQUAN_SHIP },
+	{ /* .idStr = */ "utwig",       /* .id = */ UTWIG_SHIP },
+	{ /* .idStr = */ "vux",         /* .id = */ VUX_SHIP },
+	{ /* .idStr = */ "yehat",       /* .id = */ YEHAT_SHIP },
+	{ /* .idStr = */ "yehatrebel",  /* .id = */ YEHAT_REBEL_SHIP },
+	{ /* .idStr = */ "zoqfotpik",   /* .id = */ ZOQFOTPIK_SHIP },
+			// Same as URQUAN_DRONE_SHIP
+};
+
+static int
+RaceIdCompare (const void *id1, const void *id2)
+{
+	return strcmp (((RaceIdMap *) id1)->idStr, ((RaceIdMap *) id2)->idStr);
+}
+
+RACE_ID
+RaceIdStrToIndex (const char *raceIdStr)
+{
+	RaceIdMap key = { /* .idStr = */ raceIdStr, /* .id = */ -1 };
+	RaceIdMap *found = bsearch (&key, raceIdMap,
+			sizeof raceIdMap / sizeof raceIdMap[0],
+			sizeof raceIdMap[0], RaceIdCompare);
+
+	if (found == NULL)
+		return (RACE_ID) -1;
+
+	return found->id;
+}
+
 /*
  * Give the player 'count' ships of the specified race,
  * limited by the number of free slots.
  * Returns the number of ships added.
  */
 COUNT
-AddEscortShips (COUNT race, SIZE count)
+AddEscortShips (RACE_ID race, SIZE count)
 {
 	HFLEETINFO hFleet;
 	BYTE which_window;
@@ -180,7 +266,7 @@ CalculateEscortsWorth (void)
  * last checked. If the race has no SoI, 0 is returned.
  */
 COUNT
-GetRaceKnownSize (COUNT race)
+GetRaceKnownSize (RACE_ID race)
 {
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
@@ -206,14 +292,14 @@ GetRaceKnownSize (COUNT race)
  * flag == TRUE: start an alliance
  * flag == TRUE: end an alliance
  */
-COUNT
-SetRaceAllied (COUNT race, BOOLEAN flag) {
+BOOLEAN
+SetRaceAllied (RACE_ID race, BOOLEAN flag) {
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
 
 	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), race);
 	if (!hFleet)
-		return 0;
+		return FALSE;
 
 	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 
@@ -227,17 +313,19 @@ SetRaceAllied (COUNT race, BOOLEAN flag) {
 	}
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
-	return 1;
+	return TRUE;
 }
 
 /*
  * 	Make the sphere of influence for the specified race shown on the starmap
  * 	in the future.
+ * 	Does nothing for races without a SoI, or for races which have an
+ * 	infinite SoI.
  * 	The value returned is 'race', unless the type of ship is only available
  * 	in SuperMelee, in which case 0 is returned.
  */
 COUNT
-StartSphereTracking (COUNT race)
+StartSphereTracking (RACE_ID race)
 {
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
@@ -250,6 +338,7 @@ StartSphereTracking (COUNT race)
 
 	if (FleetPtr->actual_strength == 0)
 	{
+		// Race has no Sphere of Influence.
 		if (FleetPtr->allied_state == DEAD_GUY)
 		{
 			// Race is extinct.
@@ -269,11 +358,61 @@ StartSphereTracking (COUNT race)
 }
 
 /*
+ * 	Check whether we are tracking the SoI of a race.
+ * 	If a race has no SoI, this function will always return false.
+ */
+BOOLEAN
+CheckSphereTracking (RACE_ID race)
+{
+	HFLEETINFO hFleet;
+	FLEET_INFO *FleetPtr;
+	COUNT result;
+
+	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), race);
+	if (!hFleet)
+		return FALSE;
+
+	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+
+	if (FleetPtr->actual_strength == 0) {
+		// Race has no Sphere of Influence.
+		// Maybe it never had one, or maybe the race is extinct.
+		result = FALSE;
+	}
+	else
+	{
+		result = (FleetPtr->known_strength > 0);
+	}
+
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	return result;
+}
+
+BOOLEAN
+KillRace (RACE_ID race)
+{
+	HFLEETINFO hFleet;
+	FLEET_INFO *FleetPtr;
+
+	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), race);
+	if (!hFleet)
+		return FALSE;
+
+	FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+
+	FleetPtr->allied_state = DEAD_GUY;
+	FleetPtr->actual_strength = 0;
+
+	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
+	return TRUE;
+}
+
+/*
  * Returns the number of ships of the specified race among the
  * escort ships.
  */
 COUNT
-CountEscortShips (COUNT race)
+CountEscortShips (RACE_ID race)
 {
 	HFLEETINFO hFleet;
 	HSHIPFRAG hStarShip, hNextShip;
@@ -305,7 +444,7 @@ CountEscortShips (COUNT race)
  * escort ships.
  */
 BOOLEAN
-HaveEscortShip (COUNT race)
+HaveEscortShip (RACE_ID race)
 {
 	return (CountEscortShips (race) > 0);
 }
@@ -316,7 +455,7 @@ HaveEscortShip (COUNT race)
  * Otherwise, returns the number of ships that can be added.
  */
 COUNT
-EscortFeasibilityStudy (COUNT race)
+EscortFeasibilityStudy (RACE_ID race)
 {
 	HFLEETINFO hFleet;
 
@@ -333,7 +472,7 @@ EscortFeasibilityStudy (COUNT race)
  * returned.
  */
 COUNT
-CheckAlliance (COUNT race)
+CheckAlliance (RACE_ID race)
 {
 	HFLEETINFO hFleet;
 	UWORD flags;
@@ -355,7 +494,7 @@ CheckAlliance (COUNT race)
  * Returns the number of escort ships removed.
  */
 COUNT
-RemoveSomeEscortShips (COUNT race, COUNT count)
+RemoveSomeEscortShips (RACE_ID race, COUNT count)
 {
 	HSHIPFRAG hStarShip;
 	HSHIPFRAG hNextShip;
@@ -396,10 +535,10 @@ RemoveSomeEscortShips (COUNT race, COUNT count)
 /*
  * Remove all escort ships of the specified race.
  */
-void
-RemoveEscortShips (COUNT race)
+COUNT
+RemoveEscortShips (RACE_ID race)
 {
-	RemoveSomeEscortShips (race, (COUNT) -1);
+	return RemoveSomeEscortShips (race, (COUNT) -1);
 }
 
 COUNT
@@ -461,7 +600,7 @@ NameCaptain (QUEUE *pQueue, SPECIES_ID SpeciesID)
 // crew_level can be set to INFINITE_FLEET for a ship which is to
 // represent an infinite number of ships.
 HSHIPFRAG
-CloneShipFragment (COUNT shipIndex, QUEUE *pDstQueue, COUNT crew_level)
+CloneShipFragment (RACE_ID shipIndex, QUEUE *pDstQueue, COUNT crew_level)
 {
 	HFLEETINFO hFleet;
 	HSHIPFRAG hBuiltShip;
@@ -509,7 +648,7 @@ CloneShipFragment (COUNT shipIndex, QUEUE *pDstQueue, COUNT crew_level)
 /* Set the crew and captain's name on the first fully-crewed escort
  * ship of race 'which_ship' */
 int
-SetEscortCrewComplement (COUNT which_ship, COUNT crew_level, BYTE captain)
+SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level, BYTE captain)
 {
 	HFLEETINFO hFleet;
 	FLEET_INFO *TemplatePtr;
@@ -545,3 +684,4 @@ SetEscortCrewComplement (COUNT which_ship, COUNT crew_level, BYTE captain)
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 	return Index;
 }
+

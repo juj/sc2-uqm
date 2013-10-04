@@ -43,6 +43,7 @@
 static RACE_DESC supox_desc =
 {
 	{ /* SHIP_INFO */
+		"blade",
 		FIRES_FORE,
 		16, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

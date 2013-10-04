@@ -45,6 +45,7 @@
 static RACE_DESC shofixti_desc =
 {
 	{ /* SHIP_INFO */
+		"scout",
 		FIRES_FORE,
 		5, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

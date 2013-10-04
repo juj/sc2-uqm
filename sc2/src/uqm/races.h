@@ -159,6 +159,7 @@ typedef struct
 
 typedef struct
 {
+	const char *idStr;
 	UWORD ship_flags;
 	BYTE ship_cost;
 	
@@ -343,6 +344,7 @@ typedef struct
 	HFLEETINFO succ;
 
 	SPECIES_ID SpeciesID;
+	const char *shipIdStr;
 
 	UWORD allied_state; /* GOOD_GUY, BAD_GUY or DEAD_GUY */
 	BYTE days_left;   /* Days left before the fleet reachers 'dest_loc'. */
@@ -398,7 +400,8 @@ LockFleetInfo (const QUEUE *pq, HFLEETINFO h)
 
 #define UnlockFleetInfo(pq, h) UnlockLink (pq, h)
 
-enum
+// Used as index into avail_race_q.
+typedef enum
 {
 	ARILOU_SHIP,
 	CHMMR_SHIP,
@@ -428,7 +431,7 @@ enum
 	SAMATRA_SHIP = URQUAN_DRONE_SHIP,
 
 	NUM_AVAILABLE_RACES
-};
+} RACE_ID;
 
 #define RACE_COMMUNICATION \
 		ARILOU_CONVERSATION,       /* ARILOU_SHIP */ \

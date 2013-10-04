@@ -45,6 +45,7 @@
 static RACE_DESC pkunk_desc =
 {
 	{ /* SHIP_INFO */
+		"fury",
 		FIRES_FORE | FIRES_LEFT | FIRES_RIGHT,
 		20, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

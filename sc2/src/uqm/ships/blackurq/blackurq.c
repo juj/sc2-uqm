@@ -45,6 +45,7 @@
 static RACE_DESC black_urquan_desc =
 {
 	{ /* SHIP_INFO */
+		"marauder",
 		FIRES_FORE,
 		30, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

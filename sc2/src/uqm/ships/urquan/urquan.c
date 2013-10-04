@@ -45,6 +45,7 @@
 static RACE_DESC urquan_desc =
 {
 	{ /* SHIP_INFO */
+		"dreadnought",
 		FIRES_FORE | SEEKING_SPECIAL,
 		30, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

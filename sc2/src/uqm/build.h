@@ -35,28 +35,31 @@ extern "C" {
 								+ NAME_OFFSET)
 
 extern HLINK Build (QUEUE *pQueue, SPECIES_ID SpeciesID);
-extern HSHIPFRAG CloneShipFragment (COUNT shipIndex, QUEUE *pDstQueue,
+extern HSHIPFRAG CloneShipFragment (RACE_ID shipIndex, QUEUE *pDstQueue,
 		COUNT crew_level);
 extern HLINK GetStarShipFromIndex (QUEUE *pShipQ, COUNT Index);
 extern HSHIPFRAG GetEscortByStarShipIndex (COUNT index);
 extern BYTE NameCaptain (QUEUE *pQueue, SPECIES_ID SpeciesID);
 
-extern COUNT ActivateStarShip (COUNT which_ship, SIZE state);
 extern COUNT GetIndexFromStarShip (QUEUE *pShipQ, HLINK hStarShip);
-extern int SetEscortCrewComplement (COUNT which_ship, COUNT crew_level,
+extern int SetEscortCrewComplement (RACE_ID which_ship, COUNT crew_level,
 		BYTE captain);
 
-extern COUNT AddEscortShips (COUNT race, SIZE count);
+extern SPECIES_ID ShipIdStrToIndex (const char *shipIdStr);
+extern RACE_ID RaceIdStrToIndex (const char *raceIdStr);
+extern COUNT AddEscortShips (RACE_ID race, SIZE count);
 extern COUNT CalculateEscortsWorth (void);
-//extern COUNT GetRaceKnownSize (COUNT race);
-extern COUNT SetRaceAllied (COUNT race, BOOLEAN flag);
-extern COUNT StartSphereTracking (COUNT race);
-extern COUNT CountEscortShips (COUNT race);
-extern BOOLEAN HaveEscortShip (COUNT race);
-extern COUNT EscortFeasibilityStudy (COUNT race);
-extern COUNT CheckAlliance (COUNT race);
-extern COUNT RemoveSomeEscortShips (COUNT race, COUNT count);
-extern void RemoveEscortShips (COUNT race);
+//extern COUNT GetRaceKnownSize (RACE_ID race);
+extern BOOLEAN SetRaceAllied (RACE_ID race, BOOLEAN flag);
+extern COUNT StartSphereTracking (RACE_ID race);
+extern BOOLEAN CheckSphereTracking (RACE_ID race);
+extern BOOLEAN KillRace (RACE_ID race);
+extern COUNT CountEscortShips (RACE_ID race);
+extern BOOLEAN HaveEscortShip (RACE_ID race);
+extern COUNT EscortFeasibilityStudy (RACE_ID race);
+extern COUNT CheckAlliance (RACE_ID race);
+extern COUNT RemoveSomeEscortShips (RACE_ID race, COUNT count);
+extern COUNT RemoveEscortShips (RACE_ID race);
 
 extern RACE_DESC *load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData);
 extern void free_ship (RACE_DESC *RaceDescPtr, BOOLEAN FreeIconData,

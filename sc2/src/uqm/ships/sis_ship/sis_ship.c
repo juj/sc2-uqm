@@ -51,6 +51,7 @@
 static RACE_DESC sis_desc =
 {
 	{ /* SHIP_INFO */
+		"flagship",
 		0,
 		16, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

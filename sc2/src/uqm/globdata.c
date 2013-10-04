@@ -177,6 +177,7 @@ copyFleetInfo (FLEET_INFO *dst, SHIP_INFO *src, FLEET_STUFF *fleet)
 	dst->max_crew = src->max_crew;
 	dst->max_energy = src->max_energy;
 
+	dst->shipIdStr = src->idStr;
 	dst->race_strings = src->race_strings;
 	dst->icons = src->icons;
 	dst->melee_icon = src->melee_icon;

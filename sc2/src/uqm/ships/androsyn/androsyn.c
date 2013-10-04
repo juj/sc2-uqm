@@ -41,6 +41,7 @@
 static RACE_DESC androsynth_desc =
 {
 	{ /* SHIP_INFO */
+		"guardian",
 		FIRES_FORE | SEEKING_WEAPON,
 		15, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
