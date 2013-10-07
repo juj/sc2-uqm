@@ -41,38 +41,63 @@
 #include "libs/inplib.h"
 #include "libs/log.h"
 #include "libs/memlib.h"
-#include "libs/declib.h"
 
+typedef struct savebuf_struct
+{
+	char *buf;
+	size_t bufsize;
+	int index, error;
+} SAVEBUF;
 
 // XXX: these should handle endian conversions later
 static inline COUNT
-cwrite_8 (DECODE_REF fh, BYTE v)
+cwrite_8 (SAVEBUF *fh, BYTE v)
 {
-	return cwrite (&v, 1, 1, fh);
+	if (!fh)
+		return 0;
+	if (!fh->error && fh->index < fh->bufsize)
+	{
+		fh->buf[fh->index++] = v;
+		return 1;
+	}
+	fh->error = 1;
+	return 0;
 }
 
 static inline COUNT
-cwrite_16 (DECODE_REF fh, UWORD v)
+cwrite_16 (SAVEBUF *fh, UWORD v)
 {
-	return cwrite (&v, 2, 1, fh);
+	if (cwrite_8 (fh, (BYTE)(v & 0xFF)) &&
+	    cwrite_8 (fh, (BYTE)((v >> 8) & 0xFF)))
+		return 1;
+	return 0;
 }
 
 static inline COUNT
-cwrite_32 (DECODE_REF fh, DWORD v)
+cwrite_32 (SAVEBUF *fh, DWORD v)
 {
-	return cwrite (&v, 4, 1, fh);
+	if (cwrite_8 (fh, (BYTE)(v & 0xFF)) &&
+	    cwrite_8 (fh, (BYTE)((v >> 8) & 0xFF)) &&
+	    cwrite_8 (fh, (BYTE)((v >> 16) & 0xFF)) &&
+	    cwrite_8 (fh, (BYTE)((v >> 24) & 0xFF)))
+		return 1;
+	return 0;
 }
 
 static inline COUNT
-cwrite_ptr (DECODE_REF fh)
+cwrite_ptr (SAVEBUF *fh)
 {
 	return cwrite_32 (fh, 0); /* ptrs are useless in saves */
 }
 
 static inline COUNT
-cwrite_a8 (DECODE_REF fh, const BYTE *ar, COUNT count)
+cwrite_a8 (SAVEBUF *fh, const BYTE *ar, COUNT count)
 {
-	return cwrite (ar, 1, count, fh) == count;
+	int i;
+	for (i = 0; i < count; ++i)
+		if (!cwrite_8 (fh, ar[i]))
+			return 0;
+	return 1;
 }
 
 static inline size_t
@@ -124,7 +149,7 @@ write_a16 (void *fp, const UWORD *ar, COUNT count)
 }
 
 static void
-SaveEmptyQueue (DECODE_REF fh)
+SaveEmptyQueue (SAVEBUF *fh)
 {
 	COUNT num_links = 0;
 
@@ -133,7 +158,7 @@ SaveEmptyQueue (DECODE_REF fh)
 }
 
 static void
-SaveShipQueue (DECODE_REF fh, QUEUE *pQueue)
+SaveShipQueue (SAVEBUF *fh, QUEUE *pQueue)
 {
 	COUNT num_links;
 	HSHIPFRAG hStarShip;
@@ -178,7 +203,7 @@ SaveShipQueue (DECODE_REF fh, QUEUE *pQueue)
 }
 
 static void
-SaveRaceQueue (DECODE_REF fh, QUEUE *pQueue)
+SaveRaceQueue (SAVEBUF *fh, QUEUE *pQueue)
 {
 	COUNT num_links;
 	HFLEETINFO hFleet;
@@ -228,7 +253,7 @@ SaveRaceQueue (DECODE_REF fh, QUEUE *pQueue)
 }
 
 static void
-SaveGroupQueue (DECODE_REF fh, QUEUE *pQueue)
+SaveGroupQueue (SAVEBUF *fh, QUEUE *pQueue)
 {
 	HIPGROUP hGroup, hNextGroup;
 
@@ -266,7 +291,7 @@ SaveGroupQueue (DECODE_REF fh, QUEUE *pQueue)
 }
 
 static void
-SaveEncounter (const ENCOUNTER *EncounterPtr, DECODE_REF fh)
+SaveEncounter (const ENCOUNTER *EncounterPtr, SAVEBUF *fh)
 {
 	COUNT i;
 
@@ -312,7 +337,7 @@ SaveEncounter (const ENCOUNTER *EncounterPtr, DECODE_REF fh)
 }
 
 static void
-SaveEvent (const EVENT *EventPtr, DECODE_REF fh)
+SaveEvent (const EVENT *EventPtr, SAVEBUF *fh)
 {
 	cwrite_ptr (fh); /* useless ptr; HEVENT pred */
 	cwrite_ptr (fh); /* useless ptr; HEVENT succ */
@@ -325,7 +350,7 @@ SaveEvent (const EVENT *EventPtr, DECODE_REF fh)
 }
 
 static void
-DummySaveQueue (const QUEUE *QueuePtr, DECODE_REF fh)
+DummySaveQueue (const QUEUE *QueuePtr, SAVEBUF *fh)
 {
 	/* QUEUE should never actually be saved since it contains
 	 * purely internal representation and the lists
@@ -346,7 +371,7 @@ DummySaveQueue (const QUEUE *QueuePtr, DECODE_REF fh)
 }
 
 static void
-SaveClockState (const CLOCK_STATE *ClockPtr, DECODE_REF fh)
+SaveClockState (const CLOCK_STATE *ClockPtr, SAVEBUF *fh)
 {
 	cwrite_8   (fh, ClockPtr->day_index);
 	cwrite_8   (fh, ClockPtr->month_index);
@@ -361,7 +386,7 @@ SaveClockState (const CLOCK_STATE *ClockPtr, DECODE_REF fh)
 }
 
 static void
-SaveGameState (const GAME_STATE *GSPtr, DECODE_REF fh)
+SaveGameState (const GAME_STATE *GSPtr, SAVEBUF *fh)
 {
 	cwrite_8   (fh, 0); /* obsolete; BYTE cur_state */
 	cwrite_8   (fh, GSPtr->glob_flags);
@@ -470,7 +495,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 }
 
 static void
-SaveStarDesc (const STAR_DESC *SDPtr, DECODE_REF fh)
+SaveStarDesc (const STAR_DESC *SDPtr, SAVEBUF *fh)
 {
 	cwrite_16 (fh, SDPtr->star_pt.x);
 	cwrite_16 (fh, SDPtr->star_pt.y);
@@ -644,14 +669,14 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 {
 	BOOLEAN success, made_room;
 	void *out_fp, *h;
-	DECODE_REF fh;
+	SAVEBUF fh_backing, *fh;
 
 	success = TRUE;
 	made_room = FALSE;
+	fh = &fh_backing;
 RetrySave:
-	h = HMalloc (10 * 1024);
-	if (h == 0
-			|| (fh = copen (h, MEMORY_STREAM, STREAM_WRITE)) == 0)
+	h = HMalloc (128 * 1024);
+	if (h == 0)
 	{
 		if (success)
 		{
@@ -677,6 +702,10 @@ RetrySave:
 		STAR_DESC SD;
 		char buf[256], file[PATH_MAX];
 
+		fh->buf = h;
+		fh->bufsize = 128 * 1024;
+		fh->index = 0;
+		fh->error = 0;
 		success = TRUE;
 		if (CurStarDescPtr)
 			SD = *CurStarDescPtr;
@@ -773,6 +802,7 @@ RetrySave:
 		{
 			flen = LengthStateFile (fp);
 			// Write the uncompressed size.
+			printf ("Star Info: %u bytes\n", flen);
 			cwrite_32 (fh, flen);
 			while (flen)
 			{
@@ -780,7 +810,7 @@ RetrySave:
 
 				num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
 				ReadStateFile (buf, num_bytes, 1, fp);
-				cwrite (buf, num_bytes, 1, fh);
+				cwrite_a8 (fh, buf, num_bytes);
 
 				flen -= num_bytes;
 			}
@@ -793,6 +823,7 @@ RetrySave:
 		{
 			flen = LengthStateFile (fp);
 			// Write the uncompressed size.
+			printf ("Defined Group Info: %u bytes\n", flen);
 			cwrite_32 (fh, flen);
 			while (flen)
 			{
@@ -800,7 +831,7 @@ RetrySave:
 
 				num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
 				ReadStateFile (buf, num_bytes, 1, fp);
-				cwrite (buf, num_bytes, 1, fh);
+				cwrite_a8 (fh, buf, num_bytes);
 
 				flen -= num_bytes;
 			}
@@ -813,6 +844,7 @@ RetrySave:
 		{
 			flen = LengthStateFile (fp);
 			// Write the uncompressed size.
+			printf ("Random Group Info: %u bytes\n", flen);
 			cwrite_32 (fh, flen);
 			while (flen)
 			{
@@ -820,7 +852,7 @@ RetrySave:
 
 				num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
 				ReadStateFile (buf, num_bytes, 1, fp);
-				cwrite (buf, num_bytes, 1, fh);
+				cwrite_a8 (fh, buf, num_bytes);
 
 				flen -= num_bytes;
 			}
@@ -830,10 +862,10 @@ RetrySave:
 		// Write the current star desc into the memory file (compressed).
 		SaveStarDesc (&SD, fh);
 
-		flen = cclose (fh);
+		flen = fh->index;
 
 		// Write the memory file to the actual savegame file.
-		sprintf (file, "starcon2.%02u", which_game);
+		sprintf (file, "uqmsave.%02u", which_game);
 		log_add (log_Debug, "'%s' is %u bytes long", file,
 				 flen + 181 + strlen(SummPtr->SaveName));
 		if (flen && (out_fp = res_OpenResFile (saveDir, file, "wb")))
@@ -842,7 +874,7 @@ RetrySave:
 
 			success = SaveSummary (SummPtr, out_fp);
 			// Then write the rest of the data.
-			if (success && write_32 (out_fp, OMNIZIP_MAGIC) != 1)
+			if (success && write_32 (out_fp, OMNIBUS_MAGIC) != 1)
 				success = FALSE;
 			if (success && write_32 (out_fp, flen) != 1)
 				success = FALSE;

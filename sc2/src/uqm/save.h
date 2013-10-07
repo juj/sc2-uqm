@@ -33,7 +33,7 @@ extern "C" {
 #define MAX_EXCLUSIVE_DEVICES 16
 #define SAVE_MAGIC 0x01534d55     // "UMS\x01": UQM Save version 1
 #define SUMMARY_MAGIC 0x6d6d7553  // "Summ": Summary. Must be first!
-#define OMNIZIP_MAGIC 0x5a6e6d4f  // "OmnZ": All data compressed.
+#define OMNIBUS_MAGIC 0x696e6d4f  // "Omni": All data, uncompressed
 #define SAVE_NAME_SIZE 64
 
 typedef struct
@@ -53,6 +53,7 @@ typedef struct
 extern ACTIVITY NextActivity;
 
 extern BOOLEAN LoadGame (COUNT which_game, SUMMARY_DESC *summary_desc);
+extern BOOLEAN LoadLegacyGame (COUNT which_game, SUMMARY_DESC *summary_desc);
 
 extern void SaveProblem (void);
 extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc, const char *name);
