@@ -362,6 +362,12 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	TEXT lf;
 	Color BackGround, ForeGround;
 	FONT Font;
+	UNICODE fullStr[256], dateStr[80];
+
+	DateToString (dateStr, sizeof dateStr, GLOBAL(GameClock.month_index),
+			GLOBAL(GameClock.day_index), GLOBAL(GameClock.year_index));
+	strncat (dateStr, ": ", sizeof(dateStr) - strlen(dateStr) -1);
+	snprintf (fullStr, sizeof fullStr, "%s%s", dateStr, Str);
 
 	SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
 	r.extent.width = 15;
@@ -386,12 +392,11 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 	lf.align = ALIGN_LEFT;
 
 	SetContextFont (Font);
-	lf.pStr = Str;
+	lf.pStr = fullStr;
 	lf.CharCount = (COUNT)~0;
 
 	if (!(state & DDSHS_EDIT))
 	{
-		//RECT r;
 		TEXT t;
 
 		SetContextForeGroundColor (BLACK_COLOR);
@@ -403,13 +408,13 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 		t.pStr = Str;
 		t.CharCount = (COUNT)~0;
 		SetContextForeGroundColor (CAPTAIN_NAME_TEXT_COLOR);
-		font_DrawText (&t);
+		font_DrawText (&lf);
 	}
 	else
 	{	// editing state
-		COUNT i;
+		COUNT i, FullCursorPos;
 		RECT text_r;
-		BYTE char_deltas[SAVE_NAME_SIZE];
+		BYTE char_deltas[256];
 		BYTE *pchar_deltas;
 
 		TextRect (&lf, &text_r, char_deltas);
@@ -427,18 +432,20 @@ DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
 
 		pchar_deltas = char_deltas;
 
-		for (i = CursorPos; i > 0; --i)
+		FullCursorPos = CursorPos + strlen(dateStr) - 1;
+		for (i = FullCursorPos; i > 0; --i)
 			text_r.corner.x += *pchar_deltas++;
-		if (CursorPos < lf.CharCount) /* end of line */
+
+		if (FullCursorPos < lf.CharCount) /* end of line */
 			--text_r.corner.x;
 
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
-			if (CursorPos == lf.CharCount)
+			if (FullCursorPos == lf.CharCount)
 			{	// cursor at end-line -- use insertion point
 				text_r.extent.width = 1;
 			}
-			else if (CursorPos + 1 == lf.CharCount)
+			else if (FullCursorPos + 1 == lf.CharCount)
 			{	// extra pixel for last char margin
 				text_r.extent.width = (SIZE)*pchar_deltas + 2;
 			}
@@ -481,7 +488,7 @@ static BOOLEAN
 NameSaveGame (COUNT gameIndex, UNICODE *buf)
 {
 	TEXTENTRY_STATE tes;
-	COUNT CursPos = 0;
+	COUNT CursPos = strlen(buf);
 	COUNT *gIndex = HMalloc (sizeof (COUNT));
 	RECT r;
 	*gIndex = gameIndex;
@@ -1104,7 +1111,7 @@ static BOOLEAN
 SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_user)
 {
 	SUMMARY_DESC *desc = pickState->summary + gameIndex;
-	UNICODE nameBuf[SAVE_NAME_SIZE];
+	UNICODE nameBuf[256];
 	STAMP saveStamp;
 	BOOLEAN success;
 
@@ -1112,7 +1119,10 @@ SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_
 
 	if (pickState->saving)
 	{
-		nameBuf[0] = 0;
+		// Initialize the save name with whatever name is there already
+		// SAVE_NAME_SIZE is less than 256, so this is safe.
+		strncpy(nameBuf, desc->SaveName, SAVE_NAME_SIZE);
+		nameBuf[SAVE_NAME_SIZE] = 0;
 		if (NameSaveGame (gameIndex, nameBuf))
 		{
 			PlayMenuSound (MENU_SOUND_SUCCESS);
