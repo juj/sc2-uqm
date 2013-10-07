@@ -87,13 +87,6 @@ read_32s (void *fp, SDWORD *v)
 }
 
 static inline size_t
-read_ptr (void *fp)
-{
-	DWORD t;
-	return read_32 (fp, &t); /* ptrs are useless in saves */
-}
-
-static inline size_t
 read_a8 (void *fp, BYTE *ar, COUNT count)
 {
 	assert (ar != NULL);
@@ -167,21 +160,13 @@ LoadShipQueue (void *fh, QUEUE *pQueue)
 		FragPtr = LockShipFrag (pQueue, hStarShip);
 
 		// Read SHIP_FRAGMENT elements
-		read_16 (fh, NULL); /* unused: was which_side */
 		read_8  (fh, &FragPtr->captains_name_index);
-		read_8  (fh, NULL); /* padding */
-		read_16 (fh, NULL); /* unused: was ship_flags */
 		read_8  (fh, &FragPtr->race_id);
 		read_8  (fh, &FragPtr->index);
-		// XXX: reading crew as BYTE to maintain savegame compatibility
-		read_8  (fh, &tmpb);
-		FragPtr->crew_level = tmpb;
-		read_8  (fh, &tmpb);
-		FragPtr->max_crew = tmpb;
+		read_16 (fh, &FragPtr->crew_level);
+		read_16 (fh, &FragPtr->max_crew);
 		read_8  (fh, &FragPtr->energy_level);
 		read_8  (fh, &FragPtr->max_energy);
-		read_16 (fh, NULL); /* unused; was loc.x */
-		read_16 (fh, NULL); /* unused; was loc.y */
 
 		UnlockShipFrag (pQueue, hStarShip);
 	}
@@ -227,7 +212,6 @@ LoadRaceQueue (void *fh, QUEUE *pQueue)
 		read_8  (fh, &FleetPtr->func_index);
 		read_16s(fh, &FleetPtr->dest_loc.x);
 		read_16s(fh, &FleetPtr->dest_loc.y);
-		read_16 (fh, NULL); /* alignment padding */
 
 		UnlockFleetInfo (pQueue, hStarShip);
 	}
@@ -246,21 +230,15 @@ LoadGroupQueue (void *fh, QUEUE *pQueue)
 		IP_GROUP *GroupPtr;
 		BYTE tmpb;
 
-		read_16 (fh, NULL); /* unused; was race_id */
-
 		hGroup = BuildGroup (pQueue, 0);
 		GroupPtr = LockIpGroup (pQueue, hGroup);
 
-		read_16 (fh, NULL); /* unused; was which_side */
-		read_8  (fh, NULL); /* unused; was captains_name_index */
-		read_8  (fh, NULL); /* padding; for savegame compat */
 		read_16 (fh, &GroupPtr->group_counter);
 		read_8  (fh, &GroupPtr->race_id);
 		read_8  (fh, &tmpb); /* was var2 */
 		GroupPtr->sys_loc = LONIBBLE (tmpb);
 		GroupPtr->task = HINIBBLE (tmpb);
 		read_8  (fh, &GroupPtr->in_system); /* was crew_level */
-		read_8  (fh, NULL); /* unused; was max_crew */
 		read_8  (fh, &tmpb); /* was energy_level */
 		GroupPtr->dest_loc = LONIBBLE (tmpb);
 		GroupPtr->orbit_pos = HINIBBLE (tmpb);
@@ -278,11 +256,8 @@ LoadEncounter (ENCOUNTER *EncounterPtr, void *fh)
 	COUNT i;
 	BYTE tmpb;
 
-	read_ptr (fh); /* useless ptr; HENCOUNTER pred */
 	EncounterPtr->pred = 0;
-	read_ptr (fh); /* useless ptr; HENCOUNTER succ */
 	EncounterPtr->succ = 0;
-	read_ptr (fh); /* useless ptr; HELEMENT hElement */
 	EncounterPtr->hElement = 0;
 	read_16s (fh, &EncounterPtr->transition_state);
 	read_16s (fh, &EncounterPtr->origin.x);
@@ -292,31 +267,18 @@ LoadEncounter (ENCOUNTER *EncounterPtr, void *fh)
 	read_16s (fh, &EncounterPtr->loc_pt.x);
 	read_16s (fh, &EncounterPtr->loc_pt.y);
 	read_8   (fh, &EncounterPtr->race_id);
-	read_8   (fh, &tmpb);
-	EncounterPtr->num_ships = tmpb & ENCOUNTER_SHIPS_MASK;
-	EncounterPtr->flags = tmpb & ENCOUNTER_FLAGS_MASK;
-	read_16  (fh, NULL); /* alignment padding */
+	read_8   (fh, &EncounterPtr->num_ships);
+	read_8   (fh, &EncounterPtr->flags);
 
 	// Load each entry in the BRIEF_SHIP_INFO array
 	for (i = 0; i < MAX_HYPER_SHIPS; i++)
 	{
 		BRIEF_SHIP_INFO *ShipInfo = &EncounterPtr->ShipList[i];
 
-		read_16  (fh, NULL); /* useless; was SHIP_INFO.ship_flags */
 		read_8   (fh, &ShipInfo->race_id);
-		read_8   (fh, NULL); /* useless; was SHIP_INFO.var2 */
-		// XXX: reading crew as BYTE to maintain savegame compatibility
-		read_8   (fh, &tmpb);
-		ShipInfo->crew_level = tmpb;
-		read_8   (fh, &tmpb);
-		ShipInfo->max_crew = tmpb;
-		read_8   (fh, NULL); /* useless; was SHIP_INFO.energy_level */
+		read_16  (fh, &ShipInfo->crew_level);
+		read_16  (fh, &ShipInfo->max_crew);
 		read_8   (fh, &ShipInfo->max_energy);
-		read_16  (fh, NULL); /* useless; was SHIP_INFO.loc.x */
-		read_16  (fh, NULL); /* useless; was SHIP_INFO.loc.y */
-		read_32  (fh, NULL); /* useless val; STRING race_strings */
-		read_ptr (fh); /* useless ptr; FRAME icons */
-		read_ptr (fh); /* useless ptr; FRAME melee_icon */
 	}
 
 	// Load the stuff after the BRIEF_SHIP_INFO array
@@ -327,37 +289,12 @@ LoadEncounter (ENCOUNTER *EncounterPtr, void *fh)
 static void
 LoadEvent (EVENT *EventPtr, void *fh)
 {
-	read_ptr (fh); /* useless ptr; HEVENT pred */
 	EventPtr->pred = 0;
-	read_ptr (fh); /* useless ptr; HEVENT succ */
 	EventPtr->succ = 0;
 	read_8   (fh, &EventPtr->day_index);
 	read_8   (fh, &EventPtr->month_index);
 	read_16  (fh, &EventPtr->year_index);
 	read_8   (fh, &EventPtr->func_index);
-	read_8   (fh, NULL); /* padding */
-	read_16  (fh, NULL); /* padding */
-}
-
-static void
-DummyLoadQueue (QUEUE *QueuePtr, void *fh)
-{
-	/* QUEUE should never actually be loaded since it contains
-	 * purely internal representation and the lists
-	 * involved are actually loaded separately */
-	(void)QueuePtr; /* silence compiler */
-
-	/* QUEUE format with QUEUE_TABLE defined -- UQM default */
-	read_ptr (fh); /* HLINK head */
-	read_ptr (fh); /* HLINK tail */
-	read_ptr (fh); /* BYTE* pq_tab */
-	read_ptr (fh); /* HLINK free_list */
-	read_16  (fh, NULL); /* MEM_HANDLE hq_tab */
-	read_16  (fh, NULL); /* COUNT object_size */
-	read_8   (fh, NULL); /* BYTE num_objects */
-
-	read_8   (fh, NULL); /* padding */
-	read_16  (fh, NULL); /* padding */
 }
 
 static void
@@ -368,28 +305,18 @@ LoadClockState (CLOCK_STATE *ClockPtr, void *fh)
 	read_16  (fh, &ClockPtr->year_index);
 	read_16s (fh, &ClockPtr->tick_count);
 	read_16s (fh, &ClockPtr->day_in_ticks);
-	read_ptr (fh); /* not loading ptr; Semaphore clock_sem */
-	read_ptr (fh); /* not loading ptr; Task clock_task */
-	read_32  (fh, NULL); /* not loading; DWORD TimeCounter */
-
-	DummyLoadQueue (&ClockPtr->event_q, fh);
 }
 
 static void
 LoadGameState (GAME_STATE *GSPtr, void *fh)
 {
-	BYTE dummy8;
-
-	read_8   (fh, &dummy8); /* obsolete */
 	read_8   (fh, &GSPtr->glob_flags);
 	read_8   (fh, &GSPtr->CrewCost);
 	read_8   (fh, &GSPtr->FuelCost);
 	read_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
 	read_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
-	read_ptr (fh); /* not loading ptr; PRIMITIVE *DisplayArray */
 	read_16  (fh, &GSPtr->CurrentActivity);
 
-	read_16  (fh, NULL); /* CLOCK_STATE alignment padding */
 	LoadClockState (&GSPtr->GameClock, fh);
 
 	read_16s (fh, &GSPtr->autopilot.x);
@@ -413,20 +340,10 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	read_16s (fh, &GSPtr->velocity.error.height);
 	read_16s (fh, &GSPtr->velocity.incr.width);
 	read_16s (fh, &GSPtr->velocity.incr.height);
-	read_16  (fh, NULL); /* VELOCITY_DESC padding */
 
 	read_32  (fh, &GSPtr->BattleGroupRef);
 
-	DummyLoadQueue (&GSPtr->avail_race_q, fh);
-	DummyLoadQueue (&GSPtr->npc_built_ship_q, fh);
-	// Not loading ip_group_q, was not there originally
-	DummyLoadQueue (&GSPtr->encounter_q, fh);
-	DummyLoadQueue (&GSPtr->built_ship_q, fh);
-
 	read_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
-
-	assert (sizeof (GSPtr->GameState) % 4 == 3);
-	read_8  (fh, NULL); /* GAME_STATE alignment padding */
 }
 
 static BOOLEAN

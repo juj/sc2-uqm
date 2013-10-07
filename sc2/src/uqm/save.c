@@ -85,12 +85,6 @@ cwrite_32 (SAVEBUF *fh, DWORD v)
 }
 
 static inline COUNT
-cwrite_ptr (SAVEBUF *fh)
-{
-	return cwrite_32 (fh, 0); /* ptrs are useless in saves */
-}
-
-static inline COUNT
 cwrite_a8 (SAVEBUF *fh, const BYTE *ar, COUNT count)
 {
 	int i;
@@ -116,12 +110,6 @@ static inline size_t
 write_32 (void *fp, DWORD v)
 {
 	return WriteResFile (&v, 4, 1, fp);
-}
-
-static inline size_t
-write_ptr (void *fp)
-{
-	return write_32 (fp, 0); /* ptrs are useless in saves */
 }
 
 static inline size_t
@@ -183,19 +171,13 @@ SaveShipQueue (SAVEBUF *fh, QUEUE *pQueue)
 		cwrite_16 (fh, Index);
 
 		// Write SHIP_FRAGMENT elements
-		cwrite_16 (fh, 0); /* unused; was which_side */
 		cwrite_8  (fh, FragPtr->captains_name_index);
-		cwrite_8  (fh, 0); /* padding */
-		cwrite_16 (fh, 0); /* unused: was ship_flags */
 		cwrite_8  (fh, FragPtr->race_id);
 		cwrite_8  (fh, FragPtr->index);
-		// XXX: writing crew as BYTE to maintain savegame compatibility
-		cwrite_8  (fh, FragPtr->crew_level);
-		cwrite_8  (fh, FragPtr->max_crew);
+		cwrite_16 (fh, FragPtr->crew_level);
+		cwrite_16 (fh, FragPtr->max_crew);
 		cwrite_8  (fh, FragPtr->energy_level);
 		cwrite_8  (fh, FragPtr->max_energy);
-		cwrite_16 (fh, 0); /* unused; was loc.x */
-		cwrite_16 (fh, 0); /* unused; was loc.y */
 
 		UnlockShipFrag (pQueue, hStarShip);
 		hStarShip = hNextShip;
@@ -245,7 +227,6 @@ SaveRaceQueue (SAVEBUF *fh, QUEUE *pQueue)
 		cwrite_8  (fh, FleetPtr->func_index);
 		cwrite_16 (fh, FleetPtr->dest_loc.x);
 		cwrite_16 (fh, FleetPtr->dest_loc.y);
-		cwrite_16 (fh, 0); /* alignment padding */
 
 		UnlockFleetInfo (pQueue, hFleet);
 		hFleet = hNextFleet;
@@ -267,18 +248,12 @@ SaveGroupQueue (SAVEBUF *fh, QUEUE *pQueue)
 		GroupPtr = LockIpGroup (pQueue, hGroup);
 		hNextGroup = _GetSuccLink (GroupPtr);
 
-		cwrite_16 (fh, GroupPtr->race_id); /* unused; for old versions */
-
-		cwrite_16 (fh, 0); /* unused; was which_side */
-		cwrite_8  (fh, 0); /* unused; was captains_name_index */
-		cwrite_8  (fh, 0); /* padding; for savegame compat */
 		cwrite_16 (fh, GroupPtr->group_counter);
 		cwrite_8  (fh, GroupPtr->race_id);
 		assert (GroupPtr->sys_loc < 0x10 && GroupPtr->task < 0x10);
 		cwrite_8  (fh, MAKE_BYTE (GroupPtr->sys_loc, GroupPtr->task));
 				/* was var2 */
 		cwrite_8  (fh, GroupPtr->in_system); /* was crew_level */
-		cwrite_8  (fh, 0); /* unused; was max_crew */
 		assert (GroupPtr->dest_loc < 0x10 && GroupPtr->orbit_pos < 0x10);
 		cwrite_8  (fh, MAKE_BYTE (GroupPtr->dest_loc, GroupPtr->orbit_pos));
 				/* was energy_level */
@@ -295,9 +270,6 @@ SaveEncounter (const ENCOUNTER *EncounterPtr, SAVEBUF *fh)
 {
 	COUNT i;
 
-	cwrite_ptr (fh); /* useless ptr; HENCOUNTER pred */
-	cwrite_ptr (fh); /* useless ptr; HENCOUNTER succ */
-	cwrite_ptr (fh); /* useless ptr; HELEMENT hElement */
 	cwrite_16  (fh, EncounterPtr->transition_state);
 	cwrite_16  (fh, EncounterPtr->origin.x);
 	cwrite_16  (fh, EncounterPtr->origin.y);
@@ -306,29 +278,18 @@ SaveEncounter (const ENCOUNTER *EncounterPtr, SAVEBUF *fh)
 	cwrite_16  (fh, EncounterPtr->loc_pt.x);
 	cwrite_16  (fh, EncounterPtr->loc_pt.y);
 	cwrite_8   (fh, EncounterPtr->race_id);
-	// XXX: writing combined fields to maintain savegame compatibility
-	cwrite_8   (fh, (EncounterPtr->num_ships & ENCOUNTER_SHIPS_MASK)
-			| (EncounterPtr->flags & ENCOUNTER_FLAGS_MASK));
-	cwrite_16  (fh, 0); /* alignment padding */
+	cwrite_8   (fh, EncounterPtr->num_ships);
+	cwrite_8   (fh, EncounterPtr->flags);
 
 	// Save each entry in the BRIEF_SHIP_INFO array
 	for (i = 0; i < MAX_HYPER_SHIPS; i++)
 	{
 		const BRIEF_SHIP_INFO *ShipInfo = &EncounterPtr->ShipList[i];
 
-		cwrite_16  (fh, 0); /* useless; was SHIP_INFO.ship_flags */
 		cwrite_8   (fh, ShipInfo->race_id);
-		cwrite_8   (fh, 0); /* useless; was SHIP_INFO.var2 */
-		// XXX: writing crew as BYTE to maintain savegame compatibility
-		cwrite_8   (fh, ShipInfo->crew_level);
-		cwrite_8   (fh, ShipInfo->max_crew);
-		cwrite_8   (fh, 0); /* useless; was SHIP_INFO.energy_level */
+		cwrite_16  (fh, ShipInfo->crew_level);
+		cwrite_16  (fh, ShipInfo->max_crew);
 		cwrite_8   (fh, ShipInfo->max_energy);
-		cwrite_16  (fh, 0); /* useless; was SHIP_INFO.loc.x */
-		cwrite_16  (fh, 0); /* useless; was SHIP_INFO.loc.y */
-		cwrite_32  (fh, 0); /* useless val; STRING race_strings */
-		cwrite_ptr (fh); /* useless ptr; FRAME icons */
-		cwrite_ptr (fh); /* useless ptr; FRAME melee_icon */
 	}
 
 	// Save the stuff after the BRIEF_SHIP_INFO array
@@ -339,35 +300,10 @@ SaveEncounter (const ENCOUNTER *EncounterPtr, SAVEBUF *fh)
 static void
 SaveEvent (const EVENT *EventPtr, SAVEBUF *fh)
 {
-	cwrite_ptr (fh); /* useless ptr; HEVENT pred */
-	cwrite_ptr (fh); /* useless ptr; HEVENT succ */
 	cwrite_8   (fh, EventPtr->day_index);
 	cwrite_8   (fh, EventPtr->month_index);
 	cwrite_16  (fh, EventPtr->year_index);
 	cwrite_8   (fh, EventPtr->func_index);
-	cwrite_8   (fh, 0); /* padding */
-	cwrite_16  (fh, 0); /* padding */
-}
-
-static void
-DummySaveQueue (const QUEUE *QueuePtr, SAVEBUF *fh)
-{
-	/* QUEUE should never actually be saved since it contains
-	 * purely internal representation and the lists
-	 * involved are actually saved separately */
-	(void)QueuePtr; /* silence compiler */
-
-	/* QUEUE format with QUEUE_TABLE defined -- UQM default */
-	cwrite_ptr (fh); /* HLINK head */
-	cwrite_ptr (fh); /* HLINK tail */
-	cwrite_ptr (fh); /* BYTE* pq_tab */
-	cwrite_ptr (fh); /* HLINK free_list */
-	cwrite_16  (fh, 0); /* MEM_HANDLE hq_tab */
-	cwrite_16  (fh, 0); /* COUNT object_size */
-	cwrite_8   (fh, 0); /* BYTE num_objects */
-
-	cwrite_8   (fh, 0); /* padding */
-	cwrite_16  (fh, 0); /* padding */
 }
 
 static void
@@ -378,26 +314,18 @@ SaveClockState (const CLOCK_STATE *ClockPtr, SAVEBUF *fh)
 	cwrite_16  (fh, ClockPtr->year_index);
 	cwrite_16  (fh, ClockPtr->tick_count);
 	cwrite_16  (fh, ClockPtr->day_in_ticks);
-	cwrite_ptr (fh); /* useless ptr; Semaphore clock_sem */
-	cwrite_ptr (fh); /* useless ptr; Task clock_task */
-	cwrite_32  (fh, 0); /* useless value; DWORD TimeCounter */
-
-	DummySaveQueue (&ClockPtr->event_q, fh);
 }
 
 static void
 SaveGameState (const GAME_STATE *GSPtr, SAVEBUF *fh)
 {
-	cwrite_8   (fh, 0); /* obsolete; BYTE cur_state */
 	cwrite_8   (fh, GSPtr->glob_flags);
 	cwrite_8   (fh, GSPtr->CrewCost);
 	cwrite_8   (fh, GSPtr->FuelCost);
 	cwrite_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
 	cwrite_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
-	cwrite_ptr (fh); /* useless ptr; PRIMITIVE *DisplayArray */
 	cwrite_16  (fh, GSPtr->CurrentActivity);
 
-	cwrite_16  (fh, 0); /* CLOCK_STATE alignment padding */
 	SaveClockState (&GSPtr->GameClock, fh);
 
 	cwrite_16  (fh, GSPtr->autopilot.x);
@@ -421,20 +349,10 @@ SaveGameState (const GAME_STATE *GSPtr, SAVEBUF *fh)
 	cwrite_16  (fh, GSPtr->velocity.error.height);
 	cwrite_16  (fh, GSPtr->velocity.incr.width);
 	cwrite_16  (fh, GSPtr->velocity.incr.height);
-	cwrite_16  (fh, 0); /* VELOCITY_DESC padding */
 
 	cwrite_32  (fh, GSPtr->BattleGroupRef);
 
-	DummySaveQueue (&GSPtr->avail_race_q, fh);
-	DummySaveQueue (&GSPtr->npc_built_ship_q, fh);
-	// Not saving ip_group_q, was not there originally
-	DummySaveQueue (&GSPtr->encounter_q, fh);
-	DummySaveQueue (&GSPtr->built_ship_q, fh);
-
 	cwrite_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
-
-	assert (sizeof (GSPtr->GameState) % 4 == 3);
-	cwrite_8  (fh, 0); /* GAME_STATE alignment padding */
 }
 
 static BOOLEAN
@@ -469,7 +387,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 	if (
 			write_32 (fp, SAVE_MAGIC) != 1 ||
 			write_32 (fp, SUMMARY_MAGIC) != 1 ||
-			write_32 (fp, 161 + strlen(SummPtr->SaveName)) != 1
+			write_32 (fp, 160 + strlen(SummPtr->SaveName)) != 1
 		)
 		return FALSE;
 	if (!SaveSisState (&SummPtr->SS, fp))
@@ -487,7 +405,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 			write_8  (fp, SummPtr->NumDevices) != 1 ||
 			write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
 			write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
-			write_a8 (fp, SummPtr->SaveName, strlen(SummPtr->SaveName)+1) != 1
+			write_a8 (fp, SummPtr->SaveName, strlen(SummPtr->SaveName)) != 1
 		)
 		return FALSE;
 	else
@@ -667,31 +585,16 @@ SaveFlagshipState (void)
 BOOLEAN
 SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 {
-	BOOLEAN success, made_room;
+	BOOLEAN success;
 	void *out_fp, *h;
 	SAVEBUF fh_backing, *fh;
 
 	success = TRUE;
-	made_room = FALSE;
 	fh = &fh_backing;
-RetrySave:
 	h = HMalloc (128 * 1024);
 	if (h == 0)
 	{
-		if (success)
-		{
-			success = FALSE;
-			made_room = TRUE;
-			HFree (h);
-
-			FreeSC2Data ();
-			log_add (log_Debug, "Insufficient room for save buffers"
-					" -- RETRYING");
-			goto RetrySave;
-		}
-		else
-			log_add (log_Debug, "Insufficient room for save buffers"
-					" -- GIVING UP!");
+		log_add (log_Debug, "Insufficient room for save buffers");
 	}
 	else
 	{
@@ -742,7 +645,6 @@ RetrySave:
 				//   from group state files. But the original code did,
 				//   and so will we until we can prove we do not need to.
 				SaveGroupQueue (fh, &GLOBAL (ip_group_q));
-				//SaveEmptyQueue (fh);
 			else
 				// XXX: empty queue write-out is only needed to maintain
 				//   the savegame compatibility
@@ -802,7 +704,6 @@ RetrySave:
 		{
 			flen = LengthStateFile (fp);
 			// Write the uncompressed size.
-			printf ("Star Info: %u bytes\n", flen);
 			cwrite_32 (fh, flen);
 			while (flen)
 			{
@@ -823,7 +724,6 @@ RetrySave:
 		{
 			flen = LengthStateFile (fp);
 			// Write the uncompressed size.
-			printf ("Defined Group Info: %u bytes\n", flen);
 			cwrite_32 (fh, flen);
 			while (flen)
 			{
@@ -844,7 +744,6 @@ RetrySave:
 		{
 			flen = LengthStateFile (fp);
 			// Write the uncompressed size.
-			printf ("Random Group Info: %u bytes\n", flen);
 			cwrite_32 (fh, flen);
 			while (flen)
 			{
@@ -867,7 +766,7 @@ RetrySave:
 		// Write the memory file to the actual savegame file.
 		sprintf (file, "uqmsave.%02u", which_game);
 		log_add (log_Debug, "'%s' is %u bytes long", file,
-				 flen + 181 + strlen(SummPtr->SaveName));
+				 flen + 180 + strlen(SummPtr->SaveName));
 		if (flen && (out_fp = res_OpenResFile (saveDir, file, "wb")))
 		{
 			PrepareSummary (SummPtr, name);
@@ -893,9 +792,6 @@ RetrySave:
 	}
 
 	HFree (h);
-
-	if (made_room)
-		LoadSC2Data ();
 
 	return (success);
 }
