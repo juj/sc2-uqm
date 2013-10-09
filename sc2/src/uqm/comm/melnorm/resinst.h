@@ -7,3 +7,4 @@
 #define MELNORME_FONT "comm.melnorme.font"
 #define MELNORME_MUSIC "comm.melnorme.music"
 #define MELNORME_PMAP_ANIM "comm.melnorme.graphics"
+#define MELNORME_SCRIPT "comm.melnorme.script"

@@ -7,3 +7,4 @@
 #define SLYLAND_FONT "comm.probe.font"
 #define SLYLAND_MUSIC "comm.probe.music"
 #define SLYLAND_PMAP_ANIM "comm.probe.graphics"
+#define SLYLAND_SCRIPT "comm.probe.script"

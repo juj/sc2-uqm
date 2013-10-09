@@ -7,3 +7,4 @@
 #define UMGAH_FONT "comm.umgah.font"
 #define UMGAH_MUSIC "comm.umgah.music"
 #define UMGAH_PMAP_ANIM "comm.umgah.graphics"
+#define UMGAH_SCRIPT "comm.umgah.script"

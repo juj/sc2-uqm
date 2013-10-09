@@ -7,4 +7,5 @@
 #define UTWIG_FONT "comm.utwig.font"
 #define UTWIG_MUSIC "comm.utwig.music"
 #define UTWIG_PMAP_ANIM "comm.utwig.graphics"
+#define UTWIG_SCRIPT "comm.utwig.script"
 #define UTWIG_ULTRON_MUSIC "comm.utwig.ultron.music"

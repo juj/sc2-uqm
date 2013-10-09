@@ -7,3 +7,4 @@
 #define ZOQFOTPIK_FONT "comm.zoqfotpik.font"
 #define ZOQFOTPIK_MUSIC "comm.zoqfotpik.music"
 #define ZOQFOTPIK_PMAP_ANIM "comm.zoqfotpik.graphics"
+#define ZOQFOTPIK_SCRIPT "comm.zoqfotpik.script"

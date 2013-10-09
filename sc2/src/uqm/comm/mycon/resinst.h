@@ -7,3 +7,4 @@
 #define MYCON_FONT "comm.mycon.font"
 #define MYCON_MUSIC "comm.mycon.music"
 #define MYCON_PMAP_ANIM "comm.mycon.graphics"
+#define MYCON_SCRIPT "comm.mycon.script"

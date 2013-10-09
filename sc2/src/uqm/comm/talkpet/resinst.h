@@ -7,3 +7,4 @@
 #define TALKING_PET_FONT "comm.talkingpet.font"
 #define TALKING_PET_MUSIC "comm.talkingpet.music"
 #define TALKING_PET_PMAP_ANIM "comm.talkingpet.graphics"
+#define TALKING_PET_SCRIPT "comm.talkingpet.script"

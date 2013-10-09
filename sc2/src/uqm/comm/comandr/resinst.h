@@ -8,5 +8,7 @@
 #define COMMANDER_LOWPOW_MUSIC "comm.commander.lowpower.music"
 #define COMMANDER_MUSIC "comm.commander.music"
 #define COMMANDER_PMAP_ANIM "comm.commander.graphics"
+#define COMMANDER_SCRIPT "comm.commander.script"
 #define STARBASE_ALT_MUSIC "comm.starbase.music"
 #define STARBASE_CONVERSATION_PHRASES "comm.starbase.dialogue"
+#define STARBASE_SCRIPT "comm.starbase.script"

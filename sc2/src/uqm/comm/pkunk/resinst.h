@@ -7,3 +7,4 @@
 #define PKUNK_FONT "comm.pkunk.font"
 #define PKUNK_MUSIC "comm.pkunk.music"
 #define PKUNK_PMAP_ANIM "comm.pkunk.graphics"
+#define PKUNK_SCRIPT "comm.pkunk.script"

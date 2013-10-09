@@ -7,3 +7,4 @@
 #define ARILOU_FONT "comm.arilou.font"
 #define ARILOU_MUSIC "comm.arilou.music"
 #define ARILOU_PMAP_ANIM "comm.arilou.graphics"
+#define ARILOU_SCRIPT "comm.arilou.script"
