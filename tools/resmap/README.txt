@@ -3,6 +3,11 @@ game, as well as both integer and string names for each one.  Running
 gen_resfiles.py will cause it to regenerate uqm.rmp, all the .ls2
 files, and the i*.h source headers that produce the #defines.
 
+XXX The information below is out of date. See the section 'Updating
+the core resources' in sc2/doc/devel/resources for an up-to-date
+description of the contents of the resources.csv file.
+
+
 The .csv file itself is a comma-separated-values list with nine
 fields:
 
