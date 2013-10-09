@@ -326,7 +326,7 @@ PROG_windres_VERSION='windres --version'
 
 ### Rez resource compiler (for MacOS X) ###
 PROG_Rez_NAME="Rez resource compiler (Apple Developer Tools)"
-PROG_Rez_FILE="/Developer/Tools/Rez"
+PROG_Rez_FILE="Rez"
 PROG_Rez_ACTION=""
 PROG_Rez_VERSION=''
 
