@@ -152,7 +152,6 @@ LoadShipQueue (void *fh, QUEUE *pQueue)
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
 		COUNT Index;
-		BYTE tmpb;
 
 		read_16 (fh, &Index);
 
@@ -184,7 +183,6 @@ LoadRaceQueue (void *fh, QUEUE *pQueue)
 		HFLEETINFO hStarShip;
 		FLEET_INFO *FleetPtr;
 		COUNT Index;
-		BYTE tmpb;
 
 		read_16 (fh, &Index);
 
@@ -195,10 +193,8 @@ LoadRaceQueue (void *fh, QUEUE *pQueue)
 		read_16 (fh, &FleetPtr->allied_state);
 		read_8  (fh, &FleetPtr->days_left);
 		read_8  (fh, &FleetPtr->growth_fract);
-		read_8  (fh, &tmpb);
-		FleetPtr->crew_level = tmpb;
-		read_8  (fh, &tmpb);
-		FleetPtr->max_crew = tmpb;
+		read_16 (fh, &FleetPtr->crew_level);
+		read_16 (fh, &FleetPtr->max_crew);
 		read_8  (fh, &FleetPtr->growth);
 		read_8  (fh, &FleetPtr->max_energy);
 		read_16s(fh, &FleetPtr->loc.x);
@@ -228,20 +224,17 @@ LoadGroupQueue (void *fh, QUEUE *pQueue)
 	{
 		HIPGROUP hGroup;
 		IP_GROUP *GroupPtr;
-		BYTE tmpb;
 
 		hGroup = BuildGroup (pQueue, 0);
 		GroupPtr = LockIpGroup (pQueue, hGroup);
 
 		read_16 (fh, &GroupPtr->group_counter);
 		read_8  (fh, &GroupPtr->race_id);
-		read_8  (fh, &tmpb); /* was var2 */
-		GroupPtr->sys_loc = LONIBBLE (tmpb);
-		GroupPtr->task = HINIBBLE (tmpb);
+		read_8  (fh, &GroupPtr->sys_loc);
+		read_8  (fh, &GroupPtr->task);
 		read_8  (fh, &GroupPtr->in_system); /* was crew_level */
-		read_8  (fh, &tmpb); /* was energy_level */
-		GroupPtr->dest_loc = LONIBBLE (tmpb);
-		GroupPtr->orbit_pos = HINIBBLE (tmpb);
+		read_8  (fh, &GroupPtr->dest_loc);
+		read_8  (fh, &GroupPtr->orbit_pos);
 		read_8  (fh, &GroupPtr->group_id); /* was max_energy */
 		read_16s(fh, &GroupPtr->loc.x);
 		read_16s(fh, &GroupPtr->loc.y);
@@ -254,7 +247,6 @@ static void
 LoadEncounter (ENCOUNTER *EncounterPtr, void *fh)
 {
 	COUNT i;
-	BYTE tmpb;
 
 	EncounterPtr->pred = 0;
 	EncounterPtr->succ = 0;
@@ -378,11 +370,11 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 	DWORD nameSize = 0;
 	if (!read_32s (fp, &magic))
 		return FALSE;
-	if (magic == SAVE_MAGIC)
+	if (magic == SAVEFILE_TAG)
 	{
-		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_MAGIC)
+		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
 			return FALSE;
-		if (read_32 (fp, &magic) != 1 || magic < 161)
+		if (read_32 (fp, &magic) != 1 || magic < 160)
 			return FALSE;
 		nameSize = magic - 160;
 	}
@@ -475,7 +467,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	GlobData.SIS_state = SummPtr->SS;
 
 	chunk = 0;
-	while (chunk != OMNIBUS_MAGIC)
+	while (chunk != OMNIBUS_TAG)
 	{
 		if (read_32(in_fp, &chunk) != 1)
 		{
@@ -487,7 +479,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 			res_CloseResFile (in_fp);
 			return FALSE;
 		}
-		if (chunk == OMNIBUS_MAGIC)
+		if (chunk == OMNIBUS_TAG)
 			break;
 
 		log_add (log_Debug, "Skipping chunk of tag %08X (size %u)", chunk, chunkSize);

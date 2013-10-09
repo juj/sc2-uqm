@@ -212,8 +212,8 @@ SaveRaceQueue (SAVEBUF *fh, QUEUE *pQueue)
 		cwrite_16 (fh, FleetPtr->allied_state);
 		cwrite_8  (fh, FleetPtr->days_left);
 		cwrite_8  (fh, FleetPtr->growth_fract);
-		cwrite_8  (fh, FleetPtr->crew_level);
-		cwrite_8  (fh, FleetPtr->max_crew);
+		cwrite_16 (fh, FleetPtr->crew_level);
+		cwrite_16 (fh, FleetPtr->max_crew);
 		cwrite_8  (fh, FleetPtr->growth);
 		cwrite_8  (fh, FleetPtr->max_energy);
 		cwrite_16 (fh, FleetPtr->loc.x);
@@ -250,13 +250,11 @@ SaveGroupQueue (SAVEBUF *fh, QUEUE *pQueue)
 
 		cwrite_16 (fh, GroupPtr->group_counter);
 		cwrite_8  (fh, GroupPtr->race_id);
-		assert (GroupPtr->sys_loc < 0x10 && GroupPtr->task < 0x10);
-		cwrite_8  (fh, MAKE_BYTE (GroupPtr->sys_loc, GroupPtr->task));
-				/* was var2 */
+		cwrite_8  (fh, GroupPtr->sys_loc);
+		cwrite_8  (fh, GroupPtr->task);
 		cwrite_8  (fh, GroupPtr->in_system); /* was crew_level */
-		assert (GroupPtr->dest_loc < 0x10 && GroupPtr->orbit_pos < 0x10);
-		cwrite_8  (fh, MAKE_BYTE (GroupPtr->dest_loc, GroupPtr->orbit_pos));
-				/* was energy_level */
+		cwrite_8  (fh, GroupPtr->dest_loc);
+		cwrite_8  (fh, GroupPtr->orbit_pos);
 		cwrite_8  (fh, GroupPtr->group_id); /* was max_energy */
 		cwrite_16 (fh, GroupPtr->loc.x);
 		cwrite_16 (fh, GroupPtr->loc.y);
@@ -385,8 +383,8 @@ static BOOLEAN
 SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 {
 	if (
-			write_32 (fp, SAVE_MAGIC) != 1 ||
-			write_32 (fp, SUMMARY_MAGIC) != 1 ||
+			write_32 (fp, SAVEFILE_TAG) != 1 ||
+			write_32 (fp, SUMMARY_TAG) != 1 ||
 			write_32 (fp, 160 + strlen(SummPtr->SaveName)) != 1
 		)
 		return FALSE;
@@ -773,7 +771,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 
 			success = SaveSummary (SummPtr, out_fp);
 			// Then write the rest of the data.
-			if (success && write_32 (out_fp, OMNIBUS_MAGIC) != 1)
+			if (success && write_32 (out_fp, OMNIBUS_TAG) != 1)
 				success = FALSE;
 			if (success && write_32 (out_fp, flen) != 1)
 				success = FALSE;
