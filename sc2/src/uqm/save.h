@@ -35,8 +35,19 @@ extern "C" {
 
 // The savefile tag numbers.
 #define SAVEFILE_TAG     0x01534d55 // "UMS\x01": UQM Save version 1
-#define OMNIBUS_TAG      0x696e6d4f // "Omni": All data, uncompressed
 #define SUMMARY_TAG      0x6d6d7553 // "Summ": Summary. Must be first!
+#define GLOBAL_STATE_TAG 0x74536c47 // "GlSt": Global State. Must be 2nd!
+#define GAME_STATE_TAG   0x74536d47 // "GmSt": Game State Bits. Must be 3rd!
+#define EVENTS_TAG       0x73747645 // "Evts": Events
+#define ENCOUNTERS_TAG   0x74636e45 // "Enct": Encounters
+#define RACE_Q_TAG       0x51636152 // "RacQ": avail_race_q
+#define IP_GRP_Q_TAG     0x51704749 // "IGpQ": ip_group_q
+#define NPC_SHIP_Q_TAG   0x5163704e // "NpcQ": npc_built_ship_q
+#define SHIP_Q_TAG       0x51706853 // "ShpQ": built_ship_q
+#define STAR_TAG         0x72617453 // "Star": STAR_DESC
+#define STAR_SF_TAG      0x46534953 // "SISF": Star Info State File
+#define DEFGRP_SF_TAG    0x46534744 // "DGSF": Defined Group State File
+#define RANDGRP_SF_TAG   0x46534752 // "RGSF": Random Group State File
 
 typedef struct
 {

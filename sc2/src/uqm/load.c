@@ -126,26 +126,9 @@ read_a16 (void *fp, UWORD *ar, COUNT count)
 }
 
 static void
-LoadEmptyQueue (void *fh)
+LoadShipQueue (void *fh, QUEUE *pQueue, DWORD size)
 {
-	COUNT num_links;
-
-	read_16 (fh, &num_links);
-	if (num_links)
-	{
-		log_add (log_Error, "LoadEmptyQueue(): BUG: the queue is not empty!");
-#ifdef DEBUG
-		explode ();
-#endif
-	}
-}
-
-static void
-LoadShipQueue (void *fh, QUEUE *pQueue)
-{
-	COUNT num_links;
-
-	read_16 (fh, &num_links);
+	COUNT num_links = size / 11;
 
 	while (num_links--)
 	{
@@ -172,11 +155,9 @@ LoadShipQueue (void *fh, QUEUE *pQueue)
 }
 
 static void
-LoadRaceQueue (void *fh, QUEUE *pQueue)
+LoadRaceQueue (void *fh, QUEUE *pQueue, DWORD size)
 {
-	COUNT num_links;
-
-	read_16 (fh, &num_links);
+	COUNT num_links = size / 30;
 
 	while (num_links--)
 	{
@@ -214,11 +195,9 @@ LoadRaceQueue (void *fh, QUEUE *pQueue)
 }
 
 static void
-LoadGroupQueue (void *fh, QUEUE *pQueue)
+LoadGroupQueue (void *fh, QUEUE *pQueue, DWORD size)
 {
-	COUNT num_links;
-
-	read_16 (fh, &num_links);
+	COUNT num_links = size / 13;
 
 	while (num_links--)
 	{
@@ -299,9 +278,21 @@ LoadClockState (CLOCK_STATE *ClockPtr, void *fh)
 	read_16s (fh, &ClockPtr->day_in_ticks);
 }
 
-static void
+static BOOLEAN
 LoadGameState (GAME_STATE *GSPtr, void *fh)
 {
+	DWORD magic;
+	read_32 (fh, &magic);
+	if (magic != GLOBAL_STATE_TAG)
+	{
+		return FALSE;
+	}
+	read_32 (fh, &magic);
+	if (magic != 79)
+	{
+		/* Chunk is the wrong size. */
+		return FALSE;
+	}
 	read_8   (fh, &GSPtr->glob_flags);
 	read_8   (fh, &GSPtr->CrewCost);
 	read_8   (fh, &GSPtr->FuelCost);
@@ -335,7 +326,23 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 
 	read_32  (fh, &GSPtr->BattleGroupRef);
 
-	read_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
+	read_32 (fh, &magic);
+	if (magic != GAME_STATE_TAG)
+	{
+		return FALSE;
+	}
+	memset (GSPtr->GameState, 0, sizeof (GSPtr->GameState));
+	read_32 (fh, &magic);
+	if (magic > sizeof (GSPtr->GameState))
+	{
+		read_a8 (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
+		skip_8  (fh, magic - sizeof (GSPtr->GameState));
+	}
+	else
+	{
+		read_a8 (fh, GSPtr->GameState, magic);
+	}
+	return TRUE;
 }
 
 static BOOLEAN
@@ -429,14 +436,33 @@ LoadStarDesc (STAR_DESC *SDPtr, void *fh)
 	read_8  (fh, &SDPtr->Postfix);
 }
 
+static void
+LoadStateFile (int file_type, void *fh, DWORD flen)
+{
+	GAME_STATE_FILE *fp = OpenStateFile (file_type, "wb");
+	char buf[256];
+	if (fp)
+	{
+		while (flen)
+		{
+			COUNT num_bytes;
+
+			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
+			read_a8 (fh, buf, num_bytes);
+			WriteStateFile (buf, num_bytes, 1, fp);
+
+			flen -= num_bytes;
+		}
+		CloseStateFile (fp);
+	}
+}
+
 BOOLEAN
 LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 {
 	uio_Stream *in_fp;
 	char file[PATH_MAX];
-	char buf[256];
 	SUMMARY_DESC loc_sd;
-	GAME_STATE_FILE *fp;
 	COUNT num_links;
 	STAR_DESC SD;
 	ACTIVITY Activity;
@@ -466,27 +492,6 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 
 	GlobData.SIS_state = SummPtr->SS;
 
-	chunk = 0;
-	while (chunk != OMNIBUS_TAG)
-	{
-		if (read_32(in_fp, &chunk) != 1)
-		{
-			res_CloseResFile (in_fp);
-			return FALSE;
-		}
-		if (read_32(in_fp, &chunkSize) != 1)
-		{
-			res_CloseResFile (in_fp);
-			return FALSE;
-		}
-		if (chunk == OMNIBUS_TAG)
-			break;
-
-		log_add (log_Debug, "Skipping chunk of tag %08X (size %u)", chunk, chunkSize);
-		if (skip_8(in_fp, chunkSize) != 1)
-			return FALSE;
-	}
-
 	ReinitQueue (&GLOBAL (GameClock.event_q));
 	ReinitQueue (&GLOBAL (encounter_q));
 	ReinitQueue (&GLOBAL (ip_group_q));
@@ -495,140 +500,104 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 
 	memset (&GLOBAL (GameState[0]), 0, sizeof (GLOBAL (GameState)));
 	Activity = GLOBAL (CurrentActivity);
-	LoadGameState (&GlobData.Game_state, in_fp);
+	if (!LoadGameState (&GlobData.Game_state, in_fp))
+	{
+		res_CloseResFile (in_fp);
+		return FALSE;
+	}
 	NextActivity = GLOBAL (CurrentActivity);
 	GLOBAL (CurrentActivity) = Activity;
 
-	LoadRaceQueue (in_fp, &GLOBAL (avail_race_q));
-	// START_INTERPLANETARY is only set when saving from Homeworld
-	//   encounter screen. When the game is loaded, the
-	//   GenerateOrbitalFunction for the current star system will
-	//   create the encounter anew and populate the npc queue.
-	if (!(NextActivity & START_INTERPLANETARY))
+	chunk = 0;
+	while (TRUE)
 	{
-		if (NextActivity & START_ENCOUNTER)
-			LoadShipQueue (in_fp, &GLOBAL (npc_built_ship_q));
-		else if (LOBYTE (NextActivity) == IN_INTERPLANETARY)
-			// XXX: Technically, this queue does not need to be
-			//   saved/loaded at all. IP groups will be reloaded
-			//   from group state files. But the original code did,
-			//   and so will we until we can prove we do not need to.
-			LoadGroupQueue (in_fp, &GLOBAL (ip_group_q));
-		else
-			// XXX: The empty queue read is only needed to maintain
-			//   the savegame compatibility
-			LoadEmptyQueue (in_fp);
-	}
-	LoadShipQueue (in_fp, &GLOBAL (built_ship_q));
+		if (read_32(in_fp, &chunk) != 1)
+		{
+			break;
+		}
+		if (read_32(in_fp, &chunkSize) != 1)
+		{
+			res_CloseResFile (in_fp);
+			return FALSE;
+		}
+		switch (chunk)
+		{
+		case RACE_Q_TAG:
+			LoadRaceQueue (in_fp, &GLOBAL (avail_race_q), chunkSize);
+			break;
+		case IP_GRP_Q_TAG:
+			LoadGroupQueue (in_fp, &GLOBAL (ip_group_q), chunkSize);
+			break;
+		case ENCOUNTERS_TAG:
+			num_links = chunkSize / 65;
+			while (num_links--)
+			{
+				HENCOUNTER hEncounter;
+				ENCOUNTER *EncounterPtr;
 
-	// Load the game events (compressed)
-	read_16 (in_fp, &num_links);
-	{
+				hEncounter = AllocEncounter ();
+				LockEncounter (hEncounter, &EncounterPtr);
+
+				LoadEncounter (EncounterPtr, in_fp);
+
+				UnlockEncounter (hEncounter);
+				PutEncounter (hEncounter);
+			}
+			break;
+		case EVENTS_TAG:
+			num_links = chunkSize / 5;
 #ifdef DEBUG_LOAD
-		log_add (log_Debug, "EVENTS:");
+			log_add (log_Debug, "EVENTS:");
 #endif /* DEBUG_LOAD */
-		while (num_links--)
-		{
-			HEVENT hEvent;
-			EVENT *EventPtr;
+			while (num_links--)
+			{
+				HEVENT hEvent;
+				EVENT *EventPtr;
 
-			hEvent = AllocEvent ();
-			LockEvent (hEvent, &EventPtr);
+				hEvent = AllocEvent ();
+				LockEvent (hEvent, &EventPtr);
 
-			LoadEvent (EventPtr, in_fp);
+				LoadEvent (EventPtr, in_fp);
 
 #ifdef DEBUG_LOAD
-		log_add (log_Debug, "\t%u/%u/%u -- %u",
-				EventPtr->month_index,
-				EventPtr->day_index,
-				EventPtr->year_index,
-				EventPtr->func_index);
+				log_add (log_Debug, "\t%u/%u/%u -- %u",
+						 EventPtr->month_index,
+						 EventPtr->day_index,
+						 EventPtr->year_index,
+						 EventPtr->func_index);
 #endif /* DEBUG_LOAD */
-			UnlockEvent (hEvent);
-			PutEvent (hEvent);
+				UnlockEvent (hEvent);
+				PutEvent (hEvent);
+			}
+			break;
+		case STAR_TAG:
+			LoadStarDesc (&SD, in_fp);
+			break;
+		case NPC_SHIP_Q_TAG:
+			LoadShipQueue (in_fp, &GLOBAL (npc_built_ship_q), chunkSize);
+			break;
+		case SHIP_Q_TAG:
+			LoadShipQueue (in_fp, &GLOBAL (built_ship_q), chunkSize);
+			break;
+		case STAR_SF_TAG:
+			LoadStateFile (STARINFO_FILE, in_fp, chunkSize);
+			break;
+		case DEFGRP_SF_TAG:
+			LoadStateFile (DEFGRPINFO_FILE, in_fp, chunkSize);
+			break;
+		case RANDGRP_SF_TAG:
+			LoadStateFile (RANDGRPINFO_FILE, in_fp, chunkSize);
+			break;
+		default:
+			log_add (log_Debug, "Skipping chunk of tag %08X (size %u)", chunk, chunkSize);
+			if (skip_8(in_fp, chunkSize) != 1)
+			{
+				res_CloseResFile (in_fp);
+				return FALSE;
+			}
+			break;
 		}
 	}
-
-	// Load the encounters (black globes in HS/QS (compressed))
-	read_16 (in_fp, &num_links);
-	{
-		while (num_links--)
-		{
-			HENCOUNTER hEncounter;
-			ENCOUNTER *EncounterPtr;
-
-			hEncounter = AllocEncounter ();
-			LockEncounter (hEncounter, &EncounterPtr);
-
-			LoadEncounter (EncounterPtr, in_fp);
-
-			UnlockEncounter (hEncounter);
-			PutEncounter (hEncounter);
-		}
-	}
-
-	// Copy the star info file from the compressed stream
-	fp = OpenStateFile (STARINFO_FILE, "wb");
-	if (fp)
-	{
-		DWORD flen;
-
-		read_32 (in_fp, &flen);
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			read_a8 (in_fp, buf, num_bytes);
-			WriteStateFile (buf, num_bytes, 1, fp);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
-
-	// Copy the defined groupinfo file from the compressed stream
-	fp = OpenStateFile (DEFGRPINFO_FILE, "wb");
-	if (fp)
-	{
-		DWORD flen;
-
-		read_32 (in_fp, &flen);
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			read_a8 (in_fp, buf, num_bytes);
-			WriteStateFile (buf, num_bytes, 1, fp);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
-
-	// Copy the random groupinfo file from the compressed stream
-	fp = OpenStateFile (RANDGRPINFO_FILE, "wb");
-	if (fp)
-	{
-		DWORD flen;
-
-		read_32 (in_fp, &flen);
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			read_a8 (in_fp, buf, num_bytes);
-			WriteStateFile (buf, num_bytes, 1, fp);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
-
-	LoadStarDesc (&SD, in_fp);
-
 	res_CloseResFile (in_fp);
 
 	EncounterGroup = 0;

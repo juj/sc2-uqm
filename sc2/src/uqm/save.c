@@ -42,118 +42,78 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 
-typedef struct savebuf_struct
-{
-	char *buf;
-	size_t bufsize;
-	int index, error;
-} SAVEBUF;
+// Status boolean. If for some insane reason you need to
+// save games in different threads, you'll need to
+// protect your calls to SaveGame with a mutex.
+
+// It's arguably over-paranoid to check for error on
+// every single write, but this preserves the older
+// behavior.
+
+static BOOLEAN io_ok = TRUE;
 
 // XXX: these should handle endian conversions later
-static inline COUNT
-cwrite_8 (SAVEBUF *fh, BYTE v)
-{
-	if (!fh)
-		return 0;
-	if (!fh->error && fh->index < fh->bufsize)
-	{
-		fh->buf[fh->index++] = v;
-		return 1;
-	}
-	fh->error = 1;
-	return 0;
-}
-
-static inline COUNT
-cwrite_16 (SAVEBUF *fh, UWORD v)
-{
-	if (cwrite_8 (fh, (BYTE)(v & 0xFF)) &&
-	    cwrite_8 (fh, (BYTE)((v >> 8) & 0xFF)))
-		return 1;
-	return 0;
-}
-
-static inline COUNT
-cwrite_32 (SAVEBUF *fh, DWORD v)
-{
-	if (cwrite_8 (fh, (BYTE)(v & 0xFF)) &&
-	    cwrite_8 (fh, (BYTE)((v >> 8) & 0xFF)) &&
-	    cwrite_8 (fh, (BYTE)((v >> 16) & 0xFF)) &&
-	    cwrite_8 (fh, (BYTE)((v >> 24) & 0xFF)))
-		return 1;
-	return 0;
-}
-
-static inline COUNT
-cwrite_a8 (SAVEBUF *fh, const BYTE *ar, COUNT count)
-{
-	int i;
-	for (i = 0; i < count; ++i)
-		if (!cwrite_8 (fh, ar[i]))
-			return 0;
-	return 1;
-}
-
-static inline size_t
+static inline void
 write_8 (void *fp, BYTE v)
 {
-	return WriteResFile (&v, 1, 1, fp);
+	if (io_ok)
+		if (WriteResFile (&v, 1, 1, fp) != 1)
+			io_ok = FALSE;
 }
 
-static inline size_t
+static inline void
 write_16 (void *fp, UWORD v)
 {
-	return WriteResFile (&v, 2, 1, fp);
+	if (io_ok)
+		if (WriteResFile (&v, 2, 1, fp) != 1)
+			io_ok = FALSE;
 }
 
-static inline size_t
+static inline void
 write_32 (void *fp, DWORD v)
 {
-	return WriteResFile (&v, 4, 1, fp);
+	if (io_ok)
+		if (WriteResFile (&v, 4, 1, fp) != 1)
+			io_ok = FALSE;
 }
 
-static inline size_t
+static inline void
 write_a8 (void *fp, const BYTE *ar, COUNT count)
 {
-	return WriteResFile (ar, 1, count, fp) == count;
+	if (io_ok)
+		if (WriteResFile (ar, 1, count, fp) != count)
+			io_ok = FALSE;
 }
 
-static inline size_t
+static inline void
 write_str (void *fp, const char *str, COUNT count)
 {
 	// no type conversion needed for strings
-	return write_a8 (fp, (const BYTE *)str, count);
+	write_a8 (fp, (const BYTE *)str, count);
 }
 
-static inline size_t
+static inline void
 write_a16 (void *fp, const UWORD *ar, COUNT count)
 {
 	for ( ; count > 0; --count, ++ar)
 	{
-		if (write_16 (fp, *ar) != 1)
-			return 0;
+		if (!io_ok)
+			break;
+		write_16 (fp, *ar);
 	}
-	return 1;
 }
 
 static void
-SaveEmptyQueue (SAVEBUF *fh)
-{
-	COUNT num_links = 0;
-
-	// Write the number of entries in the queue.
-	cwrite_16 (fh, num_links);
-}
-
-static void
-SaveShipQueue (SAVEBUF *fh, QUEUE *pQueue)
+SaveShipQueue (uio_Stream *fh, QUEUE *pQueue, DWORD tag)
 {
 	COUNT num_links;
 	HSHIPFRAG hStarShip;
 
-	// Write the number of entries in the queue.
 	num_links = CountLinks (pQueue);
-	cwrite_16 (fh, num_links);
+	if (num_links == 0)
+		return;
+	write_32 (fh, tag);
+	write_32 (fh, num_links * 11); // Size of chunk: each entry is 11 bytes long.
 
 	hStarShip = GetHeadLink (pQueue);
 	while (num_links--)
@@ -168,16 +128,16 @@ SaveShipQueue (SAVEBUF *fh, QUEUE *pQueue)
 		Index = FragPtr->race_id;
 		// Write the number identifying this ship type.
 		// See races.h; look for the enum containing NUM_AVAILABLE_RACES.
-		cwrite_16 (fh, Index);
+		write_16 (fh, Index);
 
 		// Write SHIP_FRAGMENT elements
-		cwrite_8  (fh, FragPtr->captains_name_index);
-		cwrite_8  (fh, FragPtr->race_id);
-		cwrite_8  (fh, FragPtr->index);
-		cwrite_16 (fh, FragPtr->crew_level);
-		cwrite_16 (fh, FragPtr->max_crew);
-		cwrite_8  (fh, FragPtr->energy_level);
-		cwrite_8  (fh, FragPtr->max_energy);
+		write_8  (fh, FragPtr->captains_name_index);
+		write_8  (fh, FragPtr->race_id);
+		write_8  (fh, FragPtr->index);
+		write_16 (fh, FragPtr->crew_level);
+		write_16 (fh, FragPtr->max_crew);
+		write_8  (fh, FragPtr->energy_level);
+		write_8  (fh, FragPtr->max_energy);
 
 		UnlockShipFrag (pQueue, hStarShip);
 		hStarShip = hNextShip;
@@ -185,14 +145,17 @@ SaveShipQueue (SAVEBUF *fh, QUEUE *pQueue)
 }
 
 static void
-SaveRaceQueue (SAVEBUF *fh, QUEUE *pQueue)
+SaveRaceQueue (uio_Stream *fh, QUEUE *pQueue)
 {
 	COUNT num_links;
 	HFLEETINFO hFleet;
 
-	// Write the number of entries in the queue.
 	num_links = CountLinks (pQueue);
-	cwrite_16 (fh, num_links);
+	if (num_links == 0)
+		return;
+	write_32 (fh, RACE_Q_TAG);
+	// Write chunk size: 30 bytes per entry
+	write_32 (fh, num_links * 30);
 
 	hFleet = GetHeadLink (pQueue);
 	while (num_links--)
@@ -206,27 +169,27 @@ SaveRaceQueue (SAVEBUF *fh, QUEUE *pQueue)
 
 		Index = GetIndexFromStarShip (pQueue, hFleet);
 		// The index is the position in the queue.
-		cwrite_16 (fh, Index);
+		write_16 (fh, Index);
 
 		// Write FLEET_INFO elements
-		cwrite_16 (fh, FleetPtr->allied_state);
-		cwrite_8  (fh, FleetPtr->days_left);
-		cwrite_8  (fh, FleetPtr->growth_fract);
-		cwrite_16 (fh, FleetPtr->crew_level);
-		cwrite_16 (fh, FleetPtr->max_crew);
-		cwrite_8  (fh, FleetPtr->growth);
-		cwrite_8  (fh, FleetPtr->max_energy);
-		cwrite_16 (fh, FleetPtr->loc.x);
-		cwrite_16 (fh, FleetPtr->loc.y);
+		write_16 (fh, FleetPtr->allied_state);
+		write_8  (fh, FleetPtr->days_left);
+		write_8  (fh, FleetPtr->growth_fract);
+		write_16 (fh, FleetPtr->crew_level);
+		write_16 (fh, FleetPtr->max_crew);
+		write_8  (fh, FleetPtr->growth);
+		write_8  (fh, FleetPtr->max_energy);
+		write_16 (fh, FleetPtr->loc.x);
+		write_16 (fh, FleetPtr->loc.y);
 
-		cwrite_16 (fh, FleetPtr->actual_strength);
-		cwrite_16 (fh, FleetPtr->known_strength);
-		cwrite_16 (fh, FleetPtr->known_loc.x);
-		cwrite_16 (fh, FleetPtr->known_loc.y);
-		cwrite_8  (fh, FleetPtr->growth_err_term);
-		cwrite_8  (fh, FleetPtr->func_index);
-		cwrite_16 (fh, FleetPtr->dest_loc.x);
-		cwrite_16 (fh, FleetPtr->dest_loc.y);
+		write_16 (fh, FleetPtr->actual_strength);
+		write_16 (fh, FleetPtr->known_strength);
+		write_16 (fh, FleetPtr->known_loc.x);
+		write_16 (fh, FleetPtr->known_loc.y);
+		write_8  (fh, FleetPtr->growth_err_term);
+		write_8  (fh, FleetPtr->func_index);
+		write_16 (fh, FleetPtr->dest_loc.x);
+		write_16 (fh, FleetPtr->dest_loc.y);
 
 		UnlockFleetInfo (pQueue, hFleet);
 		hFleet = hNextFleet;
@@ -234,12 +197,16 @@ SaveRaceQueue (SAVEBUF *fh, QUEUE *pQueue)
 }
 
 static void
-SaveGroupQueue (SAVEBUF *fh, QUEUE *pQueue)
+SaveGroupQueue (uio_Stream *fh, QUEUE *pQueue)
 {
 	HIPGROUP hGroup, hNextGroup;
+	COUNT num_links;
 
-	// Write the number of entries in the queue.
-	cwrite_16 (fh, CountLinks (pQueue));
+	num_links = CountLinks (pQueue);
+	if (num_links == 0)
+		return;
+	write_32 (fh, IP_GRP_Q_TAG);
+	write_32 (fh, num_links * 13); // 13 bytes per element right now
 
 	for (hGroup = GetHeadLink (pQueue); hGroup; hGroup = hNextGroup)
 	{
@@ -248,177 +215,220 @@ SaveGroupQueue (SAVEBUF *fh, QUEUE *pQueue)
 		GroupPtr = LockIpGroup (pQueue, hGroup);
 		hNextGroup = _GetSuccLink (GroupPtr);
 
-		cwrite_16 (fh, GroupPtr->group_counter);
-		cwrite_8  (fh, GroupPtr->race_id);
-		cwrite_8  (fh, GroupPtr->sys_loc);
-		cwrite_8  (fh, GroupPtr->task);
-		cwrite_8  (fh, GroupPtr->in_system); /* was crew_level */
-		cwrite_8  (fh, GroupPtr->dest_loc);
-		cwrite_8  (fh, GroupPtr->orbit_pos);
-		cwrite_8  (fh, GroupPtr->group_id); /* was max_energy */
-		cwrite_16 (fh, GroupPtr->loc.x);
-		cwrite_16 (fh, GroupPtr->loc.y);
+		write_16 (fh, GroupPtr->group_counter);
+		write_8  (fh, GroupPtr->race_id);
+		write_8  (fh, GroupPtr->sys_loc);
+		write_8  (fh, GroupPtr->task);
+		write_8  (fh, GroupPtr->in_system); /* was crew_level */
+		write_8  (fh, GroupPtr->dest_loc);
+		write_8  (fh, GroupPtr->orbit_pos);
+		write_8  (fh, GroupPtr->group_id); /* was max_energy */
+		write_16 (fh, GroupPtr->loc.x);
+		write_16 (fh, GroupPtr->loc.y);
 
 		UnlockIpGroup (pQueue, hGroup);
 	}
 }
 
 static void
-SaveEncounter (const ENCOUNTER *EncounterPtr, SAVEBUF *fh)
+SaveEncounters (uio_Stream *fh)
 {
-	COUNT i;
+	COUNT num_links;
+	HENCOUNTER hEncounter;
+	num_links = CountLinks (&GLOBAL (encounter_q));
+	if (num_links == 0)
+		return;
+	write_32 (fh, ENCOUNTERS_TAG);
+	write_32 (fh, 65 * num_links);
 
-	cwrite_16  (fh, EncounterPtr->transition_state);
-	cwrite_16  (fh, EncounterPtr->origin.x);
-	cwrite_16  (fh, EncounterPtr->origin.y);
-	cwrite_16  (fh, EncounterPtr->radius);
-	// former STAR_DESC fields
-	cwrite_16  (fh, EncounterPtr->loc_pt.x);
-	cwrite_16  (fh, EncounterPtr->loc_pt.y);
-	cwrite_8   (fh, EncounterPtr->race_id);
-	cwrite_8   (fh, EncounterPtr->num_ships);
-	cwrite_8   (fh, EncounterPtr->flags);
-
-	// Save each entry in the BRIEF_SHIP_INFO array
-	for (i = 0; i < MAX_HYPER_SHIPS; i++)
+	hEncounter = GetHeadLink (&GLOBAL (encounter_q));
+	while (num_links--)
 	{
-		const BRIEF_SHIP_INFO *ShipInfo = &EncounterPtr->ShipList[i];
+		HENCOUNTER hNextEncounter;
+		ENCOUNTER *EncounterPtr;
+		COUNT i;
 
-		cwrite_8   (fh, ShipInfo->race_id);
-		cwrite_16  (fh, ShipInfo->crew_level);
-		cwrite_16  (fh, ShipInfo->max_crew);
-		cwrite_8   (fh, ShipInfo->max_energy);
+		LockEncounter (hEncounter, &EncounterPtr);
+		hNextEncounter = GetSuccEncounter (EncounterPtr);
+
+		write_16  (fh, EncounterPtr->transition_state);
+		write_16  (fh, EncounterPtr->origin.x);
+		write_16  (fh, EncounterPtr->origin.y);
+		write_16  (fh, EncounterPtr->radius);
+		// former STAR_DESC fields
+		write_16  (fh, EncounterPtr->loc_pt.x);
+		write_16  (fh, EncounterPtr->loc_pt.y);
+		write_8   (fh, EncounterPtr->race_id);
+		write_8   (fh, EncounterPtr->num_ships);
+		write_8   (fh, EncounterPtr->flags);
+
+		// Save each entry in the BRIEF_SHIP_INFO array
+		for (i = 0; i < MAX_HYPER_SHIPS; i++)
+		{
+			const BRIEF_SHIP_INFO *ShipInfo = &EncounterPtr->ShipList[i];
+
+			write_8   (fh, ShipInfo->race_id);
+			write_16  (fh, ShipInfo->crew_level);
+			write_16  (fh, ShipInfo->max_crew);
+			write_8   (fh, ShipInfo->max_energy);
+		}
+
+		// Save the stuff after the BRIEF_SHIP_INFO array
+		write_32  (fh, EncounterPtr->log_x);
+		write_32  (fh, EncounterPtr->log_y);
+
+		UnlockEncounter (hEncounter);
+		hEncounter = hNextEncounter;
 	}
-
-	// Save the stuff after the BRIEF_SHIP_INFO array
-	cwrite_32  (fh, EncounterPtr->log_x);
-	cwrite_32  (fh, EncounterPtr->log_y);
 }
 
 static void
-SaveEvent (const EVENT *EventPtr, SAVEBUF *fh)
+SaveEvents (uio_Stream *fh)
 {
-	cwrite_8   (fh, EventPtr->day_index);
-	cwrite_8   (fh, EventPtr->month_index);
-	cwrite_16  (fh, EventPtr->year_index);
-	cwrite_8   (fh, EventPtr->func_index);
+	COUNT num_links;
+	HEVENT hEvent;
+	num_links = CountLinks (&GLOBAL (GameClock.event_q));
+	if (num_links == 0)
+		return;
+	write_32 (fh, EVENTS_TAG);
+	write_32 (fh, num_links * 5); /* Event chunks are five bytes each */
+
+	hEvent = GetHeadLink (&GLOBAL (GameClock.event_q));
+	while (num_links--)
+	{
+		HEVENT hNextEvent;
+		EVENT *EventPtr;
+
+		LockEvent (hEvent, &EventPtr);
+		hNextEvent = GetSuccEvent (EventPtr);
+
+		write_8   (fh, EventPtr->day_index);
+		write_8   (fh, EventPtr->month_index);
+		write_16  (fh, EventPtr->year_index);
+		write_8   (fh, EventPtr->func_index);
+
+		UnlockEvent (hEvent);
+		hEvent = hNextEvent;
+	}
 }
 
+/* The clock state is folded in with the game state chunk. */
 static void
-SaveClockState (const CLOCK_STATE *ClockPtr, SAVEBUF *fh)
+SaveClockState (const CLOCK_STATE *ClockPtr, uio_Stream *fh)
 {
-	cwrite_8   (fh, ClockPtr->day_index);
-	cwrite_8   (fh, ClockPtr->month_index);
-	cwrite_16  (fh, ClockPtr->year_index);
-	cwrite_16  (fh, ClockPtr->tick_count);
-	cwrite_16  (fh, ClockPtr->day_in_ticks);
+	write_8   (fh, ClockPtr->day_index);
+	write_8   (fh, ClockPtr->month_index);
+	write_16  (fh, ClockPtr->year_index);
+	write_16  (fh, ClockPtr->tick_count);
+	write_16  (fh, ClockPtr->day_in_ticks);
 }
 
+/* Save out the game state chunks. There are two of these; the Global
+ * State chunk is fixed size, but the Game State tag can be extended
+ * by modders. */
 static void
-SaveGameState (const GAME_STATE *GSPtr, SAVEBUF *fh)
+SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 {
-	cwrite_8   (fh, GSPtr->glob_flags);
-	cwrite_8   (fh, GSPtr->CrewCost);
-	cwrite_8   (fh, GSPtr->FuelCost);
-	cwrite_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
-	cwrite_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
-	cwrite_16  (fh, GSPtr->CurrentActivity);
+	write_32  (fh, GLOBAL_STATE_TAG);
+	write_32  (fh, 79);
+	write_8   (fh, GSPtr->glob_flags);
+	write_8   (fh, GSPtr->CrewCost);
+	write_8   (fh, GSPtr->FuelCost);
+	write_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
+	write_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
+	write_16  (fh, GSPtr->CurrentActivity);
 
 	SaveClockState (&GSPtr->GameClock, fh);
 
-	cwrite_16  (fh, GSPtr->autopilot.x);
-	cwrite_16  (fh, GSPtr->autopilot.y);
-	cwrite_16  (fh, GSPtr->ip_location.x);
-	cwrite_16  (fh, GSPtr->ip_location.y);
+	write_16  (fh, GSPtr->autopilot.x);
+	write_16  (fh, GSPtr->autopilot.y);
+	write_16  (fh, GSPtr->ip_location.x);
+	write_16  (fh, GSPtr->ip_location.y);
 	/* STAMP ShipStamp */
-	cwrite_16  (fh, GSPtr->ShipStamp.origin.x);
-	cwrite_16  (fh, GSPtr->ShipStamp.origin.y);
-	cwrite_16  (fh, GSPtr->ShipFacing);
-	cwrite_8   (fh, GSPtr->ip_planet);
-	cwrite_8   (fh, GSPtr->in_orbit);
+	write_16  (fh, GSPtr->ShipStamp.origin.x);
+	write_16  (fh, GSPtr->ShipStamp.origin.y);
+	write_16  (fh, GSPtr->ShipFacing);
+	write_8   (fh, GSPtr->ip_planet);
+	write_8   (fh, GSPtr->in_orbit);
 
 	/* VELOCITY_DESC velocity */
-	cwrite_16  (fh, GSPtr->velocity.TravelAngle);
-	cwrite_16  (fh, GSPtr->velocity.vector.width);
-	cwrite_16  (fh, GSPtr->velocity.vector.height);
-	cwrite_16  (fh, GSPtr->velocity.fract.width);
-	cwrite_16  (fh, GSPtr->velocity.fract.height);
-	cwrite_16  (fh, GSPtr->velocity.error.width);
-	cwrite_16  (fh, GSPtr->velocity.error.height);
-	cwrite_16  (fh, GSPtr->velocity.incr.width);
-	cwrite_16  (fh, GSPtr->velocity.incr.height);
+	write_16  (fh, GSPtr->velocity.TravelAngle);
+	write_16  (fh, GSPtr->velocity.vector.width);
+	write_16  (fh, GSPtr->velocity.vector.height);
+	write_16  (fh, GSPtr->velocity.fract.width);
+	write_16  (fh, GSPtr->velocity.fract.height);
+	write_16  (fh, GSPtr->velocity.error.width);
+	write_16  (fh, GSPtr->velocity.error.height);
+	write_16  (fh, GSPtr->velocity.incr.width);
+	write_16  (fh, GSPtr->velocity.incr.height);
 
-	cwrite_32  (fh, GSPtr->BattleGroupRef);
+	write_32  (fh, GSPtr->BattleGroupRef);
 
-	cwrite_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
+	/* The Game state bits. Vanilla UQM uses 155 bytes here. */
+	write_32  (fh, GAME_STATE_TAG);
+	write_32  (fh, sizeof (GSPtr->GameState));
+	write_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
 }
 
-static BOOLEAN
+/* This is folded into the Summary chunk */
+static void
 SaveSisState (const SIS_STATE *SSPtr, void *fp)
 {
-	if (
-			write_32  (fp, SSPtr->log_x) != 1 ||
-			write_32  (fp, SSPtr->log_y) != 1 ||
-			write_32  (fp, SSPtr->ResUnits) != 1 ||
-			write_32  (fp, SSPtr->FuelOnBoard) != 1 ||
-			write_16  (fp, SSPtr->CrewEnlisted) != 1 ||
-			write_16  (fp, SSPtr->TotalElementMass) != 1 ||
-			write_16  (fp, SSPtr->TotalBioMass) != 1 ||
-			write_a8  (fp, SSPtr->ModuleSlots, NUM_MODULE_SLOTS) != 1 ||
-			write_a8  (fp, SSPtr->DriveSlots, NUM_DRIVE_SLOTS) != 1 ||
-			write_a8  (fp, SSPtr->JetSlots, NUM_JET_SLOTS) != 1 ||
-			write_8   (fp, SSPtr->NumLanders) != 1 ||
-			write_a16 (fp, SSPtr->ElementAmounts, NUM_ELEMENT_CATEGORIES) != 1 ||
+	write_32  (fp, SSPtr->log_x);
+	write_32  (fp, SSPtr->log_y);
+	write_32  (fp, SSPtr->ResUnits);
+	write_32  (fp, SSPtr->FuelOnBoard);
+	write_16  (fp, SSPtr->CrewEnlisted);
+	write_16  (fp, SSPtr->TotalElementMass);
+	write_16  (fp, SSPtr->TotalBioMass);
+	write_a8  (fp, SSPtr->ModuleSlots, NUM_MODULE_SLOTS);
+	write_a8  (fp, SSPtr->DriveSlots, NUM_DRIVE_SLOTS);
+	write_a8  (fp, SSPtr->JetSlots, NUM_JET_SLOTS);
+	write_8   (fp, SSPtr->NumLanders);
+	write_a16 (fp, SSPtr->ElementAmounts, NUM_ELEMENT_CATEGORIES);
 
-			write_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
-			write_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
-			write_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1
-		)
-		return FALSE;
-	else
-		return TRUE;
+	write_str (fp, SSPtr->ShipName, SIS_NAME_SIZE);
+	write_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE);
+	write_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE);
 }
 
+/* Write out the Summary Chunk. This is variable length because of the
+   savegame name */
 static BOOLEAN
 SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 {
-	if (
-			write_32 (fp, SAVEFILE_TAG) != 1 ||
-			write_32 (fp, SUMMARY_TAG) != 1 ||
-			write_32 (fp, 160 + strlen(SummPtr->SaveName)) != 1
-		)
-		return FALSE;
-	if (!SaveSisState (&SummPtr->SS, fp))
-		return FALSE;
+	write_32 (fp, SUMMARY_TAG);
+	write_32 (fp, 160 + strlen(SummPtr->SaveName));
+	SaveSisState (&SummPtr->SS, fp);
 
-	if (
-			write_8  (fp, SummPtr->Activity) != 1 ||
-			write_8  (fp, SummPtr->Flags) != 1 ||
-			write_8  (fp, SummPtr->day_index) != 1 ||
-			write_8  (fp, SummPtr->month_index) != 1 ||
-			write_16 (fp, SummPtr->year_index) != 1 ||
-			write_8  (fp, SummPtr->MCreditLo) != 1 ||
-			write_8  (fp, SummPtr->MCreditHi) != 1 ||
-			write_8  (fp, SummPtr->NumShips) != 1 ||
-			write_8  (fp, SummPtr->NumDevices) != 1 ||
-			write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
-			write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
-			write_a8 (fp, SummPtr->SaveName, strlen(SummPtr->SaveName)) != 1
-		)
-		return FALSE;
-	else
-		return TRUE;
+	write_8  (fp, SummPtr->Activity);
+	write_8  (fp, SummPtr->Flags);
+	write_8  (fp, SummPtr->day_index);
+	write_8  (fp, SummPtr->month_index);
+	write_16 (fp, SummPtr->year_index);
+	write_8  (fp, SummPtr->MCreditLo);
+	write_8  (fp, SummPtr->MCreditHi);
+	write_8  (fp, SummPtr->NumShips);
+	write_8  (fp, SummPtr->NumDevices);
+	write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS);
+	write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES);
+	write_a8 (fp, SummPtr->SaveName, strlen(SummPtr->SaveName));
 }
 
+/* Save the Star Description chunk. This is not to be confused with
+ * the Star *Info* chunk, which records which planetary features you
+ * have exploited with your lander */
 static void
-SaveStarDesc (const STAR_DESC *SDPtr, SAVEBUF *fh)
+SaveStarDesc (const STAR_DESC *SDPtr, uio_Stream *fh)
 {
-	cwrite_16 (fh, SDPtr->star_pt.x);
-	cwrite_16 (fh, SDPtr->star_pt.y);
-	cwrite_8  (fh, SDPtr->Type);
-	cwrite_8  (fh, SDPtr->Index);
-	cwrite_8  (fh, SDPtr->Prefix);
-	cwrite_8  (fh, SDPtr->Postfix);
+	write_32 (fh, STAR_TAG);
+	write_32 (fh, 8);
+	write_16 (fh, SDPtr->star_pt.x);
+	write_16 (fh, SDPtr->star_pt.y);
+	write_8  (fh, SDPtr->Type);
+	write_8  (fh, SDPtr->Index);
+	write_8  (fh, SDPtr->Prefix);
+	write_8  (fh, SDPtr->Postfix);
 }
 
 static void
@@ -578,57 +588,71 @@ SaveFlagshipState (void)
 	}
 }
 
+static void
+SaveStateFile (DWORD statefileId, DWORD tag, uio_Stream *fh)
+{
+	GAME_STATE_FILE *fp;
+	char buf[256];
+	fp = OpenStateFile (statefileId, "rb");
+	if (fp)
+	{
+		DWORD flen = LengthStateFile (fp);
+		write_32 (fh, tag);
+		write_32 (fh, flen);
+		while (flen)
+		{
+			COUNT num_bytes;
+
+			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
+			ReadStateFile (buf, num_bytes, 1, fp);
+			write_a8 (fh, buf, num_bytes);
+
+			flen -= num_bytes;
+		}
+		CloseStateFile (fp);
+	}
+}
+
 // This function first writes to a memory file, and then writes the whole
 // lot to the actual save file at once.
 BOOLEAN
 SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 {
-	BOOLEAN success;
-	void *out_fp, *h;
-	SAVEBUF fh_backing, *fh;
-
-	success = TRUE;
-	fh = &fh_backing;
-	h = HMalloc (128 * 1024);
-	if (h == 0)
-	{
-		log_add (log_Debug, "Insufficient room for save buffers");
-	}
+	uio_Stream *out_fp;
+	POINT pt;
+	STAR_DESC SD;
+	char file[PATH_MAX];
+	if (CurStarDescPtr)
+		SD = *CurStarDescPtr;
 	else
+		memset (&SD, 0, sizeof (SD));
+
+	// XXX: Backup: SaveFlagshipState() overwrites ip_location
+	pt = GLOBAL (ip_location);
+	SaveFlagshipState ();
+	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
+			&& !(GLOBAL (CurrentActivity)
+			& (START_ENCOUNTER | START_INTERPLANETARY)))
+		PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
+
+	// Write the memory file to the actual savegame file.
+	sprintf (file, "uqmsave.%02u", which_game);
+	if ((out_fp = res_OpenResFile (saveDir, file, "wb")))
 	{
-		GAME_STATE_FILE *fp;
-		DWORD flen;
-		COUNT num_links;
-		POINT pt;
-		STAR_DESC SD;
-		char buf[256], file[PATH_MAX];
+		io_ok = TRUE;
+		write_32 (out_fp, SAVEFILE_TAG);
 
-		fh->buf = h;
-		fh->bufsize = 128 * 1024;
-		fh->index = 0;
-		fh->error = 0;
-		success = TRUE;
-		if (CurStarDescPtr)
-			SD = *CurStarDescPtr;
-		else
-			memset (&SD, 0, sizeof (SD));
+		PrepareSummary (SummPtr, name);
+		SaveSummary (SummPtr, out_fp);
 
-		// XXX: Backup: SaveFlagshipState() overwrites ip_location
-		pt = GLOBAL (ip_location);
-		SaveFlagshipState ();
-		if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
-				&& !(GLOBAL (CurrentActivity)
-				& (START_ENCOUNTER | START_INTERPLANETARY)))
-			PutGroupInfo (GROUPS_RANDOM, GROUP_SAVE_IP);
-
-		SaveGameState (&GlobData.Game_state, fh);
+		SaveGameState (&GlobData.Game_state, out_fp);
 
 		// XXX: Restore
 		GLOBAL (ip_location) = pt;
 		// Only relevant when loading a game and must be cleaned
 		GLOBAL (in_orbit) = 0;
 
-		SaveRaceQueue (fh, &GLOBAL (avail_race_q));
+		SaveRaceQueue (out_fp, &GLOBAL (avail_race_q));
 		// START_INTERPLANETARY is only set when saving from Homeworld
 		//   encounter screen. When the game is loaded, the
 		//   GenerateOrbitalFunction for the current star system
@@ -636,160 +660,41 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 		if (!(GLOBAL (CurrentActivity) & START_INTERPLANETARY))
 		{
 			if (GLOBAL (CurrentActivity) & START_ENCOUNTER)
-				SaveShipQueue (fh, &GLOBAL (npc_built_ship_q));
+				SaveShipQueue (out_fp, &GLOBAL (npc_built_ship_q), NPC_SHIP_Q_TAG);
 			else if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY)
 				// XXX: Technically, this queue does not need to be
 				//   saved/loaded at all. IP groups will be reloaded
 				//   from group state files. But the original code did,
 				//   and so will we until we can prove we do not need to.
-				SaveGroupQueue (fh, &GLOBAL (ip_group_q));
-			else
-				// XXX: empty queue write-out is only needed to maintain
-				//   the savegame compatibility
-				SaveEmptyQueue (fh);
+				SaveGroupQueue (out_fp, &GLOBAL (ip_group_q));
 		}
-		SaveShipQueue (fh, &GLOBAL (built_ship_q));
+		SaveShipQueue (out_fp, &GLOBAL (built_ship_q), SHIP_Q_TAG);
 
-		// Save the number of game events (compressed).
-		num_links = CountLinks (&GLOBAL (GameClock.event_q));
-		cwrite_16 (fh, num_links);
-		// Save the game events themselves (compressed):
+		// Save the game event chunk
+		SaveEvents (out_fp);
+
+		// Save the encounter chunk (black globes in HS/QS)
+		SaveEncounters (out_fp);
+
+		// Save out the state file chunks.
+		SaveStateFile (STARINFO_FILE, STAR_SF_TAG, out_fp);
+		SaveStateFile (DEFGRPINFO_FILE, DEFGRP_SF_TAG, out_fp);
+		SaveStateFile (RANDGRPINFO_FILE, RANDGRP_SF_TAG, out_fp);
+		
+		// Save out the Star Descriptor
+		SaveStarDesc (&SD, out_fp);
+		
+		res_CloseResFile (out_fp);
+		if (!io_ok)
 		{
-			HEVENT hEvent;
-
-			hEvent = GetHeadLink (&GLOBAL (GameClock.event_q));
-			while (num_links--)
-			{
-				HEVENT hNextEvent;
-				EVENT *EventPtr;
-
-				LockEvent (hEvent, &EventPtr);
-				hNextEvent = GetSuccEvent (EventPtr);
-
-				SaveEvent (EventPtr, fh);
-
-				UnlockEvent (hEvent);
-				hEvent = hNextEvent;
-			}
+			DeleteResFile(saveDir, file);
+			return FALSE;
 		}
-
-		// Save the number of encounters (black globes in HS/QS (compressed))
-		num_links = CountLinks (&GLOBAL (encounter_q));
-		// Save the encounters themselves (compressed):
-		cwrite_16 (fh, num_links);
-		{
-			HENCOUNTER hEncounter;
-
-			hEncounter = GetHeadLink (&GLOBAL (encounter_q));
-			while (num_links--)
-			{
-				HENCOUNTER hNextEncounter;
-				ENCOUNTER *EncounterPtr;
-
-				LockEncounter (hEncounter, &EncounterPtr);
-				hNextEncounter = GetSuccEncounter (EncounterPtr);
-
-				SaveEncounter (EncounterPtr, fh);
-
-				UnlockEncounter (hEncounter);
-				hEncounter = hNextEncounter;
-			}
-		}
-
-		// Copy the star info file to the memory file (compressed).
-		fp = OpenStateFile (STARINFO_FILE, "rb");
-		if (fp)
-		{
-			flen = LengthStateFile (fp);
-			// Write the uncompressed size.
-			cwrite_32 (fh, flen);
-			while (flen)
-			{
-				COUNT num_bytes;
-
-				num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-				ReadStateFile (buf, num_bytes, 1, fp);
-				cwrite_a8 (fh, buf, num_bytes);
-
-				flen -= num_bytes;
-			}
-			CloseStateFile (fp);
-		}
-
-		// Copy the defined groupinfo file into the memory file (compressed)
-		fp = OpenStateFile (DEFGRPINFO_FILE, "rb");
-		if (fp)
-		{
-			flen = LengthStateFile (fp);
-			// Write the uncompressed size.
-			cwrite_32 (fh, flen);
-			while (flen)
-			{
-				COUNT num_bytes;
-
-				num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-				ReadStateFile (buf, num_bytes, 1, fp);
-				cwrite_a8 (fh, buf, num_bytes);
-
-				flen -= num_bytes;
-			}
-			CloseStateFile (fp);
-		}
-
-		// Copy the random groupinfo file into the memory file (compressed)
-		fp = OpenStateFile (RANDGRPINFO_FILE, "rb");
-		if (fp)
-		{
-			flen = LengthStateFile (fp);
-			// Write the uncompressed size.
-			cwrite_32 (fh, flen);
-			while (flen)
-			{
-				COUNT num_bytes;
-
-				num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-				ReadStateFile (buf, num_bytes, 1, fp);
-				cwrite_a8 (fh, buf, num_bytes);
-
-				flen -= num_bytes;
-			}
-			CloseStateFile (fp);
-		}
-
-		// Write the current star desc into the memory file (compressed).
-		SaveStarDesc (&SD, fh);
-
-		flen = fh->index;
-
-		// Write the memory file to the actual savegame file.
-		sprintf (file, "uqmsave.%02u", which_game);
-		log_add (log_Debug, "'%s' is %u bytes long", file,
-				 flen + 180 + strlen(SummPtr->SaveName));
-		if (flen && (out_fp = res_OpenResFile (saveDir, file, "wb")))
-		{
-			PrepareSummary (SummPtr, name);
-
-			success = SaveSummary (SummPtr, out_fp);
-			// Then write the rest of the data.
-			if (success && write_32 (out_fp, OMNIBUS_TAG) != 1)
-				success = FALSE;
-			if (success && write_32 (out_fp, flen) != 1)
-				success = FALSE;
-			if (success && WriteResFile (h, flen, 1, out_fp) != 1)
-				success = FALSE;
-
-			if (res_CloseResFile ((uio_Stream *)out_fp) == 0)
-				success = FALSE;
-
-		}
-		else
-			success = FALSE;
-
-		if (!success)
-			DeleteResFile (saveDir, file);
+	}
+	else
+	{
+		return FALSE;
 	}
 
-	HFree (h);
-
-	return (success);
+	return TRUE;
 }
