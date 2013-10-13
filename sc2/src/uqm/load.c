@@ -49,41 +49,51 @@ read_8 (void *fp, BYTE *v)
 static inline size_t
 read_16 (void *fp, UWORD *v)
 {
-	UWORD t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return ReadResFile (v, 2, 1, fp);
+	UWORD t = 0;
+	int shift, i;
+	for (i = 0, shift = 0; i < 2; ++i, shift += 8)
+	{
+		BYTE b;
+		if (read_8 (fp, &b) != 1)
+			return 0;
+		t |= ((UWORD)b) << shift;
+	}
+
+	if (v)
+		*v = t;
+
+	return 1;
 }
 
 static inline size_t
 read_16s (void *fp, SWORD *v)
 {
-	SWORD t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return ReadResFile (v, 2, 1, fp);
+	return read_16 (fp, v);
 }
 
 static inline size_t
 read_32 (void *fp, DWORD *v)
 {
-	DWORD t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return ReadResFile (v, 4, 1, fp);
+	DWORD t = 0;
+	int shift, i;
+	for (i = 0, shift = 0; i < 4; ++i, shift += 8)
+	{
+		BYTE b;
+		if (read_8 (fp, &b) != 1)
+			return 0;
+		t |= ((DWORD)b) << shift;
+	}
+
+	if (v)
+		*v = t;
+
+	return 1;
 }
 
 static inline size_t
 read_32s (void *fp, SDWORD *v)
 {
-	DWORD t;
-	COUNT ret;
-	// value was converted to unsigned when saved
-	ret = read_32 (fp, &t);
-	// unsigned to signed conversion
-	if (v)
-		*v = t;
-	return ret;
+	return read_32 (fp, v);
 }
 
 static inline size_t

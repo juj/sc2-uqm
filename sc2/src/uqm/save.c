@@ -64,17 +64,17 @@ write_8 (void *fp, BYTE v)
 static inline void
 write_16 (void *fp, UWORD v)
 {
-	if (io_ok)
-		if (WriteResFile (&v, 2, 1, fp) != 1)
-			io_ok = FALSE;
+	write_8 (fp, (BYTE)( v        & 0xff));
+	write_8 (fp, (BYTE)((v >>  8) & 0xff));
 }
 
 static inline void
 write_32 (void *fp, DWORD v)
 {
-	if (io_ok)
-		if (WriteResFile (&v, 4, 1, fp) != 1)
-			io_ok = FALSE;
+	write_8 (fp, (BYTE)( v        & 0xff));
+	write_8 (fp, (BYTE)((v >>  8) & 0xff));
+	write_8 (fp, (BYTE)((v >> 16) & 0xff));
+	write_8 (fp, (BYTE)((v >> 24) & 0xff));
 }
 
 static inline void
