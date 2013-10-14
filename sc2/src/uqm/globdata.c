@@ -48,31 +48,31 @@ GLOBDATA GlobData;
 
 
 BYTE
-getGameState (int startBit, int endBit)
+getGameState (BYTE *state, int startBit, int endBit)
 {
 	return (BYTE) (((startBit >> 3) == (endBit >> 3)
-			? (GLOBAL (GameState[startBit >> 3]) >> (startBit & 7))
-			: ((GLOBAL (GameState[startBit >> 3]) >> (startBit & 7))
-			  | (GLOBAL (GameState[endBit >> 3])
+			? (state[startBit >> 3] >> (startBit & 7))
+			: ((state[startBit >> 3] >> (startBit & 7))
+			  | (state[endBit >> 3]
 			  << (endBit - startBit - (endBit & 7)))))
 			& ((1 << (endBit - startBit + 1)) - 1));
 }
 
 void
-setGameState (int startBit, int endBit, BYTE val
+setGameState (BYTE *state, int startBit, int endBit, BYTE val
 #ifdef STATE_DEBUG
 		, const char *name
 #endif
 )
 {
-	GLOBAL (GameState[startBit >> 3]) =
-			(GLOBAL (GameState[startBit >> 3])
+	state[startBit >> 3] =
+			(state[startBit >> 3]
 			& (BYTE) ~(((1 << (endBit - startBit + 1)) - 1) << (startBit & 7)))
 			| (BYTE)((val) << (startBit & 7));
 
 	if ((startBit >> 3) < (endBit >> 3)) {
-		GLOBAL (GameState[endBit >> 3]) =
-				(GLOBAL (GameState[endBit >> 3])
+		state[endBit >> 3] =
+				(state[endBit >> 3]
 				& (BYTE)~((1 << ((endBit & 7) + 1)) - 1))
 				| (BYTE)((val) >> (endBit - startBit - (endBit & 7)));
 	}
@@ -82,21 +82,21 @@ setGameState (int startBit, int endBit, BYTE val
 }
 
 DWORD
-getGameState32 (int startBit)
+getGameState32 (BYTE *state, int startBit)
 {
 	DWORD v;
 	int shift;
 
 	for (v = 0, shift = 0; shift < 32; shift += 8, startBit += 8)
 	{
-		v |= getGameState (startBit, startBit + 7) << shift;
+		v |= getGameState (state, startBit, startBit + 7) << shift;
 	}
 
 	return v;
 }
 
 void
-setGameState32 (int startBit, DWORD val
+setGameState32 (BYTE *state, int startBit, DWORD val
 #ifdef STATE_DEBUG
 		, const char *name
 #endif
@@ -107,7 +107,7 @@ setGameState32 (int startBit, DWORD val
 
 	for (i = 0; i < 4; ++i, v >>= 8, startBit += 8)
 	{
-		setGameState (startBit, startBit + 7, v & 0xff
+		setGameState (state, startBit, startBit + 7, v & 0xff
 #ifdef STATE_DEBUG
 				, "(ignored)"
 #endif

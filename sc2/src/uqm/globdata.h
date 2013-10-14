@@ -972,36 +972,36 @@ extern GLOBDATA GlobData;
 
 //#define STATE_DEBUG
 	
-extern BYTE getGameState (int startBit, int endBit);
-extern void setGameState (int startBit, int endBit, BYTE val
+extern BYTE getGameState (BYTE *state, int startBit, int endBit);
+extern void setGameState (BYTE *state, int startBit, int endBit, BYTE val
 #ifdef STATE_DEBUG
 		, const char *name
 #endif
 		);
 
-#define GET_GAME_STATE(SName) getGameState ((SName), (END_##SName))
+#define GET_GAME_STATE(SName) getGameState (GLOBAL(GameState), (SName), (END_##SName))
 #ifdef STATE_DEBUG
 #	define SET_GAME_STATE(SName, val) \
-			setGameState ((SName), (END_##SName), (val), #SName)
+			setGameState (GLOBAL(GameState), (SName), (END_##SName), (val), #SName)
 #else
 #	define SET_GAME_STATE(SName, val) \
-			setGameState ((SName), (END_##SName), (val))
+			setGameState (GLOBAL(GameState), (SName), (END_##SName), (val))
 #endif
 
-extern DWORD getGameState32 (int startBit);
-extern void setGameState32 (int startBit, DWORD val
+extern DWORD getGameState32 (BYTE *state, int startBit);
+extern void setGameState32 (BYTE *state, int startBit, DWORD val
 #ifdef STATE_DEBUG
 		, const char *name
 #endif
 		);
 
-#define GET_GAME_STATE_32(SName) getGameState32 ((SName))
+#define GET_GAME_STATE_32(SName) getGameState32 (GLOBAL(GameState), (SName))
 #ifdef STATE_DEBUG
 #	define SET_GAME_STATE_32(SName, val) \
-			setGameState32 ((SName), (val), #SName)
+			setGameState32 (GLOBAL(GameState), (SName), (val), #SName)
 #else
 #	define SET_GAME_STATE_32(SName, val) \
-			setGameState32 ((SName), (val))
+			setGameState32 (GLOBAL(GameState), (SName), (val))
 #endif
 
 	
