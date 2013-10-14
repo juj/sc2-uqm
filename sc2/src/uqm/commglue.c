@@ -21,12 +21,13 @@
 #include "battle.h"
 		// For instantVictory
 #include "races.h"
+#include "lua/luacomm.h"
+#include "libs/log.h"
 
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
-#include "libs/log.h"
 
 static int NPCNumberPhrase (int number, const char *fmt, UNICODE **ptrack);
 
@@ -35,8 +36,10 @@ static int NPCNumberPhrase (int number, const char *fmt, UNICODE **ptrack);
 void
 NPCPhrase_cb (int index, CallbackFunction cb)
 {
-	UNICODE *pStr, buf[400];
+	char *pStr;
+	char buf[400];
 	void *pClip, *pTimeStamp;
+	BOOLEAN isPStrAlloced = FALSE;
 
 	switch (index)
 	{
@@ -86,8 +89,17 @@ NPCPhrase_cb (int index, CallbackFunction cb)
 			}
 			break;
 	}
+		
+	if (luaUqm_comm_stringNeedsInterpolate (pStr))
+	{
+		pStr = luaUqm_comm_stringInterpolate (pStr);
+		isPStrAlloced = TRUE;
+	}
 
 	SpliceTrack (pClip, pStr, pTimeStamp, cb);
+
+	if (isPStrAlloced)
+		HFree (pStr);
 }
 
 // Special case variant: prevents page breaks.
@@ -419,3 +431,27 @@ init_race (CONVERSATION comm_id)
 			return init_chmmr_comm ();
 	}
 }
+
+RESPONSE_REF
+phraseIdStrToNum(const char *phraseIdStr)
+{
+	STRING phrase = GetStringByName (GetStringTable(
+			CommData.ConversationPhrases), phraseIdStr);
+	if (phrase == NULL)
+		return (RESPONSE_REF) -1;
+
+	return GetStringTableIndex (phrase) + 1;
+			// Index 0 is for NULL_PHRASE, hence the '+ 1"
+}
+
+const char *
+phraseIdNumToStr (RESPONSE_REF response)
+{
+	STRING phrase = SetAbsStringTableIndex (
+			CommData.ConversationPhrases, response - 1);
+			// Index 0 is for NULL_PHRASE, hence the '- 1'.
+	if (phrase == NULL)
+		return NULL;
+	return GetStringName (phrase);
+}
+

@@ -118,6 +118,9 @@ typedef enum {
 void setSegue (Segue segue);
 Segue getSegue (void);
 
+extern RESPONSE_REF phraseIdStrToNum(const char *phraseId);
+extern const char *phraseIdNumToStr (RESPONSE_REF response);
+
 extern LOCDATA* init_race (CONVERSATION comm_id);
 
 extern LOCDATA* init_arilou_comm (void);

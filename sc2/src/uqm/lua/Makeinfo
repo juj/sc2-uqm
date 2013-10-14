@@ -1,0 +1,3 @@
+uqm_SUBDIRS="luafuncs"
+uqm_CFILES="luacomm.c luainit.c luastate.c"
+uqm_HFILES="luacomm.h luainit.h luastate.h"

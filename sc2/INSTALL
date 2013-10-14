@@ -80,6 +80,10 @@ Zlib v1.2
 	    For Windows:
 		http://www.gzip.org/zlib/ (mid-page 'zlib compiled DLL')
 
+Lua
+	Scripting language
+	Homepage: http://www.lua.org/
+	Download: http://www.lua.org/download.html
 
 If you find these aren't enough, or if you know the names
 of the corresponding RPM etc. packages, please report to
