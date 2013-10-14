@@ -10,8 +10,8 @@ anymore. It was also extremely fragile and hard for modders to extend.
 
 The new save format seeks to alleviate these problems.
 
-GENERAL FORMAT
---------------
+			    GENERAL FORMAT
+			    --------------
 
 All multibyte values are little-endian. There are no alignment
 restrictions inherent in the format.
@@ -119,27 +119,44 @@ save file.
   encounters in interplanetary space. See doc/devel/statefiles for
   more details.
 
-THINGS LEFT TO DO BEFORE MERGING
---------------------------------
+- "Scan": Scanner Masks. NOT YET IMPLEMENTED; WILL REPLACE SISF. It
+  might just be a rename with better endianness enforcement, though;
+  the SISF dump is pretty well-structured as it is.
+
+- "DGrp": Defined Group. NOT YET IMPLEMENTED; WILL REPLACE DGSF. Will
+  carry an enumeration id to indicate which of the defgrps it is
+  (that's currently intrinsic to the game state bit array) and will
+  also have a bit indicating whether or not it is the "current"
+  defgrp. If no defgrp is current, BattleGroupRef is 0; otherwise,
+  BattleGroupRef is the defgrp file offset that corresponds to the
+  current system. There will be one DGrp chunk for each system with an
+  active defgrp record.
+
+- NOT YET DESIGNED: RGSF also needs to be replaced with one or more
+  chunk types. This will likely be similar to the DGrp chunks, but
+  there are stronger constraints on repetition here.
+
+		   THINGS LEFT TO DO BEFORE MERGING
+		   --------------------------------
 
 - Actually enforce little-endianness of everything that hits the disk.
-  - This is a simple matter of improving the read_* and write_*
-    functions in load.c and save.c.
+  - Everything that isn't a State File now respects this.
+  - State files are going to require more work (see below).
 
 - There are 448 bits in GmSt that are actually indices into DGSF. They
   shouldn't be there. In fact, they shouldn't even be in the
   GAME_STATE array either. They should be an array of DWORDs living
   independently in the global state
-  - First, we should juggle the order of the state bits so that
-    they're all at the end. That way we can ultimately just truncate
-    GmSt and everything will be fine. We can do that without
-    complicating legacy loads much.
+  - In preparation for this, the GRPOFFS state has been moved to the
+    end of the state array. We'll be able to eradicate it once the
+    state files are no longer part of the save.
 
 - The State Files are (except maybe for Star Info) a horrible mess and
   we should not be replicating them in the save file. We should
   instead be regenerating them from more structured forms.
-  - This is complicated by the fact that there are references to the
-    _GSF chunks in both GlSt (BattleGroupRef) and GmSt
-    (*_GRPOFFSET*). I have a good handle on what needs to be done to
-    GmSt, but the significance of the GlSt pointer still requires
-    research.
+  - Once we do this we can start computing new values for the GRPOFFS
+    state and the BattleGroupRef based on the new chunks. We can then
+    remove the GRPOFFS bits from the GmSt chunk and the BattleGroupRef
+    from the GlSt chunk. From there we can see our way to eradicating
+    the state file abstraction entirely, but that will be quite a bit
+    more work.
