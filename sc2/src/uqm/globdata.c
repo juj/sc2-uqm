@@ -119,6 +119,22 @@ setGameState32 (BYTE *state, int startBit, DWORD val
 #endif
 }
 
+void
+copyGameState (BYTE *dest, DWORD target, BYTE *src, DWORD begin, DWORD end)
+{
+	while (begin < end)
+	{
+		BYTE b;
+		DWORD delta = 7;
+		if (begin + delta > end)
+			delta = end - begin;
+		b = getGameState (src, begin, begin + delta);
+		setGameState (dest, target, target + delta, b);
+		begin += 8;
+		target += 8;
+	}
+}
+
 static void
 CreateRadar (void)
 {

@@ -178,6 +178,66 @@ read_a16 (void *fp, UWORD *ar, COUNT count)
 	return 1;
 }
 
+typedef struct struct_GAMESTATE_TRANSPOSE {
+	int start, end, target;
+} GAMESTATE_TRANSPOSE;
+
+#define LEGACY_GAMESTATE_SIZE 155
+
+/* The *_GRPOFFS* states are no longer intermingled with the rest of
+ * the state. We need to shuffle all the rest of the state data
+ * down. */
+static GAMESTATE_TRANSPOSE transpose[] = {
+	{   0,   51,   0 },
+	{ 404,  450,  52 },
+	{ 483,  878,  99 },
+	{ 911,  930, 495 },
+	{ 963, 1237, 515 },
+	{  -1,   -1,  -1 } };
+
+static DWORD old_defgrp_offsets[] = { 0, 52, 84, 116, 148, 180, 212, 244,
+				      276, 308, 340, 372, 451, 879, 931 };
+
+static DWORD new_defgrp_offsets[] = {
+	0,
+	SHOFIXTI_GRPOFFS0,
+	ZOQFOT_GRPOFFS0,
+	MELNORME0_GRPOFFS0,
+	MELNORME1_GRPOFFS0,
+	MELNORME2_GRPOFFS0,
+	MELNORME3_GRPOFFS0,
+	MELNORME4_GRPOFFS0,
+	MELNORME5_GRPOFFS0,
+	MELNORME6_GRPOFFS0,
+	MELNORME7_GRPOFFS0,
+	MELNORME8_GRPOFFS0,
+	URQUAN_PROBE_GRPOFFS0,
+	COLONY_GRPOFFS0,
+	SAMATRA_GRPOFFS0
+};
+
+static void
+InterpretLegacyGameState (BYTE *result, BYTE *legacy)
+{
+	int i;
+	DWORD grpoffs[NUM_DEFGRPS];
+	GAMESTATE_TRANSPOSE *t = &transpose[0];
+	grpoffs[0] = 0;
+	for (i = 1; i < NUM_DEFGRPS; ++i)
+	{
+		grpoffs[i] = getGameState32 (legacy, old_defgrp_offsets[i]);
+	}
+	while (t->start >= 0)
+	{
+		copyGameState (result, t->target, legacy, t->start, t->end);
+		++t;
+	}
+	for (i = 1; i < NUM_DEFGRPS; ++i)
+	{
+		setGameState32 (result, new_defgrp_offsets[i], grpoffs[i]);
+	}
+}
+
 static void
 LoadEmptyQueue (DECODE_REF fh)
 {
@@ -424,7 +484,7 @@ LoadClockState (CLOCK_STATE *ClockPtr, DECODE_REF fh)
 static void
 LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh)
 {
-	BYTE dummy8;
+	BYTE dummy8, oldstate[LEGACY_GAMESTATE_SIZE];
 
 	cread_8   (fh, &dummy8); /* obsolete */
 	cread_8   (fh, &GSPtr->glob_flags);
@@ -469,9 +529,9 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh)
 	DummyLoadQueue (&GSPtr->encounter_q, fh);
 	DummyLoadQueue (&GSPtr->built_ship_q, fh);
 
-	cread_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
+	cread_a8  (fh, oldstate, LEGACY_GAMESTATE_SIZE);
+	InterpretLegacyGameState (GSPtr->GameState, oldstate);
 
-	assert (sizeof (GSPtr->GameState) % 4 == 3);
 	cread_8  (fh, NULL); /* GAME_STATE alignment padding */
 }
 
