@@ -166,6 +166,7 @@ err:
 	return FALSE;
 }
 
+// Load a script from file and run it.
 BOOLEAN
 luaUqm_runScript(lua_State *luaState, uio_DirHandle *dir,
 		const char *fileName) {
@@ -220,6 +221,9 @@ err:
 }
 
 // [-1] -> function fun
+// Call a Lua function which is on the stack, taking no parameters and
+// returning no value.
+// returns FALSE on failure and TRUE on success.
 BOOLEAN
 luaUqm_callStackFunction(lua_State *luaState) {
 	if (lua_pcall(luaState, 0, 0, 0) != 0) {
@@ -233,8 +237,8 @@ luaUqm_callStackFunction(lua_State *luaState) {
 	return TRUE;
 }
 
-// Call a Lua function taking no parameters and returning no value.
-// returns FALSE on failure and TRUE on success.
+// Call a Lua function by (char *) name, taking no parameters and returning
+// no value. returns FALSE on failure and TRUE on success.
 BOOLEAN
 luaUqm_callFunction(lua_State *luaState, const char *str) {
 	lua_getglobal(luaState, str);

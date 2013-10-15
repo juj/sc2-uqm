@@ -31,7 +31,7 @@
 #include "uqm/lua/luastate.h"
 #include "luafuncs/commfuncs.h"
 #include "luafuncs/customfuncs.h"
-//#include "luafuncs/eventfuncs.h"
+#include "luafuncs/eventfuncs.h"
 #include "luafuncs/logfuncs.h"
 #include "luafuncs/statefuncs.h"
 #include "libs/log.h"
@@ -40,7 +40,7 @@ lua_State *luaUqm_commState = NULL;
 	
 static const luaL_Reg commLibs[] = {
 	{ "comm",  luaUqm_comm_open },
-//	{ "event", luaUqm_event_open },
+	{ "event", luaUqm_event_open },
 	{ "log",   luaUqm_log_open },
 	{ "state", luaUqm_state_open },
 	{ NULL, NULL }

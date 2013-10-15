@@ -214,7 +214,7 @@ luaUqm_state_escort_removeShips(lua_State *luaState) {
 		return 1;
 	}
 
-	if (lua_isnoneornil(luaState, 2)) {
+	if (lua_isnil(luaState, 2)) {
 		numRemoved = RemoveEscortShips(shipId);
 	} else {
 		int count = luaL_checkint(luaState, 2);

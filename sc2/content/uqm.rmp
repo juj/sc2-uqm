@@ -160,6 +160,7 @@ credits.credits = STRTAB:base/cutscene/credits/credits.txt
 credits.font.pt13 = FONTRES:base/fonts/pt13.fon
 credits.font.pt17 = FONTRES:base/fonts/pt17.fon
 credits.font.pt45 = FONTRES:base/fonts/pt45.fon
+event.script = SCRIPT:base/script/events.lua
 font.lander = FONTRES:base/fonts/lander.fon
 font.micro = FONTRES:base/fonts/micro.fon
 font.player = FONTRES:base/fonts/player.fon

@@ -220,6 +220,7 @@ while (--ac > 0)
 		luaUqm_initState ();
 		InitGameStructures ();
 		InitGameClock ();
+		initEventSystem ();
 		AddInitialGameEvents();
 
 		do
@@ -308,6 +309,7 @@ while (--ac > 0)
 		} while (!(GLOBAL (CurrentActivity) & CHECK_ABORT));
 
 		StopSound ();
+		uninitEventSystem ();
 		UninitGameClock ();
 		UninitGameStructures ();
 		luaUqm_uninitState ();

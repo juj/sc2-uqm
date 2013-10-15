@@ -30,8 +30,8 @@
 
 // We store the game state in the global Lua context, in the Lua registry.
 
-static void luaUqm_initStatePropertyTable (lua_State *luaState);
-static void luaUqm_initEventTable (lua_State *luaState);
+static void luaUqm_initStatePropertyTable(lua_State *luaState);
+static void luaUqm_initEventTable(lua_State *luaState);
 
 lua_State *luaUqm_globalState = NULL;
 static const char statePropRegistryKey[] =
@@ -46,8 +46,8 @@ void
 luaUqm_initState(void) {
 	assert(luaUqm_globalState == NULL);
 	luaUqm_globalState = luaL_newstate();
-	luaUqm_initStatePropertyTable (luaUqm_globalState);
-	luaUqm_initEventTable (luaUqm_globalState);
+	luaUqm_initStatePropertyTable(luaUqm_globalState);
+	luaUqm_initEventTable(luaUqm_globalState);
 
 	// XXX TODO: set up an alternative to the Lua 'require' function,
 	// which makes use of uio.
@@ -68,7 +68,7 @@ luaUqm_uninitState(void) {
 /////////////////////////////////////////////////////////////////////////////
 
 static void
-luaUqm_initStatePropertyTable (lua_State *luaState)
+luaUqm_initStatePropertyTable(lua_State *luaState)
 {
 	lua_pushstring(luaState, statePropRegistryKey);
 	lua_newtable(luaState);
@@ -77,7 +77,7 @@ luaUqm_initStatePropertyTable (lua_State *luaState)
 
 // Check whether a lua value has a type acceptable as a property value.
 int
-luaUqm_checkPropValueType (lua_State *luaState, const char *funName,
+luaUqm_checkPropValueType(lua_State *luaState, const char *funName,
 		int nameIndex) {
 	int type = lua_type(luaState, nameIndex);
 	switch (type) {
@@ -135,7 +135,7 @@ luaUqm_getProp(lua_State *luaState, int nameIndex) {
 }
 
 void
-setGameStateUint (const char *name, DWORD val)
+setGameStateUint(const char *name, DWORD val)
 {
 	lua_pushstring(luaUqm_globalState, name);
 	lua_pushinteger(luaUqm_globalState, val);
@@ -143,12 +143,12 @@ setGameStateUint (const char *name, DWORD val)
 	lua_pop(luaUqm_globalState, 2);
 
 #ifdef STATE_DEBUG
-	log_add (log_Debug, "State '%s' set to %u.", name, val);
+	log_add(log_Debug, "State '%s' set to %u.", name, val);
 #endif
 }
 
 DWORD
-getGameStateUint (const char *name)
+getGameStateUint(const char *name)
 {
 	DWORD result;
 	int resultType;
@@ -185,7 +185,7 @@ getGameStateUint (const char *name)
 /////////////////////////////////////////////////////////////////////////////
 
 static void
-luaUqm_initEventTable (lua_State *luaState)
+luaUqm_initEventTable(lua_State *luaState)
 {
 	lua_pushstring(luaState, eventRegistryKey);
 	lua_newtable(luaState);
@@ -193,7 +193,7 @@ luaUqm_initEventTable (lua_State *luaState)
 }
 
 void
-luaUqm_getEventTable (lua_State *luaState)
+luaUqm_getEventTable(lua_State *luaState)
 {
     lua_getfield(luaState, LUA_REGISTRYINDEX, eventRegistryKey);
 }

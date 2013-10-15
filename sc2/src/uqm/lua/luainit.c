@@ -27,12 +27,12 @@
 #include "options.h"
 		// for contentDir
 #include "uqm/lua/luastate.h"
-//#include "luafuncs/eventfuncs.h"
+#include "luafuncs/eventfuncs.h"
 #include "luafuncs/logfuncs.h"
 #include "luafuncs/statefuncs.h"
 
 static const luaL_Reg initLibs[] = {
-//	{ "event",  luaUqm_event_open },
+	{ "event",  luaUqm_event_open },
 	{ "log",    luaUqm_log_open },
 	{ "state",  luaUqm_state_open },
 	{ NULL, NULL }
