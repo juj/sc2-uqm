@@ -26,7 +26,7 @@
 #include "libs/threadlib.h"
 
 #ifndef MAX_LOG_ENTRY_SIZE
-#	define MAX_LOG_ENTRY_SIZE 256
+#	define MAX_LOG_ENTRY_SIZE 1024
 #endif
 
 #ifndef MAX_LOG_ENTRIES
