@@ -47,13 +47,12 @@ static const luaL_Reg commLibs[] = {
 };
 
 // Not reentrant.
-// If customFuncs is NULL, no 'custom' table is added to the Lua environment.
+// If 'customFuncs' is NULL, no 'custom' table is added to the Lua environment.
+// If 'scriptRes' is NULL_RESOURCE, then no script is loaded. Lua is only
+// available for string interpolation in this case.
 BOOLEAN
 luaUqm_comm_init(const luaUqm_custom_Function *customFuncs,
 		RESOURCE scriptRes) {
-	char *scriptFileName;
-	BOOLEAN loadOk;
-
 	assert(luaUqm_commState == NULL);
 
 	luaUqm_commState = luaUqm_globalState;
@@ -61,23 +60,32 @@ luaUqm_comm_init(const luaUqm_custom_Function *customFuncs,
 	// Prepare the global environment.
 	luaUqm_prepareEnvironment(luaUqm_commState);
 	luaUqm_loadLibs(luaUqm_commState, commLibs);
-	if (customFuncs != NULL)
+	if (customFuncs != NULL) {
 		luaUqm_custom_init(luaUqm_commState, customFuncs);
-	lua_pop(luaUqm_commState, 1);
+		lua_pop(luaUqm_commState, 1);
+	}
 
-	// Get the name of the script.
-	scriptFileName = LoadScriptInstance(scriptRes);
-	if (scriptFileName == NULL)
-		return FALSE;
+	if (scriptRes != NULL_RESOURCE) {
+		// Load the script.
+		char *scriptFileName;
+		BOOLEAN loadOk;
 
-	// Load the script.
-	loadOk = luaUqm_loadScript(luaUqm_commState, contentDir, scriptFileName);
-	ReleaseScriptResData(scriptFileName);
-	if (!loadOk)
-		return FALSE;
+		// Get the name of the script.
+		scriptFileName = LoadScriptInstance(scriptRes);
+		if (scriptFileName == NULL)
+			return FALSE;
 
-	// Call the script.
-	luaUqm_callStackFunction(luaUqm_commState);
+		// Load the script.
+		loadOk = luaUqm_loadScript(luaUqm_commState, contentDir,
+				scriptFileName);
+		ReleaseScriptResData(scriptFileName);
+		if (!loadOk)
+			return FALSE;
+
+		// Call the script.
+		luaUqm_callStackFunction(luaUqm_commState);
+	}
+
 	return TRUE;
 }
 

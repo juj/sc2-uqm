@@ -86,6 +86,8 @@ luaUqm_custom_init(lua_State *luaState,
 	// [-2] -> table globalTable
 	// [-1] -> table custom
 	lua_setfield(luaState, -2, "custom");
+	
+	// [-1] -> table custom
 	return 0;
 }
 
