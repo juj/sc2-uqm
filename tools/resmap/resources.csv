@@ -446,6 +446,7 @@ MENUBKG_PMAP_ANIM,graphics.setupmenu,uqm/igfxres.h,GFXRES,base/ui/setupmenu.ani
 FONTGRAD_PMAP_ANIM,graphics.fontgradient,uqm/igfxres.h,GFXRES,base/fonts/fontgradient.ani
 LANDER_FONTEFF_PMAP_ANIM,graphics.landerfonteffect,uqm/igfxres.h,GFXRES,base/lander/fonteffect.ani
 EVENT_SCRIPT,event.script,uqm/iscriptres.h,SCRIPT,base/script/events.lua
+SCRIPT_DIR_INITGAME,script.dir.initgame,uqm/iscriptres.h,STRING,base/script/initgame
 DRUUGE_MUSIC,comm.druuge.music,uqm/comm/druuge/resinst.h,MUSICRES,base/comm/druuge/druuge.mod
 DRUUGE_FONT,comm.druuge.font,uqm/comm/druuge/resinst.h,FONTRES,base/fonts/micro.fon
 DRUUGE_CONVERSATION_PHRASES,comm.druuge.dialogue,uqm/comm/druuge/resinst.h,CONVERSATION,base/comm/druuge/druuge.txt

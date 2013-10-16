@@ -3,3 +3,4 @@
    instead and regenerate. */
 
 #define EVENT_SCRIPT "event.script"
+#define SCRIPT_DIR_INITGAME "script.dir.initgame"

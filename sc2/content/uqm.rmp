@@ -566,6 +566,7 @@ planet.yttric.large = GFXRES:base/planets/yttric-big.ani
 planet.yttric.medium = GFXRES:base/planets/yttric-med.ani
 planet.yttric.small = GFXRES:base/planets/yttric-sml.ani
 planet.yttric.translatetable = BINTAB:base/planets/rusted.xlt
+script.dir.initgame = STRING:base/script/initgame
 ship.androsynth.code = SHIP:0
 ship.androsynth.ditty = MUSICRES:base/ships/androsynth/guardian.mod
 ship.androsynth.graphics.blazer.large = GFXRES:base/ships/androsynth/blazer-big.ani
