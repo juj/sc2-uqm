@@ -47,6 +47,7 @@ static const luaL_Reg commLibs[] = {
 };
 
 // Not reentrant.
+// If customFuncs is NULL, no 'custom' table is added to the Lua environment.
 BOOLEAN
 luaUqm_comm_init(const luaUqm_custom_Function *customFuncs,
 		RESOURCE scriptRes) {
