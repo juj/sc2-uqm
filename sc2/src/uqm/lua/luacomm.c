@@ -60,7 +60,8 @@ luaUqm_comm_init(const luaUqm_custom_Function *customFuncs,
 	// Prepare the global environment.
 	luaUqm_prepareEnvironment(luaUqm_commState);
 	luaUqm_loadLibs(luaUqm_commState, commLibs);
-	luaUqm_custom_init(luaUqm_commState, customFuncs);
+	if (customFuncs != NULL)
+		luaUqm_custom_init(luaUqm_commState, customFuncs);
 	lua_pop(luaUqm_commState, 1);
 
 	// Get the name of the script.
