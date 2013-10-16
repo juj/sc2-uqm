@@ -13,8 +13,7 @@
 #(OK_THE_NAFS) 
 #(OK_THE_CAN) 
 #(OK_THE_UFW) 
-#(OK_THE_NAME_IS_EMPIRE0) 4466
-#(OK_THE_NAME_IS_EMPIRE1) 
+#(OK_THE_NAME_IS_EMPIRE) 4466
 #(FUEL_UP0) 2884
 #(FUEL_UP1) 5388,5768,2774
 #(WHAT_KIND_OF_IDIOT) 1111,4146,3996,3355
@@ -55,15 +54,12 @@
 #(we_will_transfer_now) 
 #(what_will_you_give_us) 
 #(before_radios_we_need_info) 
-#(no_but_well_help0) 
-#(no_but_well_help1) 
+#(no_but_well_help) 
 #(yes_this_is_supply_ship) 
 #(what_slave_planet) 
 #(i_lied) 
 #(plumb_out) 
-#(we_are_vindicator0) 
-#(we_are_vindicator1) 
-#(we_are_vindicator2) 
+#(we_are_vindicator) 
 #(first_give_info) 
 #(we_must_go_now) 
 #(where_can_i_get_radios) 
@@ -84,8 +80,7 @@
 #(name_1) 
 #(name_2) 
 #(name_3) 
-#(name_40) 
-#(name_41) 
+#(name_4) 
 #(i_lost_my_lander) 
 #(i_lost_another_lander) 
 #(need_fuel_mercury) 

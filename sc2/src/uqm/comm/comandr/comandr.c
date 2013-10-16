@@ -24,6 +24,7 @@
 #include "uqm/sis.h"
 		// for DeltaSISGauges(), DrawLanders()
 #include "libs/graphics/gfx_common.h"
+#include "uqm/lua/luacomm.h"
 
 static LOCDATA commander_desc =
 {
@@ -143,18 +144,12 @@ ByeBye (RESPONSE_REF R)
 		else /* if (R == annihilate_those_monsters) */
 			NPCPhrase (KILL_MONSTERS);
 
-		construct_response (shared_phrase_buf,
-				name_40,
-				GLOBAL_SIS (CommanderName),
-				name_41,
-				(UNICODE*)NULL);
-
 		NPCPhrase (THIS_MAY_SEEM_SILLY);
 
 		Response (name_1, ByeBye);
 		Response (name_2, ByeBye);
 		Response (name_3, ByeBye);
-		DoResponsePhrase (name_40, ByeBye, shared_phrase_buf);
+		Response (name_4, ByeBye);
 
 		SET_GAME_STATE (STARBASE_AVAILABLE, 1);
 	}
@@ -180,9 +175,7 @@ ByeBye (RESPONSE_REF R)
 		}
 		else /* if (PLAYER_SAID (R, name_4)) */
 		{
-			NPCPhrase (OK_THE_NAME_IS_EMPIRE0);
-			NPCPhrase (GLOBAL_PLAYER_NAME);
-			NPCPhrase (OK_THE_NAME_IS_EMPIRE1);
+			NPCPhrase (OK_THE_NAME_IS_EMPIRE);
 
 			SET_GAME_STATE (NEW_ALLIANCE_NAME, 3);
 		}
@@ -216,7 +209,7 @@ NoRadioactives (RESPONSE_REF R)
 
 			DISABLE_PHRASE (where_can_i_get_radios);
 		}
-		else if (PLAYER_SAID (R, no_but_well_help0))
+		else if (PLAYER_SAID (R, no_but_well_help))
 			NPCPhrase (THE_WHAT_FROM_WHERE);
 		else if (PLAYER_SAID (R, what_slave_planet)
 				|| PLAYER_SAID (R, i_lied))
@@ -468,11 +461,11 @@ RevealSelf (RESPONSE_REF R)
 	BYTE i, stack;
 
 	stack = 0;
-	if (PLAYER_SAID (R, we_are_vindicator0))
+	if (PLAYER_SAID (R, we_are_vindicator))
 	{
 		NPCPhrase (THATS_IMPOSSIBLE);
 
-		DISABLE_PHRASE (we_are_vindicator0);
+		DISABLE_PHRASE (we_are_vindicator);
 	}
 	else if (PLAYER_SAID (R, our_mission_was_secret))
 	{
@@ -534,17 +527,8 @@ RevealSelf (RESPONSE_REF R)
 		}
 		else
 		{
-			if (PHRASE_ENABLED (we_are_vindicator0))
-			{
-				construct_response (shared_phrase_buf,
-						we_are_vindicator0,
-						GLOBAL_SIS (CommanderName),
-						we_are_vindicator1,
-						GLOBAL_SIS (ShipName),
-						we_are_vindicator2,
-						(UNICODE*)NULL);
-				DoResponsePhrase (we_are_vindicator0, RevealSelf, shared_phrase_buf);
-			}
+			if (PHRASE_ENABLED (we_are_vindicator))
+				Response (we_are_vindicator, RevealSelf);
 			else if (PHRASE_ENABLED (our_mission_was_secret))
 				Response (our_mission_was_secret, RevealSelf);
 			else
@@ -636,13 +620,7 @@ Intro (void)
 		SET_GAME_STATE (STARBASE_VISITED, 1);
 
 		NPCPhrase (ARE_YOU_SUPPLY_SHIP);
-		construct_response (
-				shared_phrase_buf,
-				no_but_well_help0,
-				GLOBAL_SIS (ShipName),
-				no_but_well_help1,
-				(UNICODE*)NULL);
-		DoResponsePhrase (no_but_well_help0, NoRadioactives, shared_phrase_buf);
+		Response (no_but_well_help, NoRadioactives);
 		Response (yes_this_is_supply_ship, NoRadioactives);
 		Response (what_slave_planet, NoRadioactives);
 	}
@@ -651,6 +629,7 @@ Intro (void)
 static COUNT
 uninit_commander (void)
 {
+	luaUqm_comm_uninit();
 	return (0);
 }
 
@@ -668,6 +647,10 @@ init_commander_comm ()
 	commander_desc.init_encounter_func = Intro;
 	commander_desc.post_encounter_func = post_commander_enc;
 	commander_desc.uninit_encounter_func = uninit_commander;
+
+	luaUqm_comm_init(NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	if (GET_GAME_STATE (RADIOACTIVES_PROVIDED))
 	{
