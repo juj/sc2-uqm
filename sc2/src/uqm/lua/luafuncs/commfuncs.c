@@ -284,15 +284,15 @@ luaUqm_comm_getPhrase(lua_State *luaState) {
 	}
 
 	// Find the string.
-	str = SetAbsStringTableIndex (CommData.ConversationPhrases,
+	str = SetAbsStringTableIndex(CommData.ConversationPhrases,
 			phraseId - 1);
-	strBuf = GetStringAddress (str);
+	strBuf = GetStringAddress(str);
 
-	if (luaUqm_comm_stringNeedsInterpolate (strBuf))
+	if (luaUqm_comm_stringNeedsInterpolate(strBuf))
 	{
-		char *interpolated = luaUqm_comm_stringInterpolate (strBuf);
+		char *interpolated = luaUqm_comm_stringInterpolate(strBuf);
 		lua_pushstring(luaState, interpolated);  // This makes a copy.
-		HFree (interpolated);
+		HFree(interpolated);
 	}
 	else
 	{
