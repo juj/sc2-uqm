@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 
 
@@ -475,7 +476,7 @@ OrzNeutral (RESPONSE_REF R)
 		DISABLE_PHRASE (hostile_1);
 		LastStack = 2;
 	}
-	else if (PLAYER_SAID (R, we_are_vindicator0))
+	else if (PLAYER_SAID (R, we_are_vindicator))
 	{
 		NPCPhrase (NICE_TO_MEET_YOU);
 
@@ -540,14 +541,7 @@ OrzNeutral (RESPONSE_REF R)
 	}
 	else if (GET_GAME_STATE (ORZ_STACK0) == 0)
 	{
-		construct_response (shared_phrase_buf,
-				we_are_vindicator0,
-				GLOBAL_SIS (CommanderName),
-				we_are_vindicator1,
-				GLOBAL_SIS (ShipName),
-				we_are_vindicator2,
-				(UNICODE*)NULL);
-		pStr[1] = we_are_vindicator0;
+		pStr[1] = we_are_vindicator;
 	}
 	else
 		pStr[1] = seem_like_nice_guys;
@@ -557,21 +551,12 @@ OrzNeutral (RESPONSE_REF R)
 		pStr[2] = hostile_2;
 
 	if (pStr[LastStack])
-	{
-		if (pStr[LastStack] != we_are_vindicator0)
-			Response (pStr[LastStack], OrzNeutral);
-		else
-			DoResponsePhrase (pStr[LastStack], OrzNeutral, shared_phrase_buf);
-	}
+		Response (pStr[LastStack], OrzNeutral);
+
 	for (i = 0; i < 3; ++i)
 	{
 		if (i != LastStack && pStr[i])
-		{
-			if (pStr[i] != we_are_vindicator0)
-				Response (pStr[i], OrzNeutral);
-			else
-				DoResponsePhrase (pStr[i], OrzNeutral, shared_phrase_buf);
-		}
+			Response (pStr[i], OrzNeutral);
 	}
 	Response (bye_neutral, ExitConversation);
 }
@@ -849,6 +834,7 @@ Intro (void)
 static COUNT
 uninit_orz (void)
 {
+	luaUqm_comm_uninit();
 	return (0);
 }
 
@@ -879,6 +865,10 @@ init_orz_comm (void)
 	orz_desc.post_encounter_func = post_orz_enc;
 	orz_desc.uninit_encounter_func = uninit_orz;
 
+	luaUqm_comm_init(NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
+
 	orz_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	orz_desc.AlienTextBaseline.y = 0;
 	orz_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
@@ -896,3 +886,4 @@ init_orz_comm (void)
 
 	return (retval);
 }
+
