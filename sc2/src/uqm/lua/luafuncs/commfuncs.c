@@ -306,7 +306,7 @@ luaUqm_comm_getPhrase(lua_State *luaState) {
 
 static int
 luaUqm_comm_getSegue(lua_State *luaState) {
-	int result = getSegue ();
+	int result = getSegue();
 	lua_pushinteger(luaState, result);
 	return 1;
 }
@@ -326,7 +326,7 @@ luaUqm_comm_setSegue(lua_State *luaState) {
 					"parameter value (%d).", what);
 			break;
 	};
-	setSegue ((Segue) what);
+	setSegue((Segue) what);
 
 	return 0;
 }
