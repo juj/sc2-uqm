@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
 #include "libs/mathlib.h"
@@ -200,7 +201,7 @@ ExitConversation (RESPONSE_REF R)
 		NPCPhrase (GOODBYE_AND_DIE_HOMEWORLD);
 	else if (PLAYER_SAID (R, bye_royalist))
 		NPCPhrase (GOODBYE_AND_DIE_ROYALIST);
-	else if (PLAYER_SAID (R, i_demand_you_ally_homeworld0))
+	else if (PLAYER_SAID (R, i_demand_you_ally_homeworld))
 	{
 		NPCPhrase (ENEMY_MUST_DIE);
 
@@ -372,23 +373,7 @@ YehatHome (RESPONSE_REF R)
 	if (!GET_GAME_STATE (NO_YEHAT_INFO))
 		Response (give_info, YehatHome);
 	if (!GET_GAME_STATE (NO_YEHAT_ALLY_HOME))
-	{
-		UNICODE buf[ALLIANCE_NAME_BUFSIZE];
-
-		GetAllianceName (buf, name_1);
-		construct_response (
-				shared_phrase_buf,
-				i_demand_you_ally_homeworld0,
-				GLOBAL_SIS (CommanderName),
-				i_demand_you_ally_homeworld1,
-				buf,
-				i_demand_you_ally_homeworld2,
-				GLOBAL_SIS (ShipName),
-				i_demand_you_ally_homeworld3,
-				(UNICODE*)NULL);
-		DoResponsePhrase (i_demand_you_ally_homeworld0,
-				ExitConversation, shared_phrase_buf);
-	}
+		Response (i_demand_you_ally_homeworld, ExitConversation);
 	Response (bye_homeworld, ExitConversation);
 }
 
@@ -428,7 +413,7 @@ YehatSpace (RESPONSE_REF R)
 
 		DISABLE_PHRASE (whats_up_space_1);
 	}
-	else if (PLAYER_SAID (R, i_demand_you_ally_space0))
+	else if (PLAYER_SAID (R, i_demand_you_ally_space))
 	{
 		NPCPhrase (WE_CANNOT_1);
 
@@ -499,20 +484,7 @@ YehatSpace (RESPONSE_REF R)
 	{
 		case 0:
 		{
-			UNICODE buf[ALLIANCE_NAME_BUFSIZE];
-
-			GetAllianceName (buf, name_1);
-			construct_response (
-					shared_phrase_buf,
-					i_demand_you_ally_space0,
-					GLOBAL_SIS (CommanderName),
-					i_demand_you_ally_space1,
-					GLOBAL_SIS (ShipName),
-					i_demand_you_ally_space2,
-					buf,
-					i_demand_you_ally_space3,
-					(UNICODE*)NULL);
-			pStr[2] = i_demand_you_ally_space0;
+			pStr[2] = i_demand_you_ally_space;
 			break;
 		}
 		case 1:
@@ -521,21 +493,11 @@ YehatSpace (RESPONSE_REF R)
 	}
 
 	if (pStr[LastStack])
-	{
-		if (pStr[LastStack] != i_demand_you_ally_space0)
-			Response (pStr[LastStack], YehatSpace);
-		else
-			DoResponsePhrase (pStr[LastStack], YehatSpace, shared_phrase_buf);
-	}
+		Response (pStr[LastStack], YehatSpace);
 	for (i = 0; i < 3; ++i)
 	{
 		if (i != LastStack && pStr[i])
-		{
-			if (pStr[i] != i_demand_you_ally_space0)
-				Response (pStr[i], YehatSpace);
-			else
-				DoResponsePhrase (pStr[i], YehatSpace, shared_phrase_buf);
-		}
+			Response (pStr[i], YehatSpace);
 	}
 	if (!GET_GAME_STATE (YEHAT_ROYALIST_TOLD_PKUNK)
 			&& GET_GAME_STATE (PKUNK_VISITS)
@@ -649,6 +611,7 @@ Intro (void)
 static COUNT
 uninit_yehat (void)
 {
+	luaUqm_comm_uninit();
 	return (0);
 }
 
@@ -666,6 +629,10 @@ init_yehat_comm (void)
 	yehat_desc.init_encounter_func = Intro;
 	yehat_desc.post_encounter_func = post_yehat_enc;
 	yehat_desc.uninit_encounter_func = uninit_yehat;
+
+	luaUqm_comm_init(NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	yehat_desc.AlienTextBaseline.x = SIS_SCREEN_WIDTH * 2 / 3;
 	yehat_desc.AlienTextBaseline.y = 60;

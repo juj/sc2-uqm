@@ -24,17 +24,8 @@ ye shall not be finding the sympathies ye so vainly seek.
 There are none here but the nobles and battlemasters of the Yehat Clans.
 It is a sure thing that we will not be casting flower petals in yer path of rebellion.
 
-#(i_demand_you_ally_homeworld0)
-I, 
-
-#(i_demand_you_ally_homeworld1)
-, of 
-
-#(i_demand_you_ally_homeworld2)
- commanding the 
-
-#(i_demand_you_ally_homeworld3)
-, demand that you uphold your duties as allies of the human species!
+#(i_demand_you_ally_homeworld)
+I, <% state.sis.getCaptainName() %>, of <% comm.getPhrase("name_" .. (state.prop.get("NEW_ALLIANCE_NAME") + 1)) %>, commanding the <% state.sis.getShipName() %>, demand that you uphold your duties as allies of the human species!
 
 #(ENEMY_MUST_DIE)	yehat-004.ogg
 Are ye DAFT human!? Have ye not heard our words?
@@ -157,17 +148,8 @@ Aren't you just slaves to the Ur-Quan?
 NO!  WE ARE NOT SLAVES!! WE ARE!... We are!... we are...
 Battle Thralls.
 
-#(i_demand_you_ally_space0)
-By your honor, Yehat captain, I, 
-
-#(i_demand_you_ally_space1)
-, master of the 
-
-#(i_demand_you_ally_space2)
-, in the name of 
-
-#(i_demand_you_ally_space3)
- call upon the Starship Clans to honor their word and fight for our cause!
+#(i_demand_you_ally_space)
+By your honor, Yehat captain, I, <% state.sis.getCaptainName() %>, master of the <% state.sis.getShipName() %>, in the name of <% comm.getPhrase("name_" .. (state.prop.get("NEW_ALLIANCE_NAME") + 1)) %> call upon the Starship Clans to honor their word and fight for our cause!
 
 #(WE_CANNOT_1)	yehat-018.ogg
 As much as my heart cries to aid ye, valiant human, I cannot!
@@ -348,10 +330,9 @@ The Concordance of Alien Nations
 #(name_3)
 The United Federation of Worlds
 
-#(name_40)
-The Empire of 
-#(name_41)
- 
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %>
+
 #(OUT_TAKES) yehat-039.ogg
 So, I suppose you are wondering what I'm doing at this control console
 well, I guess I can tell you now.

@@ -3,10 +3,7 @@
 #(whats_up_homeworld) 
 #(GENERAL_INFO_HOMEWORLD_1) 5328,3615,4176,4236
 #(GENERAL_INFO_HOMEWORLD_2) 3755,3005,3805,5298
-#(i_demand_you_ally_homeworld0) 
-#(i_demand_you_ally_homeworld1) 
-#(i_demand_you_ally_homeworld2) 
-#(i_demand_you_ally_homeworld3) 
+#(i_demand_you_ally_homeworld) 
 #(ENEMY_MUST_DIE) 4346,3685,4106,4457,4016,4476
 #(at_least_help_us_homeworld) 
 #(NO_HELP_ENEMY) 2643,4797,6309
@@ -29,10 +26,7 @@
 #(GENERAL_INFO_SPACE_3) 5483,5959,5149,3810,6068,4019
 #(whats_up_space_4) 
 #(GENERAL_INFO_SPACE_4) 5771
-#(i_demand_you_ally_space0) 
-#(i_demand_you_ally_space1) 
-#(i_demand_you_ally_space2) 
-#(i_demand_you_ally_space3) 
+#(i_demand_you_ally_space) 
 #(WE_CANNOT_1) 5778,2935
 #(obligation) 
 #(WE_CANNOT_2) 3345,3545,3805,4857
@@ -70,6 +64,5 @@
 #(name_1) 
 #(name_2) 
 #(name_3) 
-#(name_40) 
-#(name_41) 
+#(name_4) 
 #(OUT_TAKES) 6000,3000,2500,2750,7000,6000
