@@ -105,7 +105,17 @@ comm.isPhraseEnabled(phraseId)
         phraseId - the string identifying the phrase
     Returns:
         true if the phrase is enabled
-        false if it is not
+        false if it is not, or the phraseId is invalid
+
+comm.getPhrase(phraseId)
+    Description:
+        Get a phrase (the actual text).
+    Parameters:
+        phraseId - the string identifying the phrase
+    Returns:
+        nil if 'phraseId' is invalid
+        otherwise: the phrase string, with interpolation performed if
+            applicable
 
 comm.getSegue()
     Description:

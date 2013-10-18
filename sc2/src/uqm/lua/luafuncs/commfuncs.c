@@ -50,6 +50,7 @@ static int luaUqm_comm_isPhraseEnabled(lua_State *luaState);
 static int luaUqm_comm_disablePhrase(lua_State *luaState);
 static int luaUqm_comm_doNpcPhrase(lua_State *luaState);
 static int luaUqm_comm_addResponse(lua_State *luaState);
+static int luaUqm_comm_getPhrase(lua_State *luaState);
 static int luaUqm_comm_getSegue(lua_State *luaState);
 static int luaUqm_comm_setSegue(lua_State *luaState);
 static int luaUqm_comm_isInOuttakes(lua_State *luaState);
@@ -58,6 +59,7 @@ static const luaL_Reg commFuncs[] = {
 	{ "addResponse",     luaUqm_comm_addResponse },
 	{ "disablePhrase",   luaUqm_comm_disablePhrase },
 	{ "doNpcPhrase",     luaUqm_comm_doNpcPhrase },
+	{ "getPhrase",       luaUqm_comm_getPhrase },
 	{ "getSegue",        luaUqm_comm_getSegue },
 	{ "isInOuttakes",    luaUqm_comm_isInOuttakes },
 	{ "isPhraseEnabled", luaUqm_comm_isPhraseEnabled },
@@ -265,6 +267,41 @@ luaUqm_comm_addResponse(lua_State *luaState) {
 	setResponseCallback(luaState, 1, 2);
 	Response(phraseId, responseCallback);
 	return 0;
+}
+
+// [1] -> string phraseIdStr
+static int
+luaUqm_comm_getPhrase(lua_State *luaState) {
+	int phraseId;
+	STRING str;
+	const char *strBuf;
+
+	phraseId = testPhraseId(luaState, 1);
+	if (phraseId == -1) {
+		// A warning is already printed in testPhraseId().
+		lua_pushnil(luaState);
+		return 1;
+	}
+
+	// Find the string.
+	str = SetAbsStringTableIndex (CommData.ConversationPhrases,
+			phraseId - 1);
+	strBuf = GetStringAddress (str);
+
+	if (luaUqm_comm_stringNeedsInterpolate (strBuf))
+	{
+		char *interpolated = luaUqm_comm_stringInterpolate (strBuf);
+		lua_pushstring(luaState, interpolated);  // This makes a copy.
+		HFree (interpolated);
+	}
+	else
+	{
+		// No interpolation is necessary.
+		lua_pushstring(luaState, strBuf);
+	}
+
+	// [1] -> string phrase
+	return 1;
 }
 
 static int
