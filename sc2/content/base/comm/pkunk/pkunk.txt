@@ -455,13 +455,8 @@ I turned to my first officer, Chrupp, and said
 And then Chrupp said, `Just in case, I am raising the shields and warming up the guns.'
 I don't think Chrupp likes you, Captain.
 
-#(we_are_vindicator0)
-Perhaps we should introduce ourselves. I am Captain 
-#(we_are_vindicator1)
- in command of the 
-
-#(we_are_vindicator2)
-.
+#(we_are_vindicator)
+Perhaps we should introduce ourselves. I am Captain <% state.sis.getCaptainName() %> in command of the <% state.sis.getShipName() %>.
 
 #(WHY_YOU_HERE)	pkunk-063.ogg
 Yes, yes.  We know all that.

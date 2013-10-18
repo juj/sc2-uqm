@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
 
@@ -324,7 +325,7 @@ DiscussConquer (RESPONSE_REF R)
 static void
 OfferAlliance (RESPONSE_REF R)
 {
-	if (PLAYER_SAID (R, we_are_vindicator0))
+	if (PLAYER_SAID (R, we_are_vindicator))
 		NPCPhrase (WHY_YOU_HERE);
 	else if (PLAYER_SAID (R, exploring_universe))
 	{
@@ -621,14 +622,7 @@ PkunkHome (RESPONSE_REF R)
 	}
 	if (!GET_GAME_STATE (PKUNK_SHIP_MONTH))
 	{
-		construct_response (shared_phrase_buf,
-				we_are_vindicator0,
-				GLOBAL_SIS (CommanderName),
-				we_are_vindicator1,
-				GLOBAL_SIS (ShipName),
-				we_are_vindicator2,
-				(UNICODE*)NULL);
-		DoResponsePhrase (we_are_vindicator0, OfferAlliance, shared_phrase_buf);
+		Response (we_are_vindicator, OfferAlliance);
 	}
 	if (PHRASE_ENABLED (what_about_you))
 	{
@@ -1096,6 +1090,7 @@ Intro (void)
 static COUNT
 uninit_pkunk (void)
 {
+	luaUqm_comm_uninit();
 	return (0);
 }
 
@@ -1124,6 +1119,10 @@ init_pkunk_comm (void)
 	pkunk_desc.init_encounter_func = Intro;
 	pkunk_desc.post_encounter_func = post_pkunk_enc;
 	pkunk_desc.uninit_encounter_func = uninit_pkunk;
+
+	luaUqm_comm_init(NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	pkunk_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	pkunk_desc.AlienTextBaseline.y = 0;
