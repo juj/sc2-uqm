@@ -48,7 +48,7 @@ logHelper(lua_State *luaState, log_Level level) {
 	//const char *str = luaL_checkstring(luaState, 1);
 	const char *str = lua_tostring(luaState, 1);
 	// TODO: print the file name of the Lua script being executed.
-	log_add (level, "Lua: %s\n", str);
+	log_add(level, "Lua: %s", str);
 	return 0;
 }
 
