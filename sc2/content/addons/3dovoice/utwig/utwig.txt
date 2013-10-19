@@ -168,13 +168,8 @@ I am speechless with rage... and yet, I must speak!
 How dare you flaunt the collective embarrassment of the Utwig?!
 You will now pay for your severe breach of etiquette!
 
-#(we_are_vindicator0)
-This is Captain 
-#(we_are_vindicator1)
-, representing 
-
-#(we_are_vindicator2)
-. Please respond.
+#(we_are_vindicator)
+This is Captain <% state.sis.getCaptainName() %>, representing <% comm.getPhrase("name_" .. (state.prop.get("NEW_ALLIANCE_NAME") + 1)) %>. Please respond.
 
 #(WOULD_BE_HAPPY_BUT)	utwig-026.ogg
 What good would that do -- I mean, why should we?
@@ -393,10 +388,8 @@ The Concordance of Alien Nations
 #(name_3)
 The United Federation of Worlds
 
-#(name_40)
-The Empire of 
-#(name_41)
- 
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %>
 
 #(HAPPY_DAYS)	utwig-041.ogg
 AAAHHH!! Every divot, every crack on Its surface is etched forever in my soul!

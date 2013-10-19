@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
 
@@ -475,7 +476,7 @@ NeutralUtwig (RESPONSE_REF R)
 
 	LastStack = 0;
 	pStr[0] = pStr[1] = pStr[2] = pStr[3] = 0;
-	if (PLAYER_SAID (R, we_are_vindicator0))
+	if (PLAYER_SAID (R, we_are_vindicator))
 	{
 		NPCPhrase (WOULD_BE_HAPPY_BUT);
 
@@ -551,20 +552,7 @@ NeutralUtwig (RESPONSE_REF R)
 	switch (GET_GAME_STATE (UTWIG_STACK1))
 	{
 		case 0:
-			{
-				UNICODE buf[ALLIANCE_NAME_BUFSIZE];
-
-				GetAllianceName (buf, name_1);
-				construct_response (
-						shared_phrase_buf,
-						we_are_vindicator0,
-						GLOBAL_SIS (CommanderName),
-						we_are_vindicator1,
-						buf,
-						we_are_vindicator2,
-						(UNICODE*)NULL);
-			}
-			pStr[0] = we_are_vindicator0;
+			pStr[0] = we_are_vindicator;
 			break;
 		case 1:
 			pStr[0] = why_sad;
@@ -600,21 +588,11 @@ NeutralUtwig (RESPONSE_REF R)
 	}
 
 	if (pStr[LastStack])
-	{
-		if (pStr[LastStack] != we_are_vindicator0)
-			Response (pStr[LastStack], NeutralUtwig);
-		else
-			DoResponsePhrase (pStr[LastStack], NeutralUtwig, shared_phrase_buf);
-	}
+		Response (pStr[LastStack], NeutralUtwig);
 	for (i = 0; i < 4; ++i)
 	{
 		if (i != LastStack && pStr[i])
-		{
-			if (pStr[i] != we_are_vindicator0)
-				Response (pStr[i], NeutralUtwig);
-			else
-				DoResponsePhrase (pStr[i], NeutralUtwig, shared_phrase_buf);
-		}
+			Response (pStr[i], NeutralUtwig);
 	}
 	if (GET_GAME_STATE (ULTRON_CONDITION))
 		Response (got_ultron, ExitConversation);
@@ -949,6 +927,7 @@ Intro (void)
 static COUNT
 uninit_utwig (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -966,6 +945,10 @@ init_utwig_comm (void)
 	utwig_desc.init_encounter_func = Intro;
 	utwig_desc.post_encounter_func = post_utwig_enc;
 	utwig_desc.uninit_encounter_func = uninit_utwig;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	utwig_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	utwig_desc.AlienTextBaseline.y = 70;
