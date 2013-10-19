@@ -1,5 +1,5 @@
-			   SAVEFILE FORMAT
-			   ---------------
+                           SAVEFILE FORMAT
+                           ---------------
 
 This document represents a work in progress. The save format described
 here will evolve before finalization for 0.8.
@@ -10,8 +10,8 @@ anymore. It was also extremely fragile and hard for modders to extend.
 
 The new save format seeks to alleviate these problems.
 
-			    GENERAL FORMAT
-			    --------------
+                            GENERAL FORMAT
+                            --------------
 
 All multibyte values are little-endian. There are no alignment
 restrictions inherent in the format.
@@ -60,8 +60,8 @@ depending on the situation you saved in.
 Unless otherwise specified, chunks may be stored in any order in the
 save file.
 
-			   CHUNK INVENTORY
-			   ---------------
+                           CHUNK INVENTORY
+                           ---------------
 
 - "Summ": Summary. This chunk must come first. This chunk
   carries the flagship configuration information and some overview
@@ -71,7 +71,8 @@ save file.
 
 - "GlSt": Global State. This chunk must come second, after
   Summ. Represents most of the data in the global state structure in
-  globdata.h.
+  globdata.h. BattleGroupRef is excised from this; its value is
+  computed later on.
 
 - "GmSt": Game State. This chunk must come third, after GlSt. This is
   the gigantic bitfield that the GET_GAME_STATE macros modify. It is
@@ -107,56 +108,42 @@ save file.
 - "Star": Star Description. Basic indexing information to indicate
   which star system you are in.
 
-- "SISF": Star Info State File. An index into which planetside
-  resources you have investigated and collected. See
-  doc/devel/statefiles for more details.
+- "Scan": Scanner Masks. This is a semi-structured tree of DWORDs that
+  represents which planetary resources have been captured or
+  removed. It is a format roughly similar to the old star info
+  statefile format (see doc/devel/statefile) but little-endianness is
+  enforced, making this chunk endian-safe where the old statefile dump
+  was not.
 
-- "DGSF": Defined Group State File. Battlegroup information for
-  space-based encounters dictated by the plot. See
-  doc/devel/statefiles for more details.
+- "BtGp": Battle Group. Defines the relevant information for all ships
+  in a given star system. This includes an "encounter ID" - randomly
+  generated fleets have an encounter ID of zero, and ones built by the
+  plot have an 32-bit identifier. Vanilla UQM reserves the first 32
+  encounter IDs for itself, and uses 15 of them (random encounter,
+  Ur-Quan Probe, Shofixti Survivor, Zoq-Fot-Pik Emissary, Unzervalt
+  Guardian, nine Melnorme Traders, and the final boss). This also
+  includes the expiration date for random encounters and which system
+  they are relevant to. Much of this information was originally stored
+  in randgrp.dat, but it has echoes in defgrp.dat as well. The data
+  here is a ragged 2D array of a slight extension of the SHIP_FRAGMENT
+  structure. There is one BtGp chunk per defined group. (Since one of
+  these is defined at game start, and the random encounter structure
+  has values that mean 'no encounter present', there should always be
+  at least two of these chunks in any save.)
 
-- "RGSF": Random Group State File. Battlegroup information for random
-  encounters in interplanetary space. See doc/devel/statefiles for
-  more details.
+- "Grps": Active Battle Groups. These are IP_GROUP structures to
+  supplement the SHIP_FRAGMENTs specified in BtGp chunks. They give
+  more detailed information about the precise location and disposition
+  of each ship in the system you are either in or most recently left.
 
-- "Scan": Scanner Masks. NOT YET IMPLEMENTED; WILL REPLACE SISF. It
-  might just be a rename with better endianness enforcement, though;
-  the SISF dump is pretty well-structured as it is.
+                          THINGS LEFT TO DO
+                          -----------------
 
-- "DGrp": Defined Group. NOT YET IMPLEMENTED; WILL REPLACE DGSF. Will
-  carry an enumeration id to indicate which of the defgrps it is
-  (that's currently intrinsic to the game state bit array) and will
-  also have a bit indicating whether or not it is the "current"
-  defgrp. If no defgrp is current, BattleGroupRef is 0; otherwise,
-  BattleGroupRef is the defgrp file offset that corresponds to the
-  current system. There will be one DGrp chunk for each system with an
-  active defgrp record.
-
-- NOT YET DESIGNED: RGSF also needs to be replaced with one or more
-  chunk types. This will likely be similar to the DGrp chunks, but
-  there are stronger constraints on repetition here.
-
-		   THINGS LEFT TO DO BEFORE MERGING
-		   --------------------------------
-
-- Actually enforce little-endianness of everything that hits the disk.
-  - Everything that isn't a State File now respects this.
-  - State files are going to require more work (see below).
-
-- There are 448 bits in GmSt that are actually indices into DGSF. They
-  shouldn't be there. In fact, they shouldn't even be in the
-  GAME_STATE array either. They should be an array of DWORDs living
-  independently in the global state
-  - In preparation for this, the GRPOFFS state has been moved to the
-    end of the state array. We'll be able to eradicate it once the
-    state files are no longer part of the save.
-
-- The State Files are (except maybe for Star Info) a horrible mess and
-  we should not be replicating them in the save file. We should
-  instead be regenerating them from more structured forms.
-  - Once we do this we can start computing new values for the GRPOFFS
-    state and the BattleGroupRef based on the new chunks. We can then
-    remove the GRPOFFS bits from the GmSt chunk and the BattleGroupRef
-    from the GlSt chunk. From there we can see our way to eradicating
-    the state file abstraction entirely, but that will be quite a bit
-    more work.
+The last 448 bits in GmSt probably shouldn't exist. However, we should
+not remove them from the source base (and thus the save file) until
+after other pending commits have been merged. When this happens, we
+can break out those bits into an array of DWORDs instead. The loading
+code basically ignores those GmSt bits by overwriting them while
+loading later chunks, and GmSt is an expandable array in the first
+place, so removing those final bits from the Game State array should
+be compatible in both directions.

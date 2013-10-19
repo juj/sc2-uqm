@@ -298,7 +298,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 		return FALSE;
 	}
 	read_32 (fh, &magic);
-	if (magic != 79)
+	if (magic != 75)
 	{
 		/* Chunk is the wrong size. */
 		return FALSE;
@@ -333,8 +333,6 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	read_16s (fh, &GSPtr->velocity.error.height);
 	read_16s (fh, &GSPtr->velocity.incr.width);
 	read_16s (fh, &GSPtr->velocity.incr.height);
-
-	read_32  (fh, &GSPtr->BattleGroupRef);
 
 	read_32 (fh, &magic);
 	if (magic != GAME_STATE_TAG)
@@ -444,27 +442,6 @@ LoadStarDesc (STAR_DESC *SDPtr, void *fh)
 	read_8  (fh, &SDPtr->Index);
 	read_8  (fh, &SDPtr->Prefix);
 	read_8  (fh, &SDPtr->Postfix);
-}
-
-static void
-LoadStateFile (int file_type, void *fh, DWORD flen)
-{
-	GAME_STATE_FILE *fp = OpenStateFile (file_type, "wb");
-	char buf[256];
-	if (fp)
-	{
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			read_a8 (fh, buf, num_bytes);
-			WriteStateFile (buf, num_bytes, 1, fp);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
 }
 
 static void
@@ -764,15 +741,6 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 				first_group_spec = FALSE;
 			}
 			LoadBattleGroup (in_fp, chunkSize);
-			break;
-		case STAR_SF_TAG:
-			LoadStateFile (STARINFO_FILE, in_fp, chunkSize);
-			break;
-		case DEFGRP_SF_TAG:
-			LoadStateFile (DEFGRPINFO_FILE, in_fp, chunkSize);
-			break;
-		case RANDGRP_SF_TAG:
-			LoadStateFile (RANDGRPINFO_FILE, in_fp, chunkSize);
 			break;
 		default:
 			log_add (log_Debug, "Skipping chunk of tag %08X (size %u)", chunk, chunkSize);

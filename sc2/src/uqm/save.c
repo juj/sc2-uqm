@@ -330,7 +330,7 @@ static void
 SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 {
 	write_32  (fh, GLOBAL_STATE_TAG);
-	write_32  (fh, 79);
+	write_32  (fh, 75);
 	write_8   (fh, GSPtr->glob_flags);
 	write_8   (fh, GSPtr->CrewCost);
 	write_8   (fh, GSPtr->FuelCost);
@@ -362,9 +362,9 @@ SaveGameState (const GAME_STATE *GSPtr, uio_Stream *fh)
 	write_16  (fh, GSPtr->velocity.incr.width);
 	write_16  (fh, GSPtr->velocity.incr.height);
 
-	write_32  (fh, GSPtr->BattleGroupRef);
-
-	/* The Game state bits. Vanilla UQM uses 155 bytes here. */
+	/* The Game state bits. Vanilla UQM uses 155 bytes here at
+	 * present. Only the first 99 bytes are significant, though;
+	 * the rest will be overwritten by the BtGp chunks. */
 	write_32  (fh, GAME_STATE_TAG);
 	write_32  (fh, sizeof (GSPtr->GameState));
 	write_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
@@ -815,11 +815,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 		// Save the encounter chunk (black globes in HS/QS)
 		SaveEncounters (out_fp);
 
-		// Save out the state file chunks.
-		SaveStateFile (STARINFO_FILE, STAR_SF_TAG, out_fp);
-		SaveStateFile (DEFGRPINFO_FILE, DEFGRP_SF_TAG, out_fp);
-		SaveStateFile (RANDGRPINFO_FILE, RANDGRP_SF_TAG, out_fp);
-
+		// Save out the data that used to be in state files
 		SaveStarInfo (out_fp);
 		SaveGroups (out_fp);
 
