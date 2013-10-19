@@ -709,9 +709,8 @@ SaveGroups (uio_Stream *fh)
 		sread_8 (fp, &lastenc);
 		sread_8 (fp, &count);
 		write_32 (fh, GROUP_LIST_TAG);
-		write_32 (fh, 2 + 14 * count); // Chunk size
+		write_32 (fh, 1 + 14 * count); // Chunk size
 		write_8 (fh, lastenc);
-		write_8 (fh, count);
 		for (i = 0; i < count; ++i)
 		{
 			BYTE race_outer;

@@ -27,7 +27,7 @@
 #include "save.h"
 #include "setup.h"
 #include "state.h"
-#include "grpinfo.h"
+#include "grpintrn.h"
 
 #include "libs/tasklib.h"
 #include "libs/log.h"
@@ -467,6 +467,160 @@ LoadStateFile (int file_type, void *fh, DWORD flen)
 	}
 }
 
+static void
+LoadScanInfo (uio_Stream *fh, DWORD flen)
+{
+	GAME_STATE_FILE *fp = OpenStateFile (STARINFO_FILE, "wb");
+	if (fp)
+	{
+		while (flen)
+		{
+			DWORD val;
+			read_32 (fh, &val);
+			swrite_32 (fp, val);
+			flen -= 4;
+		}
+		CloseStateFile (fp);
+	}
+}
+
+static void
+LoadGroupList (uio_Stream *fh, DWORD chunksize)
+{
+	GAME_STATE_FILE *fp = OpenStateFile (RANDGRPINFO_FILE, "rb");
+	if (fp)
+	{
+		GROUP_HEADER h;
+		BYTE LastEnc, NumGroups;
+		int i;
+		ReadGroupHeader (fp, &h);
+		/* There's only supposed to be one of these, so group 0 should be
+		 * zero here whenever we're here. We add the group list to the
+		 * end here. */
+		h.GroupOffset[0] = LengthStateFile (fp);
+		SeekStateFile (fp, 0, SEEK_SET);
+		WriteGroupHeader (fp, &h);
+		SeekStateFile (fp, h.GroupOffset[0], SEEK_SET);
+		read_8 (fh, &LastEnc);
+		NumGroups = (chunksize - 1) / 14;
+		swrite_8 (fp, LastEnc);
+		swrite_8 (fp, NumGroups);
+		for (i = 0; i < NumGroups; ++i)
+		{
+			BYTE race_outer;
+			IP_GROUP ip;
+			read_8  (fh, &race_outer);
+			read_16 (fh, &ip.group_counter);
+			read_8  (fh, &ip.race_id);
+                        read_8  (fh, &ip.sys_loc);
+                        read_8  (fh, &ip.task);
+                        read_8  (fh, &ip.in_system);
+                        read_8  (fh, &ip.dest_loc);
+                        read_8  (fh, &ip.orbit_pos);
+                        read_8  (fh, &ip.group_id);
+                        read_16 (fh, &ip.loc.x);
+                        read_16 (fh, &ip.loc.y);
+
+			swrite_8 (fp, race_outer);
+			WriteIpGroup (fp, &ip);
+		}
+		CloseStateFile (fp);
+	}
+}
+
+static void
+LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
+{
+	GAME_STATE_FILE *fp;
+	GROUP_HEADER h;
+	DWORD encounter, offset;
+	BYTE current;
+	int i;
+
+	read_32 (fh, &encounter);
+	read_8 (fh, &current);
+	chunksize -= 5;
+	if (encounter)
+	{
+		/* This is a defined group, so it's new */
+		fp = OpenStateFile (DEFGRPINFO_FILE, "rb");
+		offset = LengthStateFile (fp);
+		memset (&h, 0, sizeof (GROUP_HEADER));
+	}
+	else
+	{
+		/* This is the random group. Load in what was there,
+		 * as we might have already seen the Group List. */
+		fp = OpenStateFile (RANDGRPINFO_FILE, "rb");
+		current = FALSE;
+		offset = 0;
+		ReadGroupHeader (fp, &h);
+	}
+	if (!fp)
+	{
+		skip_8 (fh, chunksize);
+		return;
+	}
+	read_16 (fh, &h.star_index);
+	read_8  (fh, &h.day_index);
+	read_8  (fh, &h.month_index);
+	read_16 (fh, &h.year_index);
+	read_8  (fh, &h.NumGroups);
+	chunksize -= 7;
+	/* Write out the half-finished state file so that we can use
+	 * the file size to compute group offsets */
+	SeekStateFile (fp, offset, SEEK_SET);
+	WriteGroupHeader (fp, &h);
+	for (i = 1; i <= h.NumGroups; ++i)
+	{
+		int j;
+		BYTE icon, NumShips;
+		read_8 (fh, &icon);
+		read_8 (fh, &NumShips);
+		chunksize -= 2;
+		h.GroupOffset[i] = LengthStateFile (fp);
+		SeekStateFile (fp, h.GroupOffset[i], SEEK_SET);
+		swrite_8 (fp, icon);
+		swrite_8 (fp, NumShips);
+		for (j = 0; j < NumShips; ++j)
+		{
+			BYTE race_outer;
+			SHIP_FRAGMENT sf;
+			read_8  (fh, &race_outer);
+                        read_8  (fh, &sf.captains_name_index);
+                        read_8  (fh, &sf.race_id);
+                        read_8  (fh, &sf.index);
+                        read_16 (fh, &sf.crew_level);
+                        read_16 (fh, &sf.max_crew);
+                        read_8  (fh, &sf.energy_level);
+                        read_8  (fh, &sf.max_energy);
+			chunksize -= 10;
+
+			swrite_8 (fp, race_outer);
+			WriteShipFragment (fp, &sf);
+		}
+	}
+	/* Now that the GroupOffset array is properly initialized,
+	 * write the header back out. */
+	SeekStateFile (fp, offset, SEEK_SET);
+	WriteGroupHeader (fp, &h);
+	CloseStateFile (fp);
+	/* And update the gamestate accordingly, if we're a defined group. */
+	if (encounter)
+	{
+		SET_GAME_STATE_32 (SHOFIXTI_GRPOFFS0 + (encounter - 1) * 32, offset);
+		if (current)
+		{
+			GLOBAL (BattleGroupRef) = offset;
+		}
+	}
+	/* Consistency check. */
+	if (chunksize)
+	{
+		log_add (log_Warning, "BattleGroup chunk mis-sized!");
+	}
+}
+
 BOOLEAN
 LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 {
@@ -477,6 +631,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	STAR_DESC SD;
 	ACTIVITY Activity;
 	DWORD chunk, chunkSize;
+	BOOLEAN first_group_spec = TRUE;
 
 	sprintf (file, "uqmsave.%02u", which_game);
 	in_fp = res_OpenResFile (saveDir, file, "rb");
@@ -588,6 +743,27 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 			break;
 		case SHIP_Q_TAG:
 			LoadShipQueue (in_fp, &GLOBAL (built_ship_q), chunkSize);
+			break;
+		case SCAN_TAG:
+			LoadScanInfo (in_fp, chunkSize);
+			break;
+		case GROUP_LIST_TAG:
+			if (first_group_spec)
+			{
+				InitGroupInfo (TRUE);
+				GLOBAL (BattleGroupRef) = 0;
+				first_group_spec = FALSE;
+			}
+			LoadGroupList (in_fp, chunkSize);
+			break;
+		case BATTLE_GROUP_TAG:
+			if (first_group_spec)
+			{
+				InitGroupInfo (TRUE);
+				GLOBAL (BattleGroupRef) = 0;
+				first_group_spec = FALSE;
+			}
+			LoadBattleGroup (in_fp, chunkSize);
 			break;
 		case STAR_SF_TAG:
 			LoadStateFile (STARINFO_FILE, in_fp, chunkSize);
