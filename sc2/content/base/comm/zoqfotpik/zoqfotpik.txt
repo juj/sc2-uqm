@@ -61,12 +61,8 @@ Well, Captain, as you can see, this is a point of some contention.
 #(HE_IS7)	zoqfotpik-023.ogg
 Fot!
 
-#(we_are_vindicator0)
-We are 
-#(we_are_vindicator1)
- flagship 
-#(we_are_vindicator2)
- from Earth.  What are your intentions?
+#(we_are_vindicator)
+We are <% comm.getPhrase("name_" .. (state.prop.get("NEW_ALLIANCE_NAME") + 1)) %> flagship <% state.sis.getShipName() %> from Earth.  What are your intentions?
 
 #(WE_GLAD0)	zoqfotpik-024.ogg
 Hurrah!
@@ -920,10 +916,8 @@ The Concordance of Alien Nations'
 #(name_3)
 The United Federation of Worlds'
 
-#(name_40)
-The Empire of 
-#(name_41)
-'s
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %>'s
 
 #(OUT_TAKES0) zoqfotpik-291.ogg
 Thank you for playing The Ur-Quan Masters.

@@ -23,9 +23,7 @@
 #(HE_IS5) 
 #(HE_IS6) 981
 #(HE_IS7) 
-#(we_are_vindicator0) 
-#(we_are_vindicator1) 
-#(we_are_vindicator2) 
+#(we_are_vindicator) 
 #(WE_GLAD0) 921
 #(WE_GLAD1) 
 #(WE_GLAD2) 2173
@@ -319,8 +317,7 @@
 #(name_1) 
 #(name_2) 
 #(name_3) 
-#(name_40) 
-#(name_41) 
+#(name_4) 
 #(OUT_TAKES0) 
 #(OUT_TAKES1) 3500
 #(OUT_TAKES2) 

@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
 
@@ -270,7 +271,7 @@ FormAlliance (RESPONSE_REF R)
 static void
 ZoqFotIntro (RESPONSE_REF R)
 {
-	if (PLAYER_SAID (R, we_are_vindicator0))
+	if (PLAYER_SAID (R, we_are_vindicator))
 	{
 		NPCPhrase_cb (WE_GLAD0, &SelectAlienZOQ);
 		NPCPhrase_cb (WE_GLAD1, &SelectAlienPIK);
@@ -280,7 +281,7 @@ ZoqFotIntro (RESPONSE_REF R)
 		NPCPhrase_cb (WE_GLAD5, &SelectAlienPIK);
 		ZFPTalkSegue ((COUNT)~0);
 		
-		DISABLE_PHRASE (we_are_vindicator0);
+		DISABLE_PHRASE (we_are_vindicator);
 	}
 	else if (PLAYER_SAID (R, your_race))
 	{
@@ -417,25 +418,10 @@ AquaintZoqFot (RESPONSE_REF R)
 		DISABLE_PHRASE (quiet_toadies);
 	}
 
-	if (PHRASE_ENABLED (we_are_vindicator0))
-	{
-		UNICODE buf[ALLIANCE_NAME_BUFSIZE];
-
-		GetAllianceName (buf, name_1);
-		construct_response (
-				shared_phrase_buf,
-				we_are_vindicator0,
-				buf,
-				we_are_vindicator1,
-				GLOBAL_SIS (ShipName),
-				we_are_vindicator2,
-				(UNICODE*)NULL);
-	}
-
 	if (PHRASE_ENABLED (which_fot))
 		Response (which_fot, AquaintZoqFot);
-	if (PHRASE_ENABLED (we_are_vindicator0))
-		DoResponsePhrase (we_are_vindicator0, ZoqFotIntro, shared_phrase_buf);
+	if (PHRASE_ENABLED (we_are_vindicator))
+		Response (we_are_vindicator, ZoqFotIntro);
 	if (PHRASE_ENABLED (quiet_toadies))
 		Response (quiet_toadies, AquaintZoqFot);
 	Response (all_very_interesting, ExitConversation);
@@ -938,6 +924,7 @@ Intro (void)
 static COUNT
 uninit_zoqfot (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -955,6 +942,10 @@ init_zoqfot_comm (void)
 	zoqfot_desc.init_encounter_func = Intro;
 	zoqfot_desc.post_encounter_func = post_zoqfot_enc;
 	zoqfot_desc.uninit_encounter_func = uninit_zoqfot;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	zoqfot_desc.AlienTextWidth = (SIS_TEXT_WIDTH >> 1) - TEXT_X_OFFS;
 
