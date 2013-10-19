@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/gameev.h"
 
 
@@ -658,12 +659,12 @@ HomeWorld (RESPONSE_REF R)
 
 	LastStack = 0;
 	pStr[0] = pStr[1] = pStr[2] = 0;
-	if (PLAYER_SAID (R, we_are_us0))
+	if (PLAYER_SAID (R, we_are_us))
 	{
 		NPCPhrase (TERRIBLY_EXCITING);
 
 		SET_GAME_STATE (SLYLANDRO_STACK1, 1);
-		DISABLE_PHRASE (we_are_us0);
+		DISABLE_PHRASE (we_are_us);
 	}
 	else if (PLAYER_SAID (R, what_other_visitors))
 	{
@@ -755,14 +756,7 @@ HomeWorld (RESPONSE_REF R)
 	switch (GET_GAME_STATE (SLYLANDRO_STACK1))
 	{
 		case 0:
-			construct_response (shared_phrase_buf,
-					we_are_us0,
-					GLOBAL_SIS (CommanderName),
-					we_are_us1,
-					GLOBAL_SIS (ShipName),
-					we_are_us2,
-					(UNICODE*)NULL);
-			pStr[0] = we_are_us0;
+			pStr[0] = we_are_us;
 			break;
 		case 1:
 			pStr[0] = what_other_visitors;
@@ -807,21 +801,11 @@ HomeWorld (RESPONSE_REF R)
 	}
 
 	if (pStr[LastStack])
-	{
-		if (pStr[LastStack] != we_are_us0)
-			Response (pStr[LastStack], HomeWorld);
-		else
-			DoResponsePhrase (pStr[LastStack], HomeWorld, shared_phrase_buf);
-	}
+		Response (pStr[LastStack], HomeWorld);
 	for (i = 0; i < 3; ++i)
 	{
 		if (i != LastStack && pStr[i])
-		{
-			if (pStr[i] != we_are_us0)
-				Response (pStr[i], HomeWorld);
-			else
-				DoResponsePhrase (pStr[i], HomeWorld, shared_phrase_buf);
-		}
+			Response (pStr[i], HomeWorld);
 	}
 	if (GET_GAME_STATE (SLYLANDRO_STACK1))
 	{
@@ -892,6 +876,7 @@ Intro (void)
 static COUNT
 uninit_slylandro (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -909,6 +894,10 @@ init_slylandro_comm (void)
 	slylandro_desc.init_encounter_func = Intro;
 	slylandro_desc.post_encounter_func = post_slylandro_enc;
 	slylandro_desc.uninit_encounter_func = uninit_slylandro;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	slylandro_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	slylandro_desc.AlienTextBaseline.y = 0;

@@ -31,12 +31,8 @@ We expect the population of probes will decline swiftly.
 Thank you so much for showing us our error.
 We feel very badly about the inconvenience it has caused others.
 
-#(we_are_us0)
-I am 
-#(we_are_us1)
-, Captain of the Earth starship 
-#(we_are_us2)
-. What the heck are you?
+#(we_are_us)
+I am <% state.sis.getCaptainName() %>, Captain of the Earth starship <% state.sis.getShipName() %>. What the heck are you?
 
 #(TERRIBLY_EXCITING)	slylandro-005.ogg
 Oh, this is terribly exciting!
