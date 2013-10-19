@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/gameev.h"
 
 
@@ -326,7 +327,7 @@ ExplainDefeat (RESPONSE_REF R)
 		NPCPhrase (MUST_UNDERSTAND);
 	else if (PLAYER_SAID (R, i_am_guy))
 		NPCPhrase (NICE_BUT_WHAT_IS_DONKEY);
-	else /* if (PLAYER_SAID (R, i_am_captain0)) */
+	else /* if (PLAYER_SAID (R, i_am_captain)) */
 		NPCPhrase (SO_SORRY);
 	NPCPhrase (IS_DEFEAT_TRUE);
 
@@ -344,22 +345,7 @@ RealizeMistake (RESPONSE_REF R)
 	SET_GAME_STATE (SHOFIXTI_STACK3, 0);
 	SET_GAME_STATE (SHOFIXTI_STACK2, 3);
 
-	{
-		UNICODE buf[ALLIANCE_NAME_BUFSIZE];
-
-		GetAllianceName (buf, name_1);
-		construct_response (
-				shared_phrase_buf,
-				i_am_captain0,
-				GLOBAL_SIS (CommanderName),
-				i_am_captain1,
-				buf,
-				i_am_captain2,
-				GLOBAL_SIS (ShipName),
-				i_am_captain3,
-				(UNICODE*)NULL);
-	}
-	DoResponsePhrase (i_am_captain0, ExplainDefeat, shared_phrase_buf);
+	Response (i_am_captain, ExplainDefeat);
 	Response (i_am_nice, ExplainDefeat);
 	Response (i_am_guy, ExplainDefeat);
 }
@@ -622,6 +608,7 @@ Intro (void)
 static COUNT
 uninit_shofixti (void)
 {
+	luaUqm_comm_uninit ();
 	return(0);
 }
 
@@ -639,6 +626,10 @@ init_shofixti_comm (void)
 	shofixti_desc.init_encounter_func = Intro;
 	shofixti_desc.post_encounter_func = post_shofixti_enc;
 	shofixti_desc.uninit_encounter_func = uninit_shofixti;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	shofixti_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	shofixti_desc.AlienTextBaseline.y = 0;

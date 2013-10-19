@@ -7,10 +7,8 @@ The Concordance of Alien Nations
 #(name_3)
 The United Federation of Worlds
 
-#(name_40)
-The Empire of 
-#(name_41)
- 
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %>
 
 #(tanaka) shofixti-000.ogg
 Tanaka
@@ -160,14 +158,8 @@ hey
 Ur-Quans never insulted me before!
 Who did you say you were?
 
-#(i_am_captain0)
-I am Captain 
-#(i_am_captain1)
- from the 
-#(i_am_captain2)
- aboard the flagship 
-#(i_am_captain3)
-. Cease aggression immediately!
+#(i_am_captain)
+I am Captain <% state.sis.getCaptainName() %> from the <% comm.getPhrase("name_" .. (state.prop.get("NEW_ALLIANCE_NAME") + 1)) %> aboard the flagship <% state.sis.getShipName() %>. Cease aggression immediately!
 
 #(i_am_nice)
 I am the nice, friendly ally WHO YOU'VE BEEN TRYING TO KILL -- YOU IDIOT, MORON RATHEAD!
