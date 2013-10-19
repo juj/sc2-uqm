@@ -20,6 +20,7 @@
 #include "../comandr/resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/setup.h"
 #include "uqm/shipcont.h"
@@ -173,52 +174,21 @@ ByeBye (RESPONSE_REF R)
 		NPCPhrase (GOOD_LUCK_AGAIN);
 	else
 	{
-		RESPONSE_REF pStr0 = 0;
-		RESPONSE_REF pStr1 = 0;
+		RESPONSE_REF pStr = 0;
 		
 		switch ((BYTE)TFB_Random () & 7)
 		{
-			case 0:
-				pStr0 = NORMAL_GOODBYE_A0;
-				pStr1 = NORMAL_GOODBYE_A1;
-				break;
-			case 1:
-				pStr0 = NORMAL_GOODBYE_B0;
-				pStr1 = NORMAL_GOODBYE_B1;
-				break;
-			case 2:
-				pStr0 = NORMAL_GOODBYE_C0;
-				pStr1 = NORMAL_GOODBYE_C1;
-				break;
-			case 3:
-				pStr0 = NORMAL_GOODBYE_D0;
-				pStr1 = NORMAL_GOODBYE_D1;
-				break;
-			case 4:
-				pStr0 = NORMAL_GOODBYE_E0;
-				pStr1 = NORMAL_GOODBYE_E1;
-				break;
-			case 5:
-				pStr0 = NORMAL_GOODBYE_F0;
-				pStr1 = NORMAL_GOODBYE_F1;
-				break;
-			case 6:
-				pStr0 = NORMAL_GOODBYE_G0;
-				pStr1 = NORMAL_GOODBYE_G1;
-				break;
-			case 7:
-				pStr0 = NORMAL_GOODBYE_H0;
-				pStr1 = NORMAL_GOODBYE_H1;
-				break;
+			case 0: pStr = NORMAL_GOODBYE_A; break;
+			case 1: pStr = NORMAL_GOODBYE_B; break;
+			case 2: pStr = NORMAL_GOODBYE_C; break;
+			case 3: pStr = NORMAL_GOODBYE_D; break;
+			case 4: pStr = NORMAL_GOODBYE_E; break;
+			case 5: pStr = NORMAL_GOODBYE_F; break;
+			case 6: pStr = NORMAL_GOODBYE_G; break;
+			case 7: pStr = NORMAL_GOODBYE_H; break;
 		}
 
-		NPCPhrase (pStr0);
-		if (!usingSpeech)
-		{
-			NPCPhrase (SPACE);
-			NPCPhrase (GLOBAL_PLAYER_NAME);
-		}
-		NPCPhrase (pStr1);
+		NPCPhrase (pStr);
 	}
 }
 
@@ -887,7 +857,6 @@ static void
 TellStarBase (RESPONSE_REF R)
 {
 	RESPONSE_REF pstack[4];
-	static UNICODE buf0[80];
 
 	if (PLAYER_SAID (R, starbase_functions))
 	{
@@ -897,7 +866,7 @@ TellStarBase (RESPONSE_REF R)
 		stack2 = 0;
 		stack3 = 0;
 	}
-	else if (PLAYER_SAID (R, tell_me_about_fuel0))
+	else if (PLAYER_SAID (R, tell_me_about_fuel))
 	{
 		NPCPhrase (ABOUT_FUEL);
 
@@ -905,18 +874,11 @@ TellStarBase (RESPONSE_REF R)
 	}
 	else if (PLAYER_SAID (R, tell_me_about_crew))
 	{
-		NPCPhrase (ABOUT_CREW0);
-		if (usingSpeech)
-			NPCPhrase (YOUR_FLAGSHIP_3DO2);
-		else {
-			NPCPhrase (YOUR_FLAGSHIP_PC);
-			NPCPhrase (GLOBAL_SHIP_NAME);
-		}
-		NPCPhrase (ABOUT_CREW1);
+		NPCPhrase (ABOUT_CREW);
 
 		stack2 = 2;
 	}
-	else if (PLAYER_SAID (R, tell_me_about_modules0))
+	else if (PLAYER_SAID (R, tell_me_about_modules))
 	{
 		NPCPhrase (ABOUT_MODULES);
 
@@ -950,13 +912,7 @@ TellStarBase (RESPONSE_REF R)
 	switch (stack0)
 	{
 		case 0:
-			construct_response (
-					buf0,
-					tell_me_about_modules0,
-					GLOBAL_SIS (ShipName),
-					tell_me_about_modules1,
-					(UNICODE*)NULL);
-			pstack[0] = tell_me_about_modules0;
+			pstack[0] = tell_me_about_modules;
 			break;
 		default:
 			pstack[0] = 0;
@@ -965,13 +921,7 @@ TellStarBase (RESPONSE_REF R)
 	switch (stack1)
 	{
 		case 0:
-			construct_response (
-					shared_phrase_buf,
-					tell_me_about_fuel0,
-					GLOBAL_SIS (ShipName),
-					tell_me_about_fuel1,
-					(UNICODE*)NULL);
-			pstack[1] = tell_me_about_fuel0;
+			pstack[1] = tell_me_about_fuel;
 			break;
 		default:
 			pstack[1] = 0;
@@ -1006,9 +956,9 @@ TellStarBase (RESPONSE_REF R)
 	}
 
 	if (pstack[0])
-		DoResponsePhrase (pstack[0], TellStarBase, buf0);
+		Response (pstack[0], TellStarBase);
 	if (pstack[1])
-		DoResponsePhrase (pstack[1], TellStarBase, shared_phrase_buf);
+		Response (pstack[1], TellStarBase);
 	if (pstack[2])
 		Response (pstack[2], TellStarBase);
 	if (pstack[3])
@@ -1643,19 +1593,7 @@ NormalStarbase (RESPONSE_REF R)
 	{
 		if (GET_GAME_STATE (MOONBASE_ON_SHIP))
 		{
-			NPCPhrase (STARBASE_IS_READY_A);
-			if (usingSpeech)
-				NPCPhrase (YOUR_FLAGSHIP_3DO1);
-			else {
-				NPCPhrase (YOUR_FLAGSHIP_PC);
-				NPCPhrase (GLOBAL_SHIP_NAME);
-			}
-			NPCPhrase (STARBASE_IS_READY_B);
-			if (usingSpeech)
-				NPCPhrase (YOUR_FLAGSHIP_3DO0);
-			else
-				NPCPhrase (GLOBAL_SHIP_NAME);
-			NPCPhrase (STARBASE_IS_READY_C);
+			NPCPhrase (STARBASE_IS_READY);
 			DeltaSISGauges (0, 0, 2500);
 			SET_GAME_STATE (STARBASE_MONTH,
 					GLOBAL (GameClock.month_index));
@@ -1668,51 +1606,21 @@ NormalStarbase (RESPONSE_REF R)
 		}
 		else
 		{
-			RESPONSE_REF pStr0 = 0;
-			RESPONSE_REF pStr1 = 0;
+			// XXX TODO: This can be simplified now.
+			RESPONSE_REF pStr = 0;
 
 			switch ((BYTE)TFB_Random () & 7)
 			{
-				case 0:
-					pStr0 = NORMAL_HELLO_A0;
-					pStr1 = NORMAL_HELLO_A1;
-					break;
-				case 1:
-					pStr0 = NORMAL_HELLO_B0;
-					pStr1 = NORMAL_HELLO_B1;
-					break;
-				case 2:
-					pStr0 = NORMAL_HELLO_C0;
-					pStr1 = NORMAL_HELLO_C1;
-					break;
-				case 3:
-					pStr0 = NORMAL_HELLO_D0;
-					pStr1 = NORMAL_HELLO_D1;
-					break;
-				case 4:
-					pStr0 = NORMAL_HELLO_E0;
-					pStr1 = NORMAL_HELLO_E1;
-					break;
-				case 5:
-					pStr0 = NORMAL_HELLO_F0;
-					pStr1 = NORMAL_HELLO_F1;
-					break;
-				case 6:
-					pStr0 = NORMAL_HELLO_G0;
-					pStr1 = NORMAL_HELLO_G1;
-					break;
-				case 7:
-					pStr0 = NORMAL_HELLO_H0;
-					pStr1 = NORMAL_HELLO_H1;
-					break;
+				case 0: pStr = NORMAL_HELLO_A; break;
+				case 1: pStr = NORMAL_HELLO_B; break;
+				case 2: pStr = NORMAL_HELLO_C; break;
+				case 3: pStr = NORMAL_HELLO_D; break;
+				case 4: pStr = NORMAL_HELLO_E; break;
+				case 5: pStr = NORMAL_HELLO_F; break;
+				case 6: pStr = NORMAL_HELLO_G; break;
+				case 7: pStr = NORMAL_HELLO_H; break;
 			}
-			NPCPhrase (pStr0);
-			if (!usingSpeech)
-			{
-				NPCPhrase (SPACE);
-				NPCPhrase (GLOBAL_PLAYER_NAME);
-			}
-			NPCPhrase (pStr1);
+			NPCPhrase (pStr);
 			CheckBulletins (FALSE);
 		}
 
@@ -1796,34 +1704,18 @@ SellMinerals (RESPONSE_REF R)
 		total = GET_GAME_STATE (LIGHT_MINERAL_LOAD);
 		switch (total++)
 		{
-			case 0:
-				pStr1 = LIGHT_LOAD_A0;
-				pStr2 = LIGHT_LOAD_A1;
-				break;
-			case 1:
-				pStr1 = LIGHT_LOAD_B0;
-				pStr2 = LIGHT_LOAD_B1;
-				break;
+			case 0: pStr1 = LIGHT_LOAD_A; break;
+			case 1: pStr1 = LIGHT_LOAD_B; break;
 			case 2:
+				// There are two separate sound samples in this case.
 				pStr1 = LIGHT_LOAD_C0;
 				pStr2 = LIGHT_LOAD_C1;
 				break;
-			case 3:
-				pStr1 = LIGHT_LOAD_D0;
-				pStr2 = LIGHT_LOAD_D1;
-				break;
-			case 4:
-				pStr1 = LIGHT_LOAD_E0;
-				pStr2 = LIGHT_LOAD_E1;
-				break;
-			case 5:
-				pStr1 = LIGHT_LOAD_F0;
-				pStr2 = LIGHT_LOAD_F1;
-				break;
-			case 6:
-				--total;
-				pStr1 = LIGHT_LOAD_G0;
-				pStr2 = LIGHT_LOAD_G1;
+			case 3: pStr1 = LIGHT_LOAD_D; break;
+			case 4: pStr1 = LIGHT_LOAD_E; break;
+			case 5: pStr1 = LIGHT_LOAD_F; break;
+			case 6: --total;
+				pStr1 = LIGHT_LOAD_G;
 				break;
 		}
 		SET_GAME_STATE (LIGHT_MINERAL_LOAD, total);
@@ -1833,34 +1725,15 @@ SellMinerals (RESPONSE_REF R)
 		total = GET_GAME_STATE (MEDIUM_MINERAL_LOAD);
 		switch (total++)
 		{
-			case 0:
-				pStr1 = MEDIUM_LOAD_A0;
-				pStr2 = MEDIUM_LOAD_A1;
-				break;
-			case 1:
-				pStr1 = MEDIUM_LOAD_B0;
-				pStr2 = MEDIUM_LOAD_B1;
-				break;
-			case 2:
-				pStr1 = MEDIUM_LOAD_C0;
-				pStr2 = MEDIUM_LOAD_C1;
-				break;
-			case 3:
-				pStr1 = MEDIUM_LOAD_D0;
-				pStr2 = MEDIUM_LOAD_D1;
-				break;
-			case 4:
-				pStr1 = MEDIUM_LOAD_E0;
-				pStr2 = MEDIUM_LOAD_E1;
-				break;
-			case 5:
-				pStr1 = MEDIUM_LOAD_F0;
-				pStr2 = MEDIUM_LOAD_F1;
-				break;
+			case 0: pStr1 = MEDIUM_LOAD_A; break;
+			case 1: pStr1 = MEDIUM_LOAD_B; break;
+			case 2: pStr1 = MEDIUM_LOAD_C; break;
+			case 3: pStr1 = MEDIUM_LOAD_D; break;
+			case 4: pStr1 = MEDIUM_LOAD_E; break;
+			case 5: pStr1 = MEDIUM_LOAD_F; break;
 			case 6:
 				--total;
-				pStr1 = MEDIUM_LOAD_G0;
-				pStr2 = MEDIUM_LOAD_G1;
+				pStr1 = MEDIUM_LOAD_G;
 				break;
 		}
 		SET_GAME_STATE (MEDIUM_MINERAL_LOAD, total);
@@ -1870,46 +1743,23 @@ SellMinerals (RESPONSE_REF R)
 		total = GET_GAME_STATE (HEAVY_MINERAL_LOAD);
 		switch (total++)
 		{
-			case 0:
-				pStr1 = HEAVY_LOAD_A0;
-				pStr2 = HEAVY_LOAD_A1;
-				break;
-			case 1:
-				pStr1 = HEAVY_LOAD_B0;
-				pStr2 = HEAVY_LOAD_B1;
-				break;
-			case 2:
-				pStr1 = HEAVY_LOAD_C0;
-				pStr2 = HEAVY_LOAD_C1;
-				break;
-			case 3:
-				pStr1 = HEAVY_LOAD_D0;
-				pStr2 = HEAVY_LOAD_D1;
-				break;
-			case 4:
-				pStr1 = HEAVY_LOAD_E0;
-				pStr2 = HEAVY_LOAD_E1;
-				break;
-			case 5:
-				pStr1 = HEAVY_LOAD_F0;
-				pStr2 = HEAVY_LOAD_F1;
-				break;
+			case 0: pStr1 = HEAVY_LOAD_A; break;
+			case 1: pStr1 = HEAVY_LOAD_B; break;
+			case 2: pStr1 = HEAVY_LOAD_C; break;
+			case 3: pStr1 = HEAVY_LOAD_D; break;
+			case 4: pStr1 = HEAVY_LOAD_E; break;
+			case 5: pStr1 = HEAVY_LOAD_F; break;
 			case 6:
 				--total;
-				pStr1 = HEAVY_LOAD_G0;
-				pStr2 = HEAVY_LOAD_G1;
+				pStr1 = HEAVY_LOAD_G;
 				break;
 		}
 		SET_GAME_STATE (HEAVY_MINERAL_LOAD, total);
 	}
 
 	NPCPhrase (pStr1);
-	if (!usingSpeech)
-	{
-		NPCPhrase (SPACE);
-		NPCPhrase (GLOBAL_PLAYER_NAME);
-	}
-	NPCPhrase (pStr2);
+	if (pStr2 != (RESPONSE_REF) 0)
+		NPCPhrase (pStr2);
 
 	NormalStarbase (R);
 }
@@ -1923,6 +1773,7 @@ Intro (void)
 static COUNT
 uninit_starbase (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -1944,6 +1795,10 @@ init_starbase_comm ()
 	commander_desc.init_encounter_func = Intro;
 	commander_desc.post_encounter_func = post_starbase_enc;
 	commander_desc.uninit_encounter_func = uninit_starbase;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	commander_desc.AlienTextWidth = 143;
 	commander_desc.AlienTextBaseline.x = 164;
