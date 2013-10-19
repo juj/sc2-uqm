@@ -74,20 +74,12 @@ extern UNICODE shared_phrase_buf[2048];
 #define Response(i,a) \
 		DoResponsePhrase(i,(RESPONSE_FUNC)a,0)
 
-enum
-{
-	GLOBAL_PLAYER_NAME = -1000000,
-	GLOBAL_SHIP_NAME,
-	GLOBAL_ALLIANCE_NAME,
-};
-
 typedef COUNT RESPONSE_REF;
 
 typedef void (*RESPONSE_FUNC) (RESPONSE_REF R);
 
 extern void DoResponsePhrase (RESPONSE_REF R, RESPONSE_FUNC
 		response_func, UNICODE *ContstructStr);
-extern void DoNPCPhrase (UNICODE *pStr);
 
 // The CallbackFunction is queued and executes synchronously
 // on the Starcon2Main thread

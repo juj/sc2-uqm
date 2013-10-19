@@ -37,58 +37,19 @@ void
 NPCPhrase_cb (int index, CallbackFunction cb)
 {
 	char *pStr;
-	char buf[400];
-	void *pClip, *pTimeStamp;
+	void *pClip;
+	void *pTimeStamp;
 	BOOLEAN isPStrAlloced = FALSE;
 
-	switch (index)
-	{
-		case GLOBAL_PLAYER_NAME:
-			pStr = GLOBAL_SIS (CommanderName);
-			pClip = 0;
-			pTimeStamp = 0;
-			break;
-		case GLOBAL_SHIP_NAME:
-			pStr = GLOBAL_SIS (ShipName);
-			pClip = 0;
-			pTimeStamp = 0;
-			break;
-		case 0:
-		{
-			return;
-		}
-		default:
-			if (index < 0)
-			{	// One of the alliance name variants
-				COUNT i;
-				STRING S;
+	if (index == 0)
+		return;
 
-				index -= GLOBAL_ALLIANCE_NAME;
-
-				i = GET_GAME_STATE (NEW_ALLIANCE_NAME);
-				S = SetAbsStringTableIndex (CommData.ConversationPhrases, (index - 1) + i);
-				strcpy (buf, (UNICODE *)GetStringAddress (S));
-				if (i == 3)
-					strcat (buf, GLOBAL_SIS (CommanderName));
-
-				pStr = buf;
-				pClip = 0;
-				pTimeStamp = 0;
-			}
-			else
-			{
-				pStr = (UNICODE *)GetStringAddress (
-						SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1)
-						);
-				pClip = GetStringSoundClip (
-						SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1)
-						);
-				pTimeStamp = GetStringTimeStamp (
-						SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1)
-						);
-			}
-			break;
-	}
+	pStr = (UNICODE *)GetStringAddress (
+			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
+	pClip = GetStringSoundClip (
+			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
+	pTimeStamp = GetStringTimeStamp (
+			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
 		
 	if (luaUqm_comm_stringNeedsInterpolate (pStr))
 	{
