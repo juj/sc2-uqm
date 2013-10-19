@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/setup.h"
 
@@ -649,16 +650,9 @@ InitialSyreen (RESPONSE_REF R)
 		NPCPhrase (MAYBE_CAPTAIN);
 		NPCPhrase (HOW_CAN_YOU_BE_HERE);
 	}
-	else if (PLAYER_SAID (R, we_are_vindicator0))
+	else if (PLAYER_SAID (R, we_are_vindicator))
 	{
-		NPCPhrase (WELCOME_VINDICATOR0);
-		if (!usingSpeech)
-		{
-			NPCPhrase (GLOBAL_PLAYER_NAME);
-			NPCPhrase (WELCOME_VINDICATOR1);
-			NPCPhrase (GLOBAL_SHIP_NAME);
-			NPCPhrase (WELCOME_VINDICATOR2);
-		}
+		NPCPhrase (WELCOME_VINDICATOR);
 		NPCPhrase (HOW_CAN_YOU_BE_HERE);
 	}
 	else if (PLAYER_SAID (R, we_are_impressed))
@@ -791,16 +785,9 @@ Intro (void)
 			NormalSyreen ((RESPONSE_REF)0);
 		else
 		{
-			construct_response (shared_phrase_buf,
-					we_are_vindicator0,
-					GLOBAL_SIS (CommanderName),
-					we_are_vindicator1,
-					GLOBAL_SIS (ShipName),
-					we_are_vindicator2,
-					(UNICODE*)NULL);
 			Response (we_are_vice_squad, InitialSyreen);
 			Response (we_are_the_one_for_you_baby, InitialSyreen);
-			DoResponsePhrase (we_are_vindicator0, InitialSyreen, shared_phrase_buf);
+			Response (we_are_vindicator, InitialSyreen);
 			Response (we_are_impressed, InitialSyreen);
 		}
 	}
@@ -849,6 +836,7 @@ Intro (void)
 static COUNT
 uninit_syreen (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -866,6 +854,10 @@ init_syreen_comm (void)
 	syreen_desc.init_encounter_func = Intro;
 	syreen_desc.post_encounter_func = post_syreen_enc;
 	syreen_desc.uninit_encounter_func = uninit_syreen;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be 
+			// generalised in the future.
 
 	syreen_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	syreen_desc.AlienTextBaseline.y = 0;

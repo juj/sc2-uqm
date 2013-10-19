@@ -36,23 +36,11 @@ Ah, yes... I had almost forgotten the sophistication of human social graces.
 Manners were never the Earthlings' strong point, were they?
 Your species' undeniable appeal can be found... elsewhere.
 
-#(we_are_vindicator0)
-I am Captain 
+#(we_are_vindicator)
+I am Captain <% state.sis.getCaptainName() %> of the flagship <% state.sis.getShipName() %>.
 
-#(we_are_vindicator1)
- of the flagship 
-
-#(we_are_vindicator2)
-.
-
-#(WELCOME_VINDICATOR0)	syreen-006.ogg
-Hello, Captain 
-
-#(WELCOME_VINDICATOR1)
- from the Starship 
-
-#(WELCOME_VINDICATOR2)
-.
+#(WELCOME_VINDICATOR)	syreen-006.ogg
+Hello, Captain <% state.sis.getCaptainName() %> from the Starship <% state.sis.getShipName() %>.
 
 #(we_are_impressed)
 We're... we're.. we're greatly impressed!
