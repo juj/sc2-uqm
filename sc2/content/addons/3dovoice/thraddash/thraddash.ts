@@ -136,8 +136,7 @@
 #(OK_CULTURE_20) 5078,1091,4276,1252,4166,1352,2864
 #(fat) 
 #(OK_FAT) 5759,3425,4666,5198
-#(the_slave_empire0) 
-#(the_slave_empire1) 
+#(the_slave_empire) 
 #(OK_SLAVE) 3575
 #(FAT_JERKS) 
 #(CULTURE) 
@@ -145,8 +144,7 @@
 #(name_1) 
 #(name_2) 
 #(name_3) 
-#(name_40) 
-#(name_41) 
+#(name_4) 
 #(HAVING_FUN_WITH_ILWRATH_1) 3275,5278,4276,3665,2303,5108
 #(HAVING_FUN_WITH_ILWRATH_2) 4146,2523,2404,3705
 #(GO_AWAY_FIGHTING_ILWRATH_1) 3004,4727,3706,4196,2964,4596,2754,5368

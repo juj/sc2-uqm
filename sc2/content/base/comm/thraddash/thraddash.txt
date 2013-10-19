@@ -835,11 +835,8 @@ because surely only fools would let themselves be known by such a name!
 Once again, Great Teacher, you have shown your wisdom. We thank you.
 From this day forward, we are the Fat Obstreperous Jerks!
 
-#(the_slave_empire0)
-It will be `The Glorious Slave Empire of 
-
-#(the_slave_empire1)
-'!
+#(the_slave_empire)
+It will be `The Glorious Slave Empire of <% state.sis.getCaptainName() %>'!
 
 #(OK_SLAVE)	thraddash-098.ogg
 Ulp! Well... you're the one with the big starship.
@@ -863,10 +860,8 @@ The Concordance of Alien Nations
 #(name_3)
 The United Federation of Worlds 
 
-#(name_40)
-The Empire of 
-#(name_41)
- 
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %> 
 
 #(HAVING_FUN_WITH_ILWRATH_1)	thraddash-102.ogg
 Oh! The Glory of these many battles!
