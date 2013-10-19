@@ -88,9 +88,6 @@ extern void NPCPhrase_cb (int index, CallbackFunction cb);
 extern void NPCPhrase_splice (int index);
 extern void NPCNumber (int number, const char *fmt);
 
-#define ALLIANCE_NAME_BUFSIZE 256
-extern void GetAllianceName (UNICODE *buf, RESPONSE_REF name_1);
-
 extern void construct_response (UNICODE *buf, int R /* promoted from
 		RESPONSE_REF */, ...);
 

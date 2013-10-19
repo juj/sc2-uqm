@@ -213,24 +213,6 @@ NPCNumberPhrase (int number, const char *fmt, UNICODE **ptrack)
 }
 
 void
-GetAllianceName (UNICODE *buf, RESPONSE_REF name_1)
-{
-	COUNT i;
-	STRING S;
-
-	i = GET_GAME_STATE (NEW_ALLIANCE_NAME);
-	S = SetAbsStringTableIndex (CommData.ConversationPhrases, (name_1 - 1) + i);
-	// XXX: this should someday be changed so that the function takes
-	//   the buffer size as an argument
-	strcpy (buf, (UNICODE *)GetStringAddress (S));
-	if (i == 3)
-	{
-		strcat (buf, GLOBAL_SIS (CommanderName));
-		strcat (buf, (UNICODE *)GetStringAddress (SetRelStringTableIndex (S, 1)));
-	}
-}
-
-void
 construct_response (UNICODE *buf, int R /* promoted from RESPONSE_REF */, ...)
 {
 	UNICODE *buf_start = buf;
