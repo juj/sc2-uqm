@@ -20,6 +20,7 @@
 #include "../spathi/resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
 
@@ -199,7 +200,7 @@ ExitConversation (RESPONSE_REF R)
 
 		setSegue (Segue_hostile);
 	}
-	else if (PLAYER_SAID (R, we_are_vindicator0))
+	else if (PLAYER_SAID (R, we_are_vindicator))
 	{
 		NPCPhrase (NO_PASSWORD);
 
@@ -881,14 +882,7 @@ SpathiPassword (RESPONSE_REF R)
 	}
 	else
 	{
-		construct_response (shared_phrase_buf,
-				we_are_vindicator0,
-				GLOBAL_SIS (CommanderName),
-				we_are_vindicator1,
-				GLOBAL_SIS (ShipName),
-				we_are_vindicator2,
-				(UNICODE*)NULL);
-		DoResponsePhrase (we_are_vindicator0, ExitConversation, shared_phrase_buf);
+		Response (we_are_vindicator, ExitConversation);
 		Response (gort_merenga, ExitConversation);
 		Response (guph_florp, ExitConversation);
 		Response (wagngl_fthagn, ExitConversation);
@@ -966,6 +960,7 @@ Intro (void)
 static COUNT
 uninit_spahome (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -994,6 +989,10 @@ init_spahome_comm ()
 	spahome_desc.init_encounter_func = Intro;
 	spahome_desc.post_encounter_func = post_spahome_enc;
 	spahome_desc.uninit_encounter_func = uninit_spahome;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	spahome_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	spahome_desc.AlienTextBaseline.y = 0;
