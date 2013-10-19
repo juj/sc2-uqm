@@ -28,9 +28,7 @@
 #(GOODBYE_SHIELDED) 9503
 #(WE_ARE_FREE) 2493,6930,6029,5488
 #(WHO_ARE_YOU) 
-#(i_am_captain0) 
-#(i_am_captain1) 
-#(i_am_captain2) 
+#(i_am_captain) 
 #(i_am_savior) 
 #(i_am_silly) 
 #(WHY_HAVE_YOU_FREED_US) 

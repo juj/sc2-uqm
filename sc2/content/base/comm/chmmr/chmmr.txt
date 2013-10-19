@@ -152,12 +152,8 @@ WE ARE THE CHMMR.
 #(WHO_ARE_YOU)	chmmr-017.ogg
 WHO ARE YOU?
 
-#(i_am_captain0)
-I am captain 
-#(i_am_captain1)
- of the starship 
-#(i_am_captain2)
-.
+#(i_am_captain)
+I am captain <% state.sis.getCaptainName() %> of the starship <% state.sis.getShipName() %>.
 
 #(i_am_savior)
 I am the guy who's trying to save the Galaxy.

@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/hyper.h"
 			// for SOL_X/SOL_Y
@@ -319,7 +320,7 @@ static void
 ChmmrFree (RESPONSE_REF R)
 {
 	if (R == 0
-			|| PLAYER_SAID (R, i_am_captain0)
+			|| PLAYER_SAID (R, i_am_captain)
 			|| PLAYER_SAID (R, i_am_savior)
 			|| PLAYER_SAID (R, i_am_silly))
 	{
@@ -591,14 +592,7 @@ Intro (void)
 			{
 				NPCPhrase (WHO_ARE_YOU);
 
-				construct_response (shared_phrase_buf,
-						i_am_captain0,
-						GLOBAL_SIS (CommanderName),
-						i_am_captain1,
-						GLOBAL_SIS (ShipName),
-						i_am_captain2,
-						(UNICODE*)NULL);
-				DoResponsePhrase (i_am_captain0, ChmmrFree, shared_phrase_buf);
+				Response (i_am_captain, ChmmrFree);
 				Response (i_am_savior, ChmmrFree);
 				Response (i_am_silly, ChmmrFree);
 			}
@@ -612,6 +606,7 @@ Intro (void)
 static COUNT
 uninit_chmmr (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -629,6 +624,10 @@ init_chmmr_comm (void)
 	chmmr_desc.init_encounter_func = Intro;
 	chmmr_desc.post_encounter_func = post_chmmr_enc;
 	chmmr_desc.uninit_encounter_func = uninit_chmmr;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	chmmr_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	chmmr_desc.AlienTextBaseline.y = 0;
