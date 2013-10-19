@@ -32,7 +32,7 @@
 #include "shipcont.h"
 #include "setup.h"
 #include "state.h"
-#include "grpinfo.h"
+#include "grpintrn.h"
 #include "util.h"
 #include "hyper.h"
 		// for SaveSisHyperState()
@@ -613,6 +613,146 @@ SaveStateFile (DWORD statefileId, DWORD tag, uio_Stream *fh)
 	}
 }
 
+static void
+SaveStarInfo (uio_Stream *fh)
+{
+	GAME_STATE_FILE *fp;
+	fp = OpenStateFile (STARINFO_FILE, "rb");
+	if (fp)
+	{
+		DWORD flen = LengthStateFile (fp);
+		if (flen % 4)
+		{
+			log_add (log_Warning, "Unexpected Star Info length! Expected an integral number of DWORDS.\n");
+		}
+		else
+		{
+			write_32 (fh, SCAN_TAG);
+			write_32 (fh, flen);
+			while (flen)
+			{
+				DWORD val;
+				sread_32 (fp, &val);
+				write_32 (fh, val);
+				flen -= 4;
+			}
+		}
+		CloseStateFile (fp);
+	}
+}
+
+static void
+SaveBattleGroup (GAME_STATE_FILE *fp, DWORD encounter_id, DWORD grpoffs, uio_Stream *fh)
+{
+	GROUP_HEADER h;
+	DWORD size = 12;
+	int i;
+	SeekStateFile (fp, grpoffs, SEEK_SET);
+	ReadGroupHeader (fp, &h);
+	for (i = 1; i <= h.NumGroups; ++i)
+	{
+		BYTE NumShips;
+		SeekStateFile (fp, h.GroupOffset[i], SEEK_SET);
+		sread_8 (fp, NULL);
+		sread_8 (fp, &NumShips);
+		size += 2 + 10 * NumShips;
+	}
+	write_32 (fh, BATTLE_GROUP_TAG);
+	write_32 (fh, size);
+	write_32 (fh, encounter_id);
+	write_8  (fh, (grpoffs && (GLOBAL (BattleGroupRef) == grpoffs)) ? 1 : 0); // current
+	write_16 (fh, h.star_index);
+	write_8  (fh, h.day_index);
+	write_8  (fh, h.month_index);
+	write_16 (fh, h.year_index);
+	write_8  (fh, h.NumGroups);
+	for (i = 1; i <= h.NumGroups; ++i)
+	{
+		int j;
+		BYTE b;
+		SeekStateFile (fp, h.GroupOffset[i], SEEK_SET);
+		sread_8 (fp, &b); // Group race icon
+		write_8 (fh, b);
+		sread_8 (fp, &b); // NumShips
+		write_8 (fh, b);
+		for (j = 0; j < b; ++j)
+		{
+			BYTE race_outer;
+			SHIP_FRAGMENT sf;
+			sread_8 (fp, &race_outer);
+			ReadShipFragment (fp, &sf);
+			write_8  (fh, race_outer);
+			write_8  (fh, sf.captains_name_index);
+			write_8  (fh, sf.race_id);
+			write_8  (fh, sf.index);
+			write_16 (fh, sf.crew_level);
+			write_16 (fh, sf.max_crew);
+			write_8  (fh, sf.energy_level);
+			write_8  (fh, sf.max_energy);
+		}
+	}
+}
+
+static void
+SaveGroups (uio_Stream *fh)
+{
+	GAME_STATE_FILE *fp;
+	fp = OpenStateFile (RANDGRPINFO_FILE, "rb");
+	if (fp && LengthStateFile (fp) > 0)
+	{
+		GROUP_HEADER h;
+		BYTE lastenc, count;
+		int i;
+		ReadGroupHeader (fp, &h);
+		/* Group List */
+		SeekStateFile (fp, h.GroupOffset[0], SEEK_SET);	
+		sread_8 (fp, &lastenc);
+		sread_8 (fp, &count);
+		write_32 (fh, GROUP_LIST_TAG);
+		write_32 (fh, 2 + 14 * count); // Chunk size
+		write_8 (fh, lastenc);
+		write_8 (fh, count);
+		for (i = 0; i < count; ++i)
+		{
+			BYTE race_outer;
+			IP_GROUP ip;
+			sread_8 (fp, &race_outer);
+			ReadIpGroup (fp, &ip);
+
+			write_8  (fh, race_outer);
+			write_16 (fh, ip.group_counter);
+			write_8  (fh, ip.race_id);
+			write_8  (fh, ip.sys_loc);
+			write_8  (fh, ip.task);
+			write_8  (fh, ip.in_system);
+			write_8  (fh, ip.dest_loc);
+			write_8  (fh, ip.orbit_pos);
+			write_8  (fh, ip.group_id);
+			write_16 (fh, ip.loc.x);
+			write_16 (fh, ip.loc.y);
+		}
+		SaveBattleGroup (fp, 0, 0, fh);
+		CloseStateFile (fp);
+	}
+	fp = OpenStateFile (DEFGRPINFO_FILE, "rb");
+	if (fp && LengthStateFile (fp) > 0)
+	{
+		int state_index = SHOFIXTI_GRPOFFS0;
+		int encounter_index = 1;
+		while (state_index < NUM_GAME_STATE_BITS)
+		{
+			DWORD grpoffs = GET_GAME_STATE_32 (state_index);
+			if (grpoffs)
+			{
+				SaveBattleGroup (fp, encounter_index, grpoffs, fh);
+			}
+			++encounter_index;
+			state_index += 32;
+		}
+		CloseStateFile (fp);
+	}
+}
+
 // This function first writes to a memory file, and then writes the whole
 // lot to the actual save file at once.
 BOOLEAN
@@ -680,7 +820,10 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 		SaveStateFile (STARINFO_FILE, STAR_SF_TAG, out_fp);
 		SaveStateFile (DEFGRPINFO_FILE, DEFGRP_SF_TAG, out_fp);
 		SaveStateFile (RANDGRPINFO_FILE, RANDGRP_SF_TAG, out_fp);
-		
+
+		SaveStarInfo (out_fp);
+		SaveGroups (out_fp);
+
 		// Save out the Star Descriptor
 		SaveStarDesc (&SD, out_fp);
 		

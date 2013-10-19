@@ -45,6 +45,9 @@ extern "C" {
 #define NPC_SHIP_Q_TAG   0x5163704e // "NpcQ": npc_built_ship_q
 #define SHIP_Q_TAG       0x51706853 // "ShpQ": built_ship_q
 #define STAR_TAG         0x72617453 // "Star": STAR_DESC
+#define SCAN_TAG         0x6e616353 // "Scan": Scan Masks (stuff picked up)
+#define BATTLE_GROUP_TAG 0x70477442 // "BtGp": Battle Group definition
+#define GROUP_LIST_TAG   0x73707247 // "Grps": Group List
 #define STAR_SF_TAG      0x46534953 // "SISF": Star Info State File
 #define DEFGRP_SF_TAG    0x46534744 // "DGSF": Defined Group State File
 #define RANDGRP_SF_TAG   0x46534752 // "RGSF": Random Group State File
