@@ -254,7 +254,7 @@ enum
 	OK_BUY_NEW_TECH_13,
 	CHARITY,
 	NEW_TECH_ALL_GONE,
-	we_are_from_alliance0,
+	we_are_from_alliance,
 	STRIP_HEAD,
 	LANDERS,
 	THRUSTERS,

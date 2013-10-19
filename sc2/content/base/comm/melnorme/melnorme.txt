@@ -54,7 +54,7 @@ ARE available, for a nominal sum of Credits.
 Do you have any information which might be useful to us?
 
 #(NO_FREE_LUNCH)	melnorme-007.ogg
-Absolutely. 
+Absolutely.
 Our primary trade good IS information.
 Why, right here on my display screen, I have something
 which I am certain would be of incalculable value to you!
@@ -87,7 +87,7 @@ Shall we begin trading now?
 `Trade' is for the weak.  We TAKE what we want!
 
 #(WERE_NOT_AFRAID)	melnorme-010.ogg
-We reel with inchoate fear, and are thrown into a sudden panic.  
+We reel with inchoate fear, and are thrown into a sudden panic.
 Being peaceful by nature
 we would no doubt be unprepared for your sudden hostility
 were it not for the excellent weapon system we bought from the Keel-Verezy just last month.
@@ -126,7 +126,7 @@ I suggest you do so before January 2159, or February at the latest.
 I had itchy pods this morning, Captain, and here you are!
 
 #(HELLO_AND_DOWN_TO_BUSINESS_4)	melnorme-015.ogg
-What a coincidence! I was just talking about you with a Keel-Verezy captain. 
+What a coincidence! I was just talking about you with a Keel-Verezy captain.
 They expressed great interest in your explorations and struggles against the Ur-Quan
 but, like all Verezy, I'm afraid they were hesitant to introduce themselves for fear of
 well, frightening you. 
@@ -1254,8 +1254,8 @@ Commander, that is the limit of the new technology we can offer you.
 If I may say so, you have been an excellent customer.
 Thank you!
 
-#(we_are_from_alliance0)
-We come in peace, representing 
+#(we_are_from_alliance)
+We come in peace, representing <% comm.getPhrase("name_" .. (state.prop.get("NEW_ALLIANCE_NAME") + 1)) %>
 
 #(STRIP_HEAD)	melnorme-159.ogg
 We will take 
@@ -1305,10 +1305,8 @@ The Concordance of Alien Nations!
 #(name_3)
 The United Federation of Worlds!
 
-#(name_40)
-The Empire of 
-#(name_41)
-!
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %>!
 
 #(ENUMERATE_ONE)	melnorme-172.ogg
 one
