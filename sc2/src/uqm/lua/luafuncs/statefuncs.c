@@ -27,6 +27,7 @@
 #include "uqm/lua/luastate.h"
 
 
+static int luaUqm_state_clock_getDate(lua_State *luaState);
 static int luaUqm_state_escort_addShips(lua_State *luaState);
 static int luaUqm_state_escort_canAddShips(lua_State *luaState);
 static int luaUqm_state_escort_removeShips (lua_State *luaState);
@@ -50,6 +51,11 @@ static int luaUqm_state_sis_getResUnits(lua_State *luaState);
 static int luaUqm_state_sis_getShipName(lua_State *luaState);
 static int luaUqm_state_prop_get(lua_State *luaState);
 static int luaUqm_state_prop_set(lua_State *luaState);
+
+static const luaL_Reg stateClockFuncs[] = {
+	{ "getDate",         luaUqm_state_clock_getDate },
+	{ NULL,              NULL },
+};
 
 static const luaL_Reg stateEscortFuncs[] = {
 	{ "addShips",        luaUqm_state_escort_addShips },
@@ -92,9 +98,12 @@ static const luaL_Reg stateSisFuncs[] = {
 
 int
 luaUqm_state_open(lua_State *luaState) {
-	// Create a table on the stack with space reserved for four fields.
-	lua_createtable(luaState, 0, 4);
+	// Create a table on the stack with space reserved for five fields.
+	lua_createtable(luaState, 0, 5);
 
+	luaL_newlib(luaState, stateClockFuncs);
+	lua_setfield(luaState, -2, "clock");
+	
 	luaL_newlib(luaState, stateEscortFuncs);
 	lua_setfield(luaState, -2, "escort");
 	
@@ -162,6 +171,24 @@ pushRaceId(lua_State *luaState, COUNT raceId) {
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
+
+// Returns a table with the fields 'year', 'month', and 'day'.
+static int
+luaUqm_state_clock_getDate(lua_State *luaState) {
+	// Create a table on the stack with space reserved for 3 fields.
+	lua_createtable(luaState, 0, 3);
+
+	lua_pushinteger(luaState, GLOBAL(GameClock.year_index));
+	lua_setfield(luaState, -2, "year");
+	
+	lua_pushinteger(luaState, GLOBAL(GameClock.month_index));
+	lua_setfield(luaState, -2, "month");
+
+	lua_pushinteger(luaState, GLOBAL(GameClock.day_index));
+	lua_setfield(luaState, -2, "day");
+
+	return 1;
+}
 
 // [1] -> string shipIdStr
 // [2] -> int count

@@ -258,6 +258,12 @@ In the functions below, the following values may be used for 'raceId':
 
 === Functions ===
 
+state.clock.getDate()
+    Description:
+        Get the game clock.
+    Returns:
+        the current date, as a table with fields 'year', 'month', and 'day'.
+
 state.escort.addShips(shipId, count)
     Description:
         Try to add a number of escort ships to the fleet.
@@ -504,6 +510,10 @@ Response(phrase, fun)
 
 
 == Game state functions ==
+
+GLOBAL (GameClock.year_index)
+    state.clock.getDate().year
+(Similar for 'month', 'day'.)
 
 SET_GAME_STATE(PROP, val)
     state.prop.set("PROP", val)
