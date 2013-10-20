@@ -53,6 +53,10 @@ luaUqm_event_init(const luaUqm_custom_Function *customFuncs,
 
 	assert(luaUqm_eventState == NULL);
 
+#ifdef EVENT_DEBUG
+	log_add(log_Debug, "[script] Calling luaUqm_event_init()");
+#endif
+
 	luaUqm_eventState = luaUqm_globalState;
 
 	// Prepare the global environment.
@@ -80,12 +84,22 @@ luaUqm_event_init(const luaUqm_custom_Function *customFuncs,
 void
 luaUqm_event_uninit(void) {
 	assert(luaUqm_eventState != NULL);
+
+#ifdef EVENT_DEBUG
+	log_add(log_Debug, "[script] Calling luaUqm_event_uninit()");
+#endif
+
 	luaUqm_eventState = NULL;
 }
 
 void
 luaUqm_event_callEvent(const char *eventIdStr) {
 	assert(luaUqm_eventState != NULL);
+
+#ifdef EVENT_DEBUG
+	log_add(log_Debug, "[script] Calling luaUqm_event_callEvent(\"%s\")",
+			eventIdStr);
+#endif
 
 	luaUqm_getEventTable(luaUqm_eventState);
 	lua_pushstring(luaUqm_eventState, eventIdStr);

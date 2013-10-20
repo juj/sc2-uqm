@@ -17,6 +17,8 @@
 #ifndef _LUAEVENT_H
 #define _LUAEVENT_H
 
+//#define EVENT_DEBUG
+
 #include "libs/compiler.h"
 #include "libs/reslib.h"
 #include "luafuncs/customfuncs.h"
