@@ -6,8 +6,8 @@ In UQM, we currently use Lua for the following functionality:
 - to run initialisation scripts when a new game is started or an old
   game is loaded
 - to script the game conversations (comm)
-Ohter candidates to be moved to Lua are:
 - to script game events (uqm/gameev.c)
+Ohter candidates to be moved to Lua are:
 - ship-specific melee intelligence (uqm/ships/*/*.c)
 - configuration files
 
