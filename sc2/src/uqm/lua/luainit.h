@@ -21,7 +21,15 @@
 
 #include <lua.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 void luaUqm_runInitScripts(void);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* _LUAINIT_H */
 

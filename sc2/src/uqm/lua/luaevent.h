@@ -21,6 +21,10 @@
 #include "libs/reslib.h"
 #include "luafuncs/customfuncs.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 BOOLEAN luaUqm_event_init(const luaUqm_custom_Function *customFuncs,
 		RESOURCE scriptRes);
 void luaUqm_event_uninit(void);
@@ -28,6 +32,10 @@ void luaUqm_event_uninit(void);
 void luaUqm_event_callEvent(const char *eventIdStr);
 
 extern lua_State *luaUqm_commState;
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* _LUAEVENT_H */
 

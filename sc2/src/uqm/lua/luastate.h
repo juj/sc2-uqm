@@ -21,6 +21,10 @@
 
 #include <lua.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 extern lua_State *luaUqm_globalState;
 
 void luaUqm_initState(void);
@@ -34,6 +38,10 @@ void setGameStateUint (const char *name, DWORD val);
 DWORD getGameStateUint (const char *name);
 
 void luaUqm_getEventTable (lua_State *luaState);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* _LUASTATE_H */
 

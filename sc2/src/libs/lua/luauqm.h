@@ -20,12 +20,24 @@
 #include <lua.h>
 #include <lauxlib.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct luaUqm_EnumValue luaUqm_EnumValue;
+
+#if defined(__cplusplus)
+}
+#endif
 
 #include "libs/compiler.h"
 #include "libs/uio.h"
 
 #include "scriptres.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct luaUqm_EnumValue {
 	const char *name;
@@ -52,6 +64,10 @@ void luaUqm_makeEnum(lua_State *luaState, const luaUqm_EnumValue *enumVals);
 
 #ifdef DEBUG
 void luaUqm_dumpStack(lua_State *luaState);
+#endif
+
+#if defined(__cplusplus)
+}
 #endif
 
 #endif  /* _LUAUQM_H */

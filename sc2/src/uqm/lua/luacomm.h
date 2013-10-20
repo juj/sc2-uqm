@@ -21,6 +21,10 @@
 #include "libs/reslib.h"
 #include "luafuncs/customfuncs.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 BOOLEAN luaUqm_comm_init(const luaUqm_custom_Function *customFuncs,
 		RESOURCE scriptRes);
 void luaUqm_comm_uninit(void);
@@ -33,6 +37,10 @@ BOOLEAN luaUqm_comm_stringNeedsInterpolate(const char *str);
 char *luaUqm_comm_stringInterpolate(const char *str);
 
 extern lua_State *luaUqm_commState;
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* _LUACOMM_H */
 

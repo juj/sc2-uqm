@@ -20,12 +20,19 @@
 #include "libs/compiler.h"
 #include "libs/reslib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define LoadScript LoadScriptRes
 
 BOOLEAN ReleaseScriptResData (void *data);
 BOOLEAN InstallScriptResType (void);
 char *LoadScriptInstance (RESOURCE res);
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* SCRIPTRES_H */
 

@@ -19,6 +19,14 @@
 
 #include "libs/scriptlib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 int luaUqm_state_open(lua_State *luaState);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif  /* _STATEUNCS_H */
