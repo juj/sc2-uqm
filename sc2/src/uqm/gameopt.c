@@ -26,7 +26,6 @@
 #include "sis.h"
 #include "units.h"
 #include "gamestr.h"
-#include "load.h"
 #include "options.h"
 #include "save.h"
 #include "settings.h"
@@ -253,7 +252,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			// disallow the change
 			return (FALSE);
 		}
-	
+
 		PreUpdateFlashRect ();
 
 		SetContextForeGroundColor (BackGround);
@@ -264,7 +263,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 			text_r.corner.x += *pchar_deltas++;
 		if (CursorPos < lf.CharCount) /* end of line */
 			--text_r.corner.x;
-		
+
 		if (state & DDSHS_BLOCKCUR)
 		{	// Use block cursor for keyboardless systems
 			if (CursorPos == lf.CharCount)
@@ -284,7 +283,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 		{	// Insertion point cursor
 			text_r.extent.width = 1;
 		}
-		
+
 		text_r.corner.y = r.corner.y;
 		text_r.extent.height = r.extent.height;
 		SetContextForeGroundColor (BLACK_COLOR);
@@ -292,7 +291,7 @@ DrawNameString (bool nameCaptain, UNICODE *Str, COUNT CursorPos,
 
 		SetContextForeGroundColor (ForeGround);
 		font_DrawText (&lf);
-		
+
 		PostUpdateFlashRect ();
 	}
 
@@ -347,15 +346,190 @@ NameCaptainOrShip (bool nameCaptain)
 		utf8StringCopy (Setting, tes.MaxSize, buf);
 	else
 		utf8StringCopy (buf, sizeof (buf), Setting);
-	
+
 	SetFlashRect (SFR_MENU_3DO);
-	
+
 	DrawNameString (nameCaptain, buf, 0, DDSHS_NORMAL);
+
+	if (namingCB)
+		namingCB ();
+}
+
+static BOOLEAN
+DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
+{
+	RECT r;
+	TEXT lf;
+	Color BackGround, ForeGround;
+	FONT Font;
+	UNICODE fullStr[256], dateStr[80];
+
+	DateToString (dateStr, sizeof dateStr, GLOBAL(GameClock.month_index),
+			GLOBAL(GameClock.day_index), GLOBAL(GameClock.year_index));
+	strncat (dateStr, ": ", sizeof(dateStr) - strlen(dateStr) -1);
+	snprintf (fullStr, sizeof fullStr, "%s%s", dateStr, Str);
+
+	SetContextForeGroundColor (BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33));
+	r.extent.width = 15;
+	if (MAX_SAVED_GAMES > 99)
+		r.extent.width += 5;
+	r.extent.height = 11;
+	r.corner.x = 8;
+	r.corner.y = (160 + ((gameIndex % SAVES_PER_PAGE) * 13));
+	DrawRectangle (&r);
+
+	r.extent.width = (204 - SAFE_X);
+	r.corner.x = (30 + SAFE_X);
+	DrawRectangle (&r);
+
+	Font = TinyFont;
+	lf.baseline.x = r.corner.x + 3;
+	lf.baseline.y = r.corner.y + 8;
+
+	BackGround = BUILD_COLOR (MAKE_RGB15 (0x1B, 0x00, 0x1B), 0x33);
+	ForeGround = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x14), 0x01);
+
+	lf.align = ALIGN_LEFT;
+
+	SetContextFont (Font);
+	lf.pStr = fullStr;
+	lf.CharCount = (COUNT)~0;
+
+	if (!(state & DDSHS_EDIT))
+	{
+		TEXT t;
+
+		SetContextForeGroundColor (BLACK_COLOR);
+		DrawFilledRectangle (&r);
+
+		t.baseline.x = r.corner.x + 3;
+		t.baseline.y = r.corner.y + 8;
+		t.align = ALIGN_LEFT;
+		t.pStr = Str;
+		t.CharCount = (COUNT)~0;
+		SetContextForeGroundColor (CAPTAIN_NAME_TEXT_COLOR);
+		font_DrawText (&lf);
+	}
+	else
+	{	// editing state
+		COUNT i, FullCursorPos;
+		RECT text_r;
+		BYTE char_deltas[256];
+		BYTE *pchar_deltas;
+
+		TextRect (&lf, &text_r, char_deltas);
+		if ((text_r.extent.width + 2) >= r.extent.width)
+		{	// the text does not fit the input box size and so
+			// will not fit when displayed later
+			// disallow the change
+			return (FALSE);
+		}
+
+		PreUpdateFlashRect ();
+
+		SetContextForeGroundColor (BackGround);
+		DrawFilledRectangle (&r);
+
+		pchar_deltas = char_deltas;
+
+		FullCursorPos = CursorPos + strlen(dateStr) - 1;
+		for (i = FullCursorPos; i > 0; --i)
+			text_r.corner.x += *pchar_deltas++;
+
+		if (FullCursorPos < lf.CharCount) /* end of line */
+			--text_r.corner.x;
+
+		if (state & DDSHS_BLOCKCUR)
+		{	// Use block cursor for keyboardless systems
+			if (FullCursorPos == lf.CharCount)
+			{	// cursor at end-line -- use insertion point
+				text_r.extent.width = 1;
+			}
+			else if (FullCursorPos + 1 == lf.CharCount)
+			{	// extra pixel for last char margin
+				text_r.extent.width = (SIZE)*pchar_deltas + 2;
+			}
+			else
+			{	// normal mid-line char
+				text_r.extent.width = (SIZE)*pchar_deltas + 1;
+			}
+		}
+		else
+		{	// Insertion point cursor
+			text_r.extent.width = 1;
+		}
+
+		text_r.corner.y = r.corner.y;
+		text_r.extent.height = r.extent.height;
+		SetContextForeGroundColor (BLACK_COLOR);
+		DrawFilledRectangle (&text_r);
+
+		SetContextForeGroundColor (ForeGround);
+		font_DrawText (&lf);
+		PostUpdateFlashRect ();
+	}
+
+	return (TRUE);
+}
+
+static BOOLEAN
+OnSaveNameChange (TEXTENTRY_STATE *pTES)
+{
+	COUNT hl = DDSHS_EDIT;
+	COUNT *gameIndex = pTES->CbParam;
+
+	if (pTES->JoystickMode)
+		hl |= DDSHS_BLOCKCUR;
+
+	return DrawSaveNameString (pTES->BaseStr, pTES->CursorPos, hl, *gameIndex);
+}
+
+static BOOLEAN
+NameSaveGame (COUNT gameIndex, UNICODE *buf)
+{
+	TEXTENTRY_STATE tes;
+	COUNT CursPos = strlen(buf);
+	COUNT *gIndex = HMalloc (sizeof (COUNT));
+	RECT r;
+	*gIndex = gameIndex;
+
+	DrawSaveNameString (buf, CursPos, DDSHS_EDIT, gameIndex);
+
+	tes.MaxSize = SAVE_NAME_SIZE;
+
+	// text entry setup
+	tes.Initialized = FALSE;
+	tes.BaseStr = buf;
+	tes.CursorPos = CursPos;
+	tes.CbParam = gIndex;
+	tes.ChangeCallback = OnSaveNameChange;
+	tes.FrameCallback = 0;
+	r.extent.width = (204 - SAFE_X);
+	r.extent.height = 11;
+	r.corner.x = (30 + SAFE_X);
+	r.corner.y = (160 + ((gameIndex % SAVES_PER_PAGE) * 13));
+	SetFlashRect (&r);
+
+	if (!DoTextEntry (&tes))
+		buf[0] = 0;
+
+	SetFlashRect(NULL);
+
+	DrawSaveNameString (buf, CursPos, DDSHS_NORMAL, gameIndex);
 
 	if (namingCB)
 		namingCB ();
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+
+	HFree (gIndex);
+
+	SetFlashRect (NULL);
+
+	if (tes.Success)
+		return (TRUE);
+	else
+		return (FALSE);
 }
 
 void
@@ -611,7 +785,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		UninitQueue (&GLOBAL (built_ship_q));
 
 		SetContextClipRect (&OldRect);
-		
+
 		SetContext (SpaceContext);
 		// draw devices
 		s.origin.y = 13;
@@ -680,7 +854,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 		SetContextForeGroundColor (
 				BUILD_COLOR (MAKE_RGB15 (0x10, 0x00, 0x10), 0x01));
 		font_DrawText (&t);
-		
+
 		// print the location
 		t.baseline.x = 6;
 		t.baseline.y = 139 + 6;
@@ -697,7 +871,7 @@ DrawSavegameSummary (PICK_GAME_STATE *pickState, COUNT gameIndex)
 			{
 				BYTE QuasiState;
 				STAR_DESC *SDPtr;
-				
+
 				QuasiState = GET_GAME_STATE (ARILOU_SPACE_SIDE);
 				SET_GAME_STATE (ARILOU_SPACE_SIDE, 0);
 				SDPtr = FindStar (NULL, &starPt, 1, 1);
@@ -770,11 +944,11 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	COUNT curSlot;
 	UNICODE buf[256];
 	UNICODE buf2[80];
-	
+
 	BatchGraphics ();
 
 	SetContextFont (TinyFont);
-	
+
 	// Erase the selection menu
 	r.extent.width = 240;
 	r.extent.height = 65;
@@ -825,9 +999,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 		{
 			DateToString (buf2, sizeof buf2, desc->month_index,
 					desc->day_index, desc->year_index);
-			snprintf (buf, sizeof buf, "%s %s",
-					GAME_STRING (SAVEGAME_STRING_BASE + 4), buf2);
-						// "Saved Game - Date:"
+			snprintf (buf, sizeof buf, "%s: %s", buf2, desc->SaveName[0] ? desc->SaveName : GAME_STRING (SAVEGAME_STRING_BASE + 4));
 		}
 		font_DrawText (&t);
 	}
@@ -928,7 +1100,7 @@ DoPickGame (MENU_STATE *pMS)
 			SetContext (SpaceContext);
 			RedrawPickDisplay (pickState, pMS->CurState);
 		}
-		
+
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 	}
 
@@ -936,22 +1108,38 @@ DoPickGame (MENU_STATE *pMS)
 }
 
 static BOOLEAN
-SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex)
+SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_user)
 {
 	SUMMARY_DESC *desc = pickState->summary + gameIndex;
+	UNICODE nameBuf[256];
 	STAMP saveStamp;
 	BOOLEAN success;
 
 	saveStamp.frame = NULL;
 
-	// TODO: fix ConfirmSaveLoad() interface so it does not rely on
-	//   MsgStamp != NULL parameter.
-	ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
-
 	if (pickState->saving)
-		success = SaveGame (gameIndex, desc);
+	{
+		// Initialize the save name with whatever name is there already
+		// SAVE_NAME_SIZE is less than 256, so this is safe.
+		strncpy(nameBuf, desc->SaveName, SAVE_NAME_SIZE);
+		nameBuf[SAVE_NAME_SIZE] = 0;
+		if (NameSaveGame (gameIndex, nameBuf))
+		{
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+			ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
+			success = SaveGame (gameIndex, desc, nameBuf);
+		}
+		else
+		{
+			success = FALSE;
+			*canceled_by_user = TRUE;
+		}
+	}
 	else
+	{
+		ConfirmSaveLoad (pickState->saving ? &saveStamp : NULL);
 		success = LoadGame (gameIndex, NULL);
+	}
 
 	// TODO: the same should be done for both save and load if we also
 	//   display a load problem message
@@ -1005,12 +1193,12 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	// draw the current savegame and fade in
 	SetTransitionSource (NULL);
 	BatchGraphics ();
-	
+
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
 	RedrawPickDisplay (&pickState, MenuState.CurState);
 	DrawSaveLoad (&pickState);
-	
+
 	if (fromMainMenu)
 	{
 		UnbatchGraphics ();
@@ -1028,10 +1216,12 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGEUP | MENU_SOUND_PAGEDOWN,
 			0);
 	MenuState.InputFunc = DoPickGame;
-	
+
 	// Save/load retry loop
 	while (1)
 	{
+		BOOLEAN canceled_by_user = FALSE;
+
 		pickState.success = FALSE;
 		DoInput (&MenuState, TRUE);
 		if (!pickState.success)
@@ -1039,11 +1229,11 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 
 		lastUsedSlot = MenuState.CurState;
 
-		if (SaveLoadGame (&pickState, MenuState.CurState))
+		if (SaveLoadGame (&pickState, MenuState.CurState, &canceled_by_user))
 			break; // all good
 
 		// something broke
-		if (saving)
+		if (saving && !canceled_by_user)
 			SaveProblem ();
 		// TODO: Shouldn't we have a Problem() equivalent for Load too?
 
@@ -1058,7 +1248,7 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	{	// Load succeeded, signal up the chain
 		GLOBAL (CurrentActivity) |= CHECK_LOAD;
 	}
-	
+
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT) &&
 			(saving || (!pickState.success && !fromMainMenu)))
 	{	// Restore previous screen
@@ -1145,7 +1335,7 @@ GameOptions (void)
 	DrawMenuStateStrings (PM_SAVE_GAME, MenuState.CurState);
 
 	SetFlashRect (SFR_MENU_3DO);
-	
+
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	MenuState.InputFunc = DoGameOptions;
 	DoInput (&MenuState, TRUE);
@@ -1154,4 +1344,3 @@ GameOptions (void)
 
 	return !(GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD));
 }
-
