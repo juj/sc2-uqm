@@ -53,14 +53,14 @@ GenerateColony_initNpcs (SOLARSYS_STATE *solarSys)
 {
 	HIPGROUP hGroup;
 
-	GLOBAL (BattleGroupRef) = GET_GAME_STATE_32 (COLONY_GRPOFFS0);
+	GLOBAL (BattleGroupRef) = GET_GAME_STATE (COLONY_GRPOFFS);
 	if (GLOBAL (BattleGroupRef) == 0)
 	{
 		CloneShipFragment (URQUAN_SHIP,
 				&GLOBAL (npc_built_ship_q), 0);
 		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
 		ReinitQueue (&GLOBAL (npc_built_ship_q));
-		SET_GAME_STATE_32 (COLONY_GRPOFFS0, GLOBAL (BattleGroupRef));
+		SET_GAME_STATE (COLONY_GRPOFFS, GLOBAL (BattleGroupRef));
 	}
 
 	GenerateDefault_initNpcs (solarSys);

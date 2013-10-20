@@ -27,7 +27,6 @@
 
 static bool GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys);
 
-static int SelectMelnormeRefVar (void);
 static DWORD GetMelnormeRef (void);
 static void SetMelnormeRef (DWORD Ref);
 
@@ -66,49 +65,43 @@ GenerateMelnorme_initNpcs (SOLARSYS_STATE *solarSys)
 	return true;
 }
 
-
-static int
-SelectMelnormeRefVar (void)
-{
-	switch (CurStarDescPtr->Index)
-	{
-		case MELNORME0_DEFINED: return MELNORME0_GRPOFFS0;
-		case MELNORME1_DEFINED: return MELNORME1_GRPOFFS0;
-		case MELNORME2_DEFINED: return MELNORME2_GRPOFFS0;
-		case MELNORME3_DEFINED: return MELNORME3_GRPOFFS0;
-		case MELNORME4_DEFINED: return MELNORME4_GRPOFFS0;
-		case MELNORME5_DEFINED: return MELNORME5_GRPOFFS0;
-		case MELNORME6_DEFINED: return MELNORME6_GRPOFFS0;
-		case MELNORME7_DEFINED: return MELNORME7_GRPOFFS0;
-		case MELNORME8_DEFINED: return MELNORME8_GRPOFFS0;
-		default:
-			return -1;
-	}
-}
-
 static DWORD
 GetMelnormeRef (void)
 {
-	int RefVar = SelectMelnormeRefVar ();
-	if (RefVar < 0)
+	switch (CurStarDescPtr->Index)
 	{
-		log_add (log_Warning, "GetMelnormeRef(): reference unknown");
-		return 0;
+		case MELNORME0_DEFINED: return GET_GAME_STATE (MELNORME0_GRPOFFS);
+		case MELNORME1_DEFINED: return GET_GAME_STATE (MELNORME1_GRPOFFS);
+		case MELNORME2_DEFINED: return GET_GAME_STATE (MELNORME2_GRPOFFS);
+		case MELNORME3_DEFINED: return GET_GAME_STATE (MELNORME3_GRPOFFS);
+		case MELNORME4_DEFINED: return GET_GAME_STATE (MELNORME4_GRPOFFS);
+		case MELNORME5_DEFINED: return GET_GAME_STATE (MELNORME5_GRPOFFS);
+		case MELNORME6_DEFINED: return GET_GAME_STATE (MELNORME6_GRPOFFS);
+		case MELNORME7_DEFINED: return GET_GAME_STATE (MELNORME7_GRPOFFS);
+		case MELNORME8_DEFINED: return GET_GAME_STATE (MELNORME8_GRPOFFS);
+		default:
+			log_add (log_Warning, "GetMelnormeRef(): reference unknown");
+			return 0;
 	}
-
-	return GET_GAME_STATE_32 (RefVar);
 }
 
 static void
 SetMelnormeRef (DWORD Ref)
 {
-	int RefVar = SelectMelnormeRefVar ();
-	if (RefVar < 0)
+	switch (CurStarDescPtr->Index)
 	{
-		log_add (log_Warning, "SetMelnormeRef(): reference unknown");
-		return;
+		case MELNORME0_DEFINED: SET_GAME_STATE (MELNORME0_GRPOFFS, Ref); break;
+		case MELNORME1_DEFINED: SET_GAME_STATE (MELNORME1_GRPOFFS, Ref); break;
+		case MELNORME2_DEFINED: SET_GAME_STATE (MELNORME2_GRPOFFS, Ref); break;
+		case MELNORME3_DEFINED: SET_GAME_STATE (MELNORME3_GRPOFFS, Ref); break;
+		case MELNORME4_DEFINED: SET_GAME_STATE (MELNORME4_GRPOFFS, Ref); break;
+		case MELNORME5_DEFINED: SET_GAME_STATE (MELNORME5_GRPOFFS, Ref); break;
+		case MELNORME6_DEFINED: SET_GAME_STATE (MELNORME6_GRPOFFS, Ref); break;
+		case MELNORME7_DEFINED: SET_GAME_STATE (MELNORME7_GRPOFFS, Ref); break;
+		case MELNORME8_DEFINED: SET_GAME_STATE (MELNORME8_GRPOFFS, Ref); break;
+		default:
+			log_add (log_Warning, "SetMelnormeRef(): reference unknown");
+			return;
 	}
-
-	SET_GAME_STATE_32 (RefVar, Ref);
 }
 

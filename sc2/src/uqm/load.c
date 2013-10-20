@@ -339,16 +339,41 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	{
 		return FALSE;
 	}
-	memset (GSPtr->GameState, 0, sizeof (GSPtr->GameState));
-	read_32 (fh, &magic);
-	if (magic > sizeof (GSPtr->GameState))
 	{
-		read_a8 (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
-		skip_8  (fh, magic - sizeof (GSPtr->GameState));
-	}
-	else
-	{
-		read_a8 (fh, GSPtr->GameState, magic);
+		size_t gameStateByteCount = (NUM_GAME_STATE_BITS + 7) >> 3;
+		BYTE *buf;
+		BOOLEAN result;
+
+		read_32 (fh, &magic);
+		if (magic < gameStateByteCount)
+		{
+			log_add (log_Error, "Warning: Savegame is corrupt: saved game "
+					"state is too small.");
+			return FALSE;
+		}
+
+		buf = HMalloc (gameStateByteCount);
+		if (buf == NULL)
+		{
+			log_add (log_Error, "Warning: Cannot allocate enough bytes for "
+					"the saved game state (%zu bytes).", gameStateByteCount);
+			return FALSE;
+		}
+
+		read_a8 (fh, buf, gameStateByteCount);
+		result = deserialiseGameState (gameStateBitMap, buf,
+				gameStateByteCount);
+		HFree(buf);
+		if (result == FALSE)
+		{
+			// An error message is already printed.
+			return FALSE;
+		}
+
+		if (magic > gameStateByteCount)
+		{
+			skip_8 (fh, magic - gameStateByteCount);
+		}
 	}
 	return TRUE;
 }
@@ -507,6 +532,35 @@ LoadGroupList (uio_Stream *fh, DWORD chunksize)
 }
 
 static void
+SetBattleGroupOffset (int encounterIndex, DWORD offset)
+{
+	// The reason for this switch, even though the group offsets are
+	// successive, is because SET_GAME_STATE is a #define, which stringizes
+	// its first argument.
+	switch (encounterIndex)
+	{
+		case  1: SET_GAME_STATE (SHOFIXTI_GRPOFFS,     offset); break;
+		case  2: SET_GAME_STATE (ZOQFOT_GRPOFFS,       offset); break;
+		case  3: SET_GAME_STATE (MELNORME0_GRPOFFS,    offset); break;
+		case  4: SET_GAME_STATE (MELNORME1_GRPOFFS,    offset); break;
+		case  5: SET_GAME_STATE (MELNORME2_GRPOFFS,    offset); break;
+		case  6: SET_GAME_STATE (MELNORME3_GRPOFFS,    offset); break;
+		case  7: SET_GAME_STATE (MELNORME4_GRPOFFS,    offset); break;
+		case  8: SET_GAME_STATE (MELNORME5_GRPOFFS,    offset); break;
+		case  9: SET_GAME_STATE (MELNORME6_GRPOFFS,    offset); break;
+		case 10: SET_GAME_STATE (MELNORME7_GRPOFFS,    offset); break;
+		case 11: SET_GAME_STATE (MELNORME8_GRPOFFS,    offset); break;
+		case 12: SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, offset); break;
+		case 13: SET_GAME_STATE (COLONY_GRPOFFS,       offset); break;
+		case 14: SET_GAME_STATE (SAMATRA_GRPOFFS,      offset); break;
+		default:
+			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter "
+					"index.\n");
+			break;
+	}
+}
+
+static void
 LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
 {
 	GAME_STATE_FILE *fp;
@@ -586,7 +640,7 @@ LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
 	/* And update the gamestate accordingly, if we're a defined group. */
 	if (encounter)
 	{
-		SET_GAME_STATE_32 (SHOFIXTI_GRPOFFS0 + (encounter - 1) * 32, offset);
+		SetBattleGroupOffset (encounter, offset);
 		if (current)
 		{
 			GLOBAL (BattleGroupRef) = offset;
@@ -641,7 +695,9 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	ReinitQueue (&GLOBAL (npc_built_ship_q));
 	ReinitQueue (&GLOBAL (built_ship_q));
 
-	memset (&GLOBAL (GameState[0]), 0, sizeof (GLOBAL (GameState)));
+	luaUqm_uninitState();
+	luaUqm_initState();
+
 	Activity = GLOBAL (CurrentActivity);
 	if (!LoadGameState (&GlobData.Game_state, in_fp))
 	{

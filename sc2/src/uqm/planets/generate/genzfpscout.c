@@ -49,14 +49,14 @@ GenerateZoqFotPikScout_initNpcs (SOLARSYS_STATE *solarSys)
 {
 	if (!GET_GAME_STATE (MET_ZOQFOT))
 	{
-		GLOBAL (BattleGroupRef) = GET_GAME_STATE_32 (ZOQFOT_GRPOFFS0);
+		GLOBAL (BattleGroupRef) = GET_GAME_STATE (ZOQFOT_GRPOFFS);
 		if (GLOBAL (BattleGroupRef) == 0)
 		{
 			CloneShipFragment (ZOQFOTPIK_SHIP,
 					&GLOBAL (npc_built_ship_q), 0);
 			GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
 			ReinitQueue (&GLOBAL (npc_built_ship_q));
-			SET_GAME_STATE_32 (ZOQFOT_GRPOFFS0, GLOBAL (BattleGroupRef));
+			SET_GAME_STATE (ZOQFOT_GRPOFFS, GLOBAL (BattleGroupRef));
 		}
 	}
 

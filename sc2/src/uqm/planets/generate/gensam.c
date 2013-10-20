@@ -235,7 +235,7 @@ BuildUrquanGuard (SOLARSYS_STATE *solarSys)
 	POINT org;
 	HIPGROUP hGroup, hNextGroup;
 
-	GLOBAL (BattleGroupRef) = GET_GAME_STATE_32 (SAMATRA_GRPOFFS0);
+	GLOBAL (BattleGroupRef) = GET_GAME_STATE (SAMATRA_GRPOFFS);
 
 	if (!GET_GAME_STATE (KOHR_AH_FRENZY))
 	{
@@ -256,7 +256,7 @@ BuildUrquanGuard (SOLARSYS_STATE *solarSys)
 	if (GLOBAL (BattleGroupRef) == 0)
 	{
 		GLOBAL (BattleGroupRef) = PutGroupInfo (GROUPS_ADD_NEW, 1);
-		SET_GAME_STATE_32 (SAMATRA_GRPOFFS0, GLOBAL (BattleGroupRef));
+		SET_GAME_STATE (SAMATRA_GRPOFFS, GLOBAL (BattleGroupRef));
 	}
 
 #define NUM_URQUAN_GUARDS0 12

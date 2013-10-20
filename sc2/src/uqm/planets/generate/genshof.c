@@ -57,7 +57,7 @@ GenerateShofixti_initNpcs (SOLARSYS_STATE *solarSys)
 			|| (!GET_GAME_STATE (SHOFIXTI_BRO_KIA)
 			&& GET_GAME_STATE (MAIDENS_ON_SHIP))))
 	{
-		GLOBAL (BattleGroupRef) = GET_GAME_STATE_32 (SHOFIXTI_GRPOFFS0);
+		GLOBAL (BattleGroupRef) = GET_GAME_STATE (SHOFIXTI_GRPOFFS);
 		if (GLOBAL (BattleGroupRef) == 0
 				|| !GetGroupInfo (GLOBAL (BattleGroupRef), GROUP_INIT_IP))
 		{
@@ -82,7 +82,7 @@ GenerateShofixti_initNpcs (SOLARSYS_STATE *solarSys)
 			GLOBAL (BattleGroupRef) = PutGroupInfo (
 					GLOBAL (BattleGroupRef), 1);
 			ReinitQueue (&GLOBAL (npc_built_ship_q));
-			SET_GAME_STATE_32 (SHOFIXTI_GRPOFFS0, GLOBAL (BattleGroupRef));
+			SET_GAME_STATE (SHOFIXTI_GRPOFFS, GLOBAL (BattleGroupRef));
 		}
 	}
 

@@ -166,8 +166,8 @@ ByeBye (RESPONSE_REF R)
 {
 	(void) R;  // ignored
 
-	CurBulletinMask |= GET_GAME_STATE_32 (STARBASE_BULLETS0);
-	SET_GAME_STATE_32 (STARBASE_BULLETS0, CurBulletinMask);
+	CurBulletinMask |= GET_GAME_STATE (STARBASE_BULLET);
+	SET_GAME_STATE (STARBASE_BULLETS, CurBulletinMask);
 
 	/* if (R == goodbye_starbase_commander) */
 	if (GET_GAME_STATE (CHMMR_BOMB_STATE) >= 2)
@@ -1313,7 +1313,7 @@ CheckBulletins (BOOLEAN Repeat)
 	if (Repeat)
 		BulletinMask = CurBulletinMask ^ 0xFFFFFFFFL;
 	else
-		BulletinMask = GET_GAME_STATE_32 (STARBASE_BULLETS0);
+		BulletinMask = GET_GAME_STATE (STARBASE_BULLETS);
 
 	pIntro = 0;
 	for (b0 = 0; b0 < 32; ++b0)
@@ -1406,7 +1406,7 @@ CheckBulletins (BOOLEAN Repeat)
 					break;
 				case 11:
 					if (GET_GAME_STATE (ZOQFOT_HOME_VISITS)
-							|| GET_GAME_STATE_32 (ZOQFOT_GRPOFFS0))
+							|| GET_GAME_STATE (ZOQFOT_GRPOFFS))
 						BulletinMask |= 1L << b0;
 					else if (CheckTiming (0, 42))
 					{
@@ -1577,7 +1577,7 @@ CheckBulletins (BOOLEAN Repeat)
 	if (pIntro == 0 && GET_GAME_STATE (STARBASE_VISITED))
 		NPCPhrase (RETURN_HELLO);
 	else if (!Repeat)
-		SET_GAME_STATE_32 (STARBASE_BULLETS0, BulletinMask);
+		SET_GAME_STATE (STARBASE_BULLETS, BulletinMask);
 }
 
 static void
