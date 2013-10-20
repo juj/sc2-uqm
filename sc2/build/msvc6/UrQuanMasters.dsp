@@ -2008,6 +2008,89 @@ SOURCE=..\..\src\uqm\comm\zoqfot\zoqfotc.c
 SOURCE=..\..\src\uqm\comm\commall.h
 # End Source File
 # End Group
+# Begin Group "lua"
+
+# PROP Default_Filter ""
+
+# Begin Group "luafuncs"
+
+# PROP Default_Filter ""
+
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\commfuncs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\commfuncs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\customfuncs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\customfuncs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\eventfuncs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\eventfuncs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\logfuncs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\logfuncs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\statefuncs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luafuncs\statefuncs.h
+# End Source File
+# End Group
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luacomm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luacomm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luaevent.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luaevent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luainit.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luainit.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luastate.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luastate.h
+# End Source File
+
+# End Group
 # Begin Group "planets"
 
 # PROP Default_Filter ""
@@ -3258,6 +3341,10 @@ SOURCE=..\..\src\uqm\grpinfo.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\uqm\grpintrn.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\uqm\hyper.c
 # End Source File
 # Begin Source File
@@ -3322,7 +3409,7 @@ SOURCE=..\..\src\uqm\load.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\uqm\load.h
+SOURCE=..\..\src\uqm\load_legacy.c
 # End Source File
 # Begin Source File
 
