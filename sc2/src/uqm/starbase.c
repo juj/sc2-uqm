@@ -22,7 +22,7 @@
 #include "starmap.h"
 #include "comm.h"
 #include "gamestr.h"
-#include "load.h"
+#include "save.h"
 #include "starbase.h"
 #include "sis.h"
 #include "resinst.h"

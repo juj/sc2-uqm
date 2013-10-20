@@ -17,16 +17,59 @@
 #ifndef _SAVE_H
 #define _SAVE_H
 
-#include "sis.h"
-		// for SUMMARY_DESC
+#include "sis.h" // SUMMARY_DESC includes SIS_STATE in it
+#include "globdata.h"
 #include "libs/compiler.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+// XXX: Theoretically, a player can have 17 devices on board without
+//   cheating. We only provide
+//   room for 16 below, which is not really a problem since this
+//   is only used for displaying savegame summaries. There is also
+//   room for only 16 devices on screen.
+#define MAX_EXCLUSIVE_DEVICES 16
+#define SAVE_NAME_SIZE 64
+
+// The savefile tag numbers.
+#define SAVEFILE_TAG     0x01534d55 // "UMS\x01": UQM Save version 1
+#define SUMMARY_TAG      0x6d6d7553 // "Summ": Summary. Must be first!
+#define GLOBAL_STATE_TAG 0x74536c47 // "GlSt": Global State. Must be 2nd!
+#define GAME_STATE_TAG   0x74536d47 // "GmSt": Game State Bits. Must be 3rd!
+#define EVENTS_TAG       0x73747645 // "Evts": Events
+#define ENCOUNTERS_TAG   0x74636e45 // "Enct": Encounters
+#define RACE_Q_TAG       0x51636152 // "RacQ": avail_race_q
+#define IP_GRP_Q_TAG     0x51704749 // "IGpQ": ip_group_q
+#define NPC_SHIP_Q_TAG   0x5163704e // "NpcQ": npc_built_ship_q
+#define SHIP_Q_TAG       0x51706853 // "ShpQ": built_ship_q
+#define STAR_TAG         0x72617453 // "Star": STAR_DESC
+#define SCAN_TAG         0x6e616353 // "Scan": Scan Masks (stuff picked up)
+#define BATTLE_GROUP_TAG 0x70477442 // "BtGp": Battle Group definition
+#define GROUP_LIST_TAG   0x73707247 // "Grps": Group List
+
+typedef struct
+{
+	SIS_STATE SS;
+	BYTE Activity;
+	BYTE Flags;
+	BYTE day_index, month_index;
+	COUNT year_index;
+	BYTE MCreditLo, MCreditHi;
+	BYTE NumShips, NumDevices;
+	BYTE ShipList[MAX_BUILT_SHIPS];
+	BYTE DeviceList[MAX_EXCLUSIVE_DEVICES];
+	UNICODE SaveName[SAVE_NAME_SIZE];
+} SUMMARY_DESC;
+
+extern ACTIVITY NextActivity;
+
+extern BOOLEAN LoadGame (COUNT which_game, SUMMARY_DESC *summary_desc);
+extern BOOLEAN LoadLegacyGame (COUNT which_game, SUMMARY_DESC *summary_desc);
+
 extern void SaveProblem (void);
-extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc);
+extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc, const char *name);
 
 #if defined(__cplusplus)
 }
