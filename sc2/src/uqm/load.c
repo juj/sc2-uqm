@@ -20,6 +20,7 @@
 
 #include "build.h"
 #include "encount.h"
+#include "gameev.h"
 #include "starmap.h"
 #include "libs/file.h"
 #include "globdata.h"
@@ -694,9 +695,11 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	ReinitQueue (&GLOBAL (ip_group_q));
 	ReinitQueue (&GLOBAL (npc_built_ship_q));
 	ReinitQueue (&GLOBAL (built_ship_q));
-
+	
+	uninitEventSystem ();
 	luaUqm_uninitState();
 	luaUqm_initState();
+	initEventSystem ();
 
 	Activity = GLOBAL (CurrentActivity);
 	if (!LoadGameState (&GlobData.Game_state, in_fp))
