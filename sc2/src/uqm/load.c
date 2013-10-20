@@ -401,7 +401,8 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 	if (!LoadSisState (&SummPtr->SS, fp))
 		return FALSE;
 
-	if (		read_8  (fp, &SummPtr->Activity) != 1 ||
+	if (
+			read_8  (fp, &SummPtr->Activity) != 1 ||
 			read_8  (fp, &SummPtr->Flags) != 1 ||
 			read_8  (fp, &SummPtr->day_index) != 1 ||
 			read_8  (fp, &SummPtr->month_index) != 1 ||
@@ -489,14 +490,14 @@ LoadGroupList (uio_Stream *fh, DWORD chunksize)
 			read_8  (fh, &race_outer);
 			read_16 (fh, &ip.group_counter);
 			read_8  (fh, &ip.race_id);
-                        read_8  (fh, &ip.sys_loc);
-                        read_8  (fh, &ip.task);
-                        read_8  (fh, &ip.in_system);
-                        read_8  (fh, &ip.dest_loc);
-                        read_8  (fh, &ip.orbit_pos);
-                        read_8  (fh, &ip.group_id);
-                        read_16 (fh, &ip.loc.x);
-                        read_16 (fh, &ip.loc.y);
+			read_8  (fh, &ip.sys_loc);
+			read_8  (fh, &ip.task);
+			read_8  (fh, &ip.in_system);
+			read_8  (fh, &ip.dest_loc);
+			read_8  (fh, &ip.orbit_pos);
+			read_8  (fh, &ip.group_id);
+			read_16 (fh, &ip.loc.x);
+			read_16 (fh, &ip.loc.y);
 
 			swrite_8 (fp, race_outer);
 			WriteIpGroup (fp, &ip);
@@ -564,13 +565,13 @@ LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
 			BYTE race_outer;
 			SHIP_FRAGMENT sf;
 			read_8  (fh, &race_outer);
-                        read_8  (fh, &sf.captains_name_index);
-                        read_8  (fh, &sf.race_id);
-                        read_8  (fh, &sf.index);
-                        read_16 (fh, &sf.crew_level);
-                        read_16 (fh, &sf.max_crew);
-                        read_8  (fh, &sf.energy_level);
-                        read_8  (fh, &sf.max_energy);
+			read_8  (fh, &sf.captains_name_index);
+			read_8  (fh, &sf.race_id);
+			read_8  (fh, &sf.index);
+			read_16 (fh, &sf.crew_level);
+			read_16 (fh, &sf.max_crew);
+			read_8  (fh, &sf.energy_level);
+			read_8  (fh, &sf.max_energy);
 			chunksize -= 10;
 
 			swrite_8 (fp, race_outer);
