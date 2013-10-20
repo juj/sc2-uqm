@@ -72,7 +72,7 @@ luaUqm_initStatePropertyTable(lua_State *luaState)
 {
 	lua_pushstring(luaState, statePropRegistryKey);
 	lua_newtable(luaState);
-    lua_settable(luaState, LUA_REGISTRYINDEX);
+	lua_settable(luaState, LUA_REGISTRYINDEX);
 }
 
 // Check whether a lua value has a type acceptable as a property value.
@@ -103,7 +103,7 @@ luaUqm_setProp(lua_State *luaState, int nameIndex, int valueIndex) {
 	nameIndex = lua_absindex(luaState, nameIndex);
 	valueIndex = lua_absindex(luaState, valueIndex);
 
-    lua_getfield(luaState, LUA_REGISTRYINDEX, statePropRegistryKey);
+	lua_getfield(luaState, LUA_REGISTRYINDEX, statePropRegistryKey);
 	lua_pushvalue(luaState, nameIndex);
 	lua_pushvalue(luaState, valueIndex);
 	// [-3] -> registry[statePropRegistrykey]
@@ -122,7 +122,7 @@ void
 luaUqm_getProp(lua_State *luaState, int nameIndex) {
 	nameIndex = lua_absindex(luaState, nameIndex);
 
-    lua_getfield(luaState, LUA_REGISTRYINDEX, statePropRegistryKey);
+	lua_getfield(luaState, LUA_REGISTRYINDEX, statePropRegistryKey);
 	// [-1] -> registry[statePropRegistrykey]
 	lua_pushvalue(luaState, nameIndex);
 	// [-2] -> registry[statePropRegistrykey]
@@ -189,12 +189,12 @@ luaUqm_initEventTable(lua_State *luaState)
 {
 	lua_pushstring(luaState, eventRegistryKey);
 	lua_newtable(luaState);
-    lua_settable(luaState, LUA_REGISTRYINDEX);
+	lua_settable(luaState, LUA_REGISTRYINDEX);
 }
 
 void
 luaUqm_getEventTable(lua_State *luaState)
 {
-    lua_getfield(luaState, LUA_REGISTRYINDEX, eventRegistryKey);
+	lua_getfield(luaState, LUA_REGISTRYINDEX, eventRegistryKey);
 }
 
