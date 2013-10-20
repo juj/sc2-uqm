@@ -190,6 +190,9 @@ BOOLEAN deserialiseGameState (const GameStateBitMap *bm,
 #define END_GAME_STATE NUM_GAME_STATE_BITS };
 
 // This enum is now only used for the symbolic names, and the comments.
+// XXX: When all the dialogs are moved to Lua scripts, this will become
+// obsolete. Perhaps it would be best to move the comments to
+// content/base/script/initgame/initprops.lua then.
 START_GAME_STATE
 		/* Shofixti states */
 	ADD_GAME_STATE (SHOFIXTI_VISITS, 3)
