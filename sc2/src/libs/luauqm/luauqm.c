@@ -15,9 +15,11 @@
  */
 
 #include <stdlib.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#ifdef USE_INTERNAL_LUA
+#   include "libs/lua/lualib.h"
+#else
+#	include <lualib.h>
+#endif
 
 #define LUAUQM_INTERNAL
 #include "luauqm.h"

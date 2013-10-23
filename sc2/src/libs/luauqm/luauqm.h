@@ -17,8 +17,13 @@
 #ifndef _LUAUQM_H
 #define _LUAUQM_H
 
-#include <lua.h>
-#include <lauxlib.h>
+#ifdef USE_INTERNAL_LUA
+#   include "libs/lua/lua.h"
+#   include "libs/lua/lauxlib.h"
+#else
+#	include <lua.h>
+#	include <lauxlib.h>
+#endif
 
 #if defined(__cplusplus)
 extern "C" {

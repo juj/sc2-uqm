@@ -17,7 +17,7 @@
 #ifndef _SCRIPTLIB_H
 #define _SCRIPTLIB_H
 
-#include "lua/luauqm.h"
+#include "luauqm/luauqm.h"
 
 #endif  /* _SCRIPTLIB_H */
 

@@ -569,8 +569,32 @@ Note: the order of arguments in AddEvent is different from those in
 event.addRelative/event.addAbsolute
 
 
-Point out lua-checker
+= Importing the Lua sources into UQM =
 
+We have included the sources of the Lua library in UQM.
+To easy upgrading, we have included all of the Lua source files, but we
+only compile the ones we need.
+
+When upgrading Lua, the following steps will have to be taken:
+- remove all the files from the UQM dir src/libs/lua/ except for Makefile
+- copy all the .c, .h and .hpp files from the src/ dir in the Lua source
+  code tar ball to the UQM dir src/libs/lua/
+
+The following files from Lua 5.2.2 are not included in the build:
+- lcorolib.c     Undesired low level functionality (coroutines)
+- ldblib.c       Undesired low level functionality (low level debugging)
+- liolib.c       Undesired low level functionality (system I/O)
+- loadlib.c      Undesired low level functionality (loading modules; we use
+                 our own, using UIO)
+- loslib.c       Undesired low level functionality (system functions)
+- linit.c        Unneeded functionality (code to load all modules)
+- lua.c          For stand-alone use (Lua shell)
+- luac.c         For stand-alone use (Lua compiler)-
+- lua.hpp        Unneeded functionality (C++ interface)
+
+
+
+Point out lua-checker
 
 Things to mention when presenting the patch:
 - an extra hash table is added to conversation string tables, for the names of

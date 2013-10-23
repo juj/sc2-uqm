@@ -18,8 +18,7 @@
 #define _LUASTATE_H
 
 #include "libs/compiler.h"
-
-#include <lua.h>
+#include "libs/scriptlib.h"
 
 #if defined(__cplusplus)
 extern "C" {

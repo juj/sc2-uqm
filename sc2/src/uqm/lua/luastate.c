@@ -24,9 +24,6 @@
 #include "libs/log.h"
 #include "libs/scriptlib.h"
 
-#include <lua.h>
-#include <lauxlib.h>
-
 
 // We store the game state in the global Lua context, in the Lua registry.
 

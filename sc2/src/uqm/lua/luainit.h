@@ -19,8 +19,6 @@
 
 #include "libs/compiler.h"
 
-#include <lua.h>
-
 #if defined(__cplusplus)
 extern "C" {
 #endif

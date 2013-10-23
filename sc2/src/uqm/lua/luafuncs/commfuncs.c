@@ -23,7 +23,6 @@
  */
 
 #include <stdlib.h>
-#include <lauxlib.h>
 
 #define LUAUQM_INTERNAL
 #include "commfuncs.h"

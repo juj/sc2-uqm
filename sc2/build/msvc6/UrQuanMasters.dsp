@@ -594,6 +594,234 @@ SOURCE=..\..\src\libs\list\list.c
 SOURCE=..\..\src\libs\list\list.h
 # End Source File
 # End Group
+# Begin Group "lua"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lapi.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lapi.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lauxlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lauxlib.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lbaselib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lbitlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lcode.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lcode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lctype.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lctype.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ldebug.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ldebug.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ldo.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ldo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ldump.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lfunc.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lfunc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lgc.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lgc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\linit.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\llex.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\llex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\llimits.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lmathlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lmem.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lmem.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lobject.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lobject.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\opcodes.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\opcodes.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lparser.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lparser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lstate.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lstate.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lstring.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lstring.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lstrlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ltable.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ltable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ltablib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ltm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\ltm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\luaconf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lua.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lualib.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lundump.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lundump.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lvm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lvm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lzio.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\lua\lzio.h
+# End Source File
+# End Group
+# Begin Group "luauqm"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\src\libs\luauqm\luauqm.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\luauqm\luauqm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\luauqm\scriptres.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\libs\luauqm\scriptres.h
+# End Source File
+# End Group
 # Begin Group "log"
 
 # PROP Default_Filter ""
