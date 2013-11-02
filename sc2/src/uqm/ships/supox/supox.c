@@ -22,23 +22,32 @@
 
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 12
 #define MAX_ENERGY 16
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 1
 #define ENERGY_WAIT 4
 #define MAX_THRUST 40
 #define THRUST_INCREMENT 8
-#define TURN_WAIT 1
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 2
-#define SPECIAL_WAIT 0
-
+#define TURN_WAIT 1
 #define SHIP_MASS 4
+
+// Gob launcher
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 2
+#define SUPOX_OFFSET 23
+#define MISSILE_OFFSET 2
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+
+// Lateral/reverse thrust
+#define SPECIAL_ENERGY_COST 1
+		/* Unused - uncomment below to enable. */
+#define SPECIAL_WAIT 0
+		/* Unused except to initialize supox_desc.special_wait */
 
 static RACE_DESC supox_desc =
 {
@@ -179,10 +188,6 @@ supox_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static COUNT
 initialize_horn (ELEMENT *ShipPtr, HELEMENT HornArray[])
 {
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 2
-#define SUPOX_OFFSET 23
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 

@@ -24,23 +24,39 @@
 
 #include <stdlib.h>
 
-
+// Core characteristics
 #define MAX_CREW MAX_CREW_SIZE
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 6
-#define SPECIAL_ENERGY_COST 8
 #define ENERGY_WAIT 4
 #define MAX_THRUST 30
 #define THRUST_INCREMENT 6
-#define TURN_WAIT 4
 #define THRUST_WAIT 6
-#define WEAPON_WAIT 6
-#define SPECIAL_WAIT 9
-
+#define TURN_WAIT 4
 #define SHIP_MASS 10
+
+// Fusion blast
+#define WEAPON_ENERGY_COST 6
+#define WEAPON_WAIT 6
 #define MISSILE_SPEED DISPLAY_TO_WORLD (20)
 #define MISSILE_LIFE 20
+#define MISSILE_HITS 10
+#define MISSILE_DAMAGE 6
+#define MISSILE_OFFSET 8
+#define URQUAN_OFFSET 32
+
+// Fighters
+#define SPECIAL_ENERGY_COST 8
+#define SPECIAL_WAIT 9
+#define FIGHTER_OFFSET 4
+#define FIGHTER_SPEED DISPLAY_TO_WORLD (8)
+#define ONE_WAY_FLIGHT 125
+#define TRACK_THRESHOLD 6
+#define FIGHTER_LIFE (ONE_WAY_FLIGHT + ONE_WAY_FLIGHT + 150)
+#define FIGHTER_HITS 1
+#define FIGHTER_MASS 0
+#define FIGHTER_WEAPON_WAIT 8
+#define FIGHTER_LASER_RANGE DISPLAY_TO_WORLD (40 + FIGHTER_OFFSET)
 
 static RACE_DESC urquan_desc =
 {
@@ -116,10 +132,6 @@ static RACE_DESC urquan_desc =
 static COUNT
 initialize_fusion (ELEMENT *ShipPtr, HELEMENT FusionArray[])
 {
-#define MISSILE_HITS 10
-#define MISSILE_DAMAGE 6
-#define MISSILE_OFFSET 8
-#define URQUAN_OFFSET 32
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -142,15 +154,6 @@ initialize_fusion (ELEMENT *ShipPtr, HELEMENT FusionArray[])
 	return (1);
 }
 
-#define TRACK_THRESHOLD 6
-#define FIGHTER_SPEED DISPLAY_TO_WORLD (8)
-#define ONE_WAY_FLIGHT 125
-#define FIGHTER_LIFE (ONE_WAY_FLIGHT + ONE_WAY_FLIGHT + 150)
-
-#define FIGHTER_WEAPON_WAIT 8
-#define FIGHTER_OFFSET 4
-#define LASER_RANGE DISPLAY_TO_WORLD (40 + FIGHTER_OFFSET)
-
 static void
 fighter_postprocess (ELEMENT *ElementPtr)
 {
@@ -162,8 +165,8 @@ fighter_postprocess (ELEMENT *ElementPtr)
 	LaserBlock.cx = ElementPtr->next.location.x;
 	LaserBlock.cy = ElementPtr->next.location.y;
 	LaserBlock.face = ElementPtr->thrust_wait;
-	LaserBlock.ex = COSINE (FACING_TO_ANGLE (LaserBlock.face), LASER_RANGE);
-	LaserBlock.ey = SINE (FACING_TO_ANGLE (LaserBlock.face), LASER_RANGE);
+	LaserBlock.ex = COSINE (FACING_TO_ANGLE (LaserBlock.face), FIGHTER_LASER_RANGE);
+	LaserBlock.ey = SINE (FACING_TO_ANGLE (LaserBlock.face), FIGHTER_LASER_RANGE);
 	LaserBlock.sender = ElementPtr->playerNr;
 	LaserBlock.flags = IGNORE_SIMILAR;
 	LaserBlock.pixoffs = FIGHTER_OFFSET;
@@ -256,10 +259,10 @@ fighter_preprocess (ELEMENT *ElementPtr)
 			delta_y = WRAP_DELTA_Y (delta_y);
 
 			if (ElementPtr->thrust_wait == 0
-					&& abs (delta_x) < LASER_RANGE * 3 / 4
-					&& abs (delta_y) < LASER_RANGE * 3 / 4
+					&& abs (delta_x) < FIGHTER_LASER_RANGE * 3 / 4
+					&& abs (delta_y) < FIGHTER_LASER_RANGE * 3 / 4
 					&& delta_x * delta_x + delta_y * delta_y <
-					(LASER_RANGE * 3 / 4) * (LASER_RANGE * 3 / 4))
+					(FIGHTER_LASER_RANGE * 3 / 4) * (FIGHTER_LASER_RANGE * 3 / 4))
 			{
 				ElementPtr->thrust_wait =
 						(BYTE)NORMALIZE_FACING (
@@ -414,8 +417,8 @@ spawn_fighters (ELEMENT *ElementPtr)
 
 		PutElement (hFighterElement);
 		LockElement (hFighterElement, &FighterElementPtr);
-		FighterElementPtr->hit_points = 1;
-		FighterElementPtr->mass_points = 0;
+		FighterElementPtr->hit_points = FIGHTER_HITS;
+		FighterElementPtr->mass_points = FIGHTER_MASS;
 		FighterElementPtr->thrust_wait = TRACK_THRESHOLD + 1;
 		FighterElementPtr->playerNr = ElementPtr->playerNr;
 		FighterElementPtr->state_flags = APPEARING | FINITE_LIFE

@@ -27,25 +27,58 @@
 #include "libs/mathlib.h"
 #include "libs/timelib.h"
 
-
 #define num_generators characteristics.max_thrust
 
+// Core characteristics
 #define MAX_CREW 1
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 2
-#define SPECIAL_ENERGY_COST 3
 #define ENERGY_WAIT 6
 #define MAX_THRUST 0
 #define THRUST_INCREMENT 0
 #define TURN_WAIT 0
 #define THRUST_WAIT 0
-#define WEAPON_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 10)
-#define SPECIAL_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 3)
-
 #define SHIP_MASS (MAX_SHIP_MASS * 10)
-#define SAMATRA_OFFSET 9
-#define MISSILE_SPEED DISPLAY_TO_WORLD (8)
+#define TURRET_WAIT 0 /* Controls animation of the Sa-Matra's central
+                       * 'furnace', a new frame is displayed once every
+                       * TURRET_WAIT frames. */
+
+// Yellow comet
+#define WEAPON_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 10)
+#define COMET_DAMAGE 2
+#define COMET_OFFSET 0
+#define COMET_HITS 12
+#define COMET_SPEED DISPLAY_TO_WORLD (12)
+#define COMET_LIFE 2
+#define COMET_TURN_WAIT 3
+#define MAX_COMETS 3
+#define WEAPON_ENERGY_COST 2
+		/* Used for samatra_desc.weapon_energy_cost, but the value isn't
+		 * actually used. */
+
+// Green sentinel
+#define SPECIAL_WAIT ((ONE_SECOND / BATTLE_FRAME_RATE) * 3)
+#define SENTINEL_SPEED DISPLAY_TO_WORLD (8)
+#define SENTINEL_LIFE 2
+#define SENTINEL_OFFSET 0
+#define SENTINEL_HITS 10
+#define SENTINEL_DAMAGE 1
+#define TRACK_WAIT 1
+#define ANIMATION_WAIT 1
+#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (10))
+#define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
+#define MAX_SENTINELS 4
+#define SPECIAL_ENERGY_COST 3
+		/* Used for samatra_desc.special_energy_cost, but the value isn't
+		 * actually used. */
+
+// Blue force field
+#define GATE_DAMAGE 1
+#define GATE_HITS 100
+
+// Red generators
+#define GENERATOR_HITS 15
+#define MAX_GENERATORS 8
 
 static RACE_DESC samatra_desc =
 {
@@ -153,8 +186,6 @@ comet_preprocess (ELEMENT *ElementPtr)
 	ElementPtr->state_flags |= CHANGING;
 }
 
-#define COMET_DAMAGE 2
-
 static void
 comet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
@@ -199,10 +230,6 @@ comet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 static HELEMENT
 spawn_comet (ELEMENT *ElementPtr)
 {
-#define COMET_OFFSET 0
-#define COMET_HITS 12
-#define COMET_SPEED DISPLAY_TO_WORLD (12)
-#define COMET_LIFE 2
 	MISSILE_BLOCK MissileBlock;
 	HELEMENT hComet;
 	STARSHIP *StarShipPtr;
@@ -258,12 +285,11 @@ spawn_comet (ELEMENT *ElementPtr)
 				--CometPtr->turn_wait;
 			else
 			{
-#define COMET_WAIT 3
 				facing = NORMALIZE_FACING (facing);
 				if (TrackShip (CometPtr, &facing) > 0)
 					SetVelocityVector (&CometPtr->velocity,
 							COMET_SPEED, facing);
-				CometPtr->turn_wait = COMET_WAIT;
+				CometPtr->turn_wait = COMET_TURN_WAIT;
 			}
 		}
 		UnlockElement (hComet);
@@ -279,7 +305,6 @@ turret_preprocess (ELEMENT *ElementPtr)
 		--ElementPtr->turn_wait;
 	else
 	{
-#define TURRET_WAIT 0
 		ElementPtr->next.image.frame =
 				SetAbsFrameIndex (ElementPtr->current.image.frame,
 				(GetFrameIndex (ElementPtr->current.image.frame) % 10) + 1);
@@ -288,9 +313,6 @@ turret_preprocess (ELEMENT *ElementPtr)
 		ElementPtr->turn_wait = TURRET_WAIT;
 	}
 }
-
-#define GATE_DAMAGE 1
-#define GATE_HITS 100
 
 static void
 gate_collision (ELEMENT *ElementPtr0, POINT *pPt0,
@@ -413,8 +435,6 @@ generator_death (ELEMENT *ElementPtr)
 	}
 }
 
-#define GENERATOR_HITS 15
-
 static void
 generator_preprocess (ELEMENT *ElementPtr)
 {
@@ -443,8 +463,6 @@ generator_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	(void) pPt1;  /* Satisfying compiler (unused parameter) */
 }
 
-#define TRACK_WAIT 1
-
 static void
 sentinel_preprocess (ELEMENT *ElementPtr)
 {
@@ -458,7 +476,6 @@ sentinel_preprocess (ELEMENT *ElementPtr)
 		--ElementPtr->thrust_wait;
 	else
 	{
-#define ANIMATION_WAIT 1
 		ElementPtr->next.image.frame =
 				SetAbsFrameIndex (ElementPtr->current.image.frame,
 				(GetFrameIndex (ElementPtr->current.image.frame) + 1) % 6);
@@ -483,7 +500,7 @@ sentinel_preprocess (ELEMENT *ElementPtr)
 			ElementPtr->state_flags &= ~NONSOLID;
 			facing = (COUNT)TFB_Random ();
 			SetVelocityVector (&ElementPtr->velocity,
-					MISSILE_SPEED, facing);
+					SENTINEL_SPEED, facing);
 		}
 		facing = NORMALIZE_FACING (facing);
 		if (ElementPtr->hTarget == 0)
@@ -577,15 +594,12 @@ sentinel_preprocess (ELEMENT *ElementPtr)
 			}
 
 			SetVelocityVector (&ElementPtr->velocity,
-					MISSILE_SPEED, facing);
+					SENTINEL_SPEED, facing);
 		}
 
 		ElementPtr->turn_wait = TRACK_WAIT;
 	}
 }
-
-#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (10))
-#define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
 
 static void
 sentinel_collision (ELEMENT *ElementPtr0, POINT *pPt0,
@@ -604,8 +618,8 @@ sentinel_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 			angle = ARCTAN (pPt0->x - pPt1->x, pPt0->y - pPt1->y);
 
 			SetVelocityComponents (&ElementPtr0->velocity,
-					COSINE (angle, WORLD_TO_VELOCITY (MISSILE_SPEED)),
-					SINE (angle, WORLD_TO_VELOCITY (MISSILE_SPEED)));
+					COSINE (angle, WORLD_TO_VELOCITY (SENTINEL_SPEED)),
+					SINE (angle, WORLD_TO_VELOCITY (SENTINEL_SPEED)));
 			ElementPtr0->turn_wait = TRACK_WAIT;
 			ElementPtr0->state_flags |= COLLISION | DEFY_PHYSICS;
 		}
@@ -688,9 +702,6 @@ samatra_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	ship_intelligence (ShipPtr, ObjectsOfConcern, ConcernCounter);
 }
 
-#define MAX_COMETS 3
-#define MAX_SENTINELS 4
-
 static void
 samatra_postprocess (ELEMENT *ElementPtr)
 {
@@ -709,10 +720,6 @@ samatra_postprocess (ELEMENT *ElementPtr)
 		if (StarShipPtr->special_counter == 0
 				&& StarShipPtr->RaceDescPtr->characteristics.special_wait < MAX_SENTINELS)
 		{
-#define MISSILE_LIFE 2
-#define MISSILE_OFFSET 0
-#define MISSILE_HITS 10
-#define MISSILE_DAMAGE 1
 			MISSILE_BLOCK MissileBlock;
 			HELEMENT hSentinel;
 
@@ -724,12 +731,12 @@ samatra_postprocess (ELEMENT *ElementPtr)
 			MissileBlock.sender = ElementPtr->playerNr;
 			MissileBlock.flags = 0;
 			MissileBlock.pixoffs = 0;
-			MissileBlock.speed = MISSILE_SPEED;
-			MissileBlock.hit_points = MISSILE_HITS;
-			MissileBlock.damage = MISSILE_DAMAGE;
-			MissileBlock.life = MISSILE_LIFE;
+			MissileBlock.speed = SENTINEL_SPEED;
+			MissileBlock.hit_points = SENTINEL_HITS;
+			MissileBlock.damage = SENTINEL_DAMAGE;
+			MissileBlock.life = SENTINEL_LIFE;
 			MissileBlock.preprocess_func = sentinel_preprocess;
-			MissileBlock.blast_offs = MISSILE_OFFSET;
+			MissileBlock.blast_offs = SENTINEL_OFFSET;
 			hSentinel = initialize_missile (&MissileBlock);
 
 			if (hSentinel)
@@ -765,7 +772,6 @@ samatra_preprocess (ELEMENT *ElementPtr)
 	}
 	else
 	{
-#define MAX_GENERATORS 8
 		POINT offs[] =
 		{
 			{-127-9,  -53+18},

@@ -22,23 +22,27 @@
 
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 6
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 2
-#define SPECIAL_ENERGY_COST 3
 #define ENERGY_WAIT 6
 #define MAX_THRUST /* DISPLAY_TO_WORLD (10) */ 40
 #define THRUST_INCREMENT MAX_THRUST
-#define TURN_WAIT 0
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 1
-#define SPECIAL_WAIT 2
-
+#define TURN_WAIT 0
 #define SHIP_MASS 1
+
+// Tracking Laser
+#define WEAPON_ENERGY_COST 2
+#define WEAPON_WAIT 1
 #define ARILOU_OFFSET 9
 #define LASER_RANGE DISPLAY_TO_WORLD (100 + ARILOU_OFFSET)
+
+// Teleporter
+#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_WAIT 2
+#define HYPER_LIFE 5
 
 static RACE_DESC arilou_desc =
 {
@@ -209,7 +213,6 @@ arilou_preprocess (ELEMENT *ElementPtr)
 				&& DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST))
 		{
 			/* Special key is pressed; start teleport */
-#define HYPER_LIFE 5
 			ZeroVelocityComponents (&ElementPtr->velocity);
 			StarShipPtr->cur_status_flags &=
 					~(SHIP_AT_MAX_SPEED | LEFT | RIGHT | THRUST | WEAPON);

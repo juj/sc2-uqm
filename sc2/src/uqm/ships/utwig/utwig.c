@@ -23,24 +23,36 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 0
-#define WEAPON_ENERGY_COST 0
-#define SPECIAL_ENERGY_COST 1
 #define ENERGY_WAIT 255
 #define MAX_THRUST 36
 #define THRUST_INCREMENT 6
-#define TURN_WAIT 1
 #define THRUST_WAIT 6
-#define WEAPON_WAIT 7
-#define SPECIAL_WAIT 12
-
+#define TURN_WAIT 1
 #define SHIP_MASS 8
+
+// Weapon
+#define WEAPON_ENERGY_COST 0
+#define WEAPON_WAIT 7
 #define UTWIG_OFFSET 9
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+#define MISSILE_OFFSET 1
+#define LAUNCH_XOFFS0 DISPLAY_TO_WORLD (5)
+#define LAUNCH_YOFFS0 -DISPLAY_TO_WORLD (18)
+#define LAUNCH_XOFFS1 DISPLAY_TO_WORLD (13)
+#define LAUNCH_YOFFS1 -DISPLAY_TO_WORLD (9)
+#define LAUNCH_XOFFS2 DISPLAY_TO_WORLD (17)
+#define LAUNCH_YOFFS2 -DISPLAY_TO_WORLD (4)
+
+// Shield
+#define SPECIAL_ENERGY_COST 1
+#define SPECIAL_WAIT 12
 
 static RACE_DESC utwig_desc =
 {
@@ -116,15 +128,6 @@ static RACE_DESC utwig_desc =
 static COUNT
 initialize_lance (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 {
-#define LAUNCH_XOFFS0 DISPLAY_TO_WORLD (5)
-#define LAUNCH_YOFFS0 -DISPLAY_TO_WORLD (18)
-#define LAUNCH_XOFFS1 DISPLAY_TO_WORLD (13)
-#define LAUNCH_YOFFS1 -DISPLAY_TO_WORLD (9)
-#define LAUNCH_XOFFS2 DISPLAY_TO_WORLD (17)
-#define LAUNCH_YOFFS2 -DISPLAY_TO_WORLD (4)
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 1
 	COUNT i;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;

@@ -20,23 +20,39 @@
 #include "spathi.h"
 #include "resinst.h"
 
+// Core characteristics
 #define MAX_CREW 30
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 2
-#define SPECIAL_ENERGY_COST 3
 #define ENERGY_WAIT 10
 #define MAX_THRUST 48
 #define THRUST_INCREMENT 12
-#define TURN_WAIT 1
 #define THRUST_WAIT 1
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 7
-
+#define TURN_WAIT 1
 #define SHIP_MASS 5
+
+// Forward gun
+#define WEAPON_ENERGY_COST 2
+#define WEAPON_WAIT 0
+#define SPATHI_FORWARD_OFFSET 16
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+#define MISSILE_OFFSET 1
 #define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
+		/* This is for the cyborg only. */
+
+// B.U.T.T.
+#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_WAIT 7
+#define SPATHI_REAR_OFFSET 20
+#define DISCRIMINATOR_SPEED DISPLAY_TO_WORLD (8)
+#define DISCRIMINATOR_LIFE 30
+#define DISCRIMINATOR_HITS 1
+#define DISCRIMINATOR_DAMAGE 2
+#define DISCRIMINATOR_OFFSET 4
+#define TRACK_WAIT 1
 
 static RACE_DESC spathi_desc =
 {
@@ -109,9 +125,6 @@ static RACE_DESC spathi_desc =
 	0, /* CodeRef */
 };
 
-#define DISCRIMINATOR_SPEED DISPLAY_TO_WORLD (8)
-#define TRACK_WAIT 1
-
 static void
 butt_missile_preprocess (ELEMENT *ElementPtr)
 {
@@ -140,11 +153,6 @@ butt_missile_preprocess (ELEMENT *ElementPtr)
 static void
 spawn_butt_missile (ELEMENT *ShipPtr)
 {
-#define SPATHI_REAR_OFFSET 20
-#define DISCRIMINATOR_LIFE 30
-#define DISCRIMINATOR_HITS 1
-#define DISCRIMINATOR_DAMAGE 2
-#define DISCRIMINATOR_OFFSET 4
 	HELEMENT ButtMissile;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK ButtMissileBlock;
@@ -239,10 +247,6 @@ spathi_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static COUNT
 initialize_standard_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 {
-#define SPATHI_FORWARD_OFFSET 16
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 1
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 

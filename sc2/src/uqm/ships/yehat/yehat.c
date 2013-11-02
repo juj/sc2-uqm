@@ -22,23 +22,32 @@
 
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 2
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 3
 #define ENERGY_WAIT 6
 #define MAX_THRUST 30
 #define THRUST_INCREMENT 6
-#define TURN_WAIT 2
 #define THRUST_WAIT 2
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 2
-
+#define TURN_WAIT 2
 #define SHIP_MASS 3
+
+// Twin Pulse Cannon
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 0
+#define YEHAT_OFFSET 16
+#define LAUNCH_OFFS DISPLAY_TO_WORLD (8)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (20)
 #define MISSILE_LIFE 10
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+#define MISSILE_OFFSET 1
+
+// Force Shield
+#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_WAIT 2
+#define SHIELD_LIFE 10
 
 static RACE_DESC yehat_desc =
 {
@@ -114,11 +123,6 @@ static RACE_DESC yehat_desc =
 static COUNT
 initialize_standard_missiles (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 {
-#define YEHAT_OFFSET 16
-#define LAUNCH_OFFS DISPLAY_TO_WORLD (8)
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 1
 	SIZE offs_x, offs_y;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
@@ -334,7 +338,6 @@ yehat_preprocess (ELEMENT *ElementPtr)
 				DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST); /* so text will flash */
 			else
 			{
-#define SHIELD_LIFE 10
 				ElementPtr->life_span = SHIELD_LIFE + NORMAL_LIFE;
 
 				ElementPtr->next.image.farray = StarShipPtr->RaceDescPtr->ship_data.special;

@@ -1,4 +1,6 @@
 Changes towards version 0.8:
+- Grouping ship properties together at the top of the ship .c files, from
+  oldlaptop.
 - Some added documentation for UIO.
 - Added a StringHashTable type.
 - A few superficial fixes to charhashtable.

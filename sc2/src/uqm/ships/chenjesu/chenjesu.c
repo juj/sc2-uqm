@@ -23,27 +23,48 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 36
 #define MAX_ENERGY 30
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 5
-#define SPECIAL_ENERGY_COST MAX_ENERGY
 #define ENERGY_WAIT 4
 #define MAX_THRUST /* DISPLAY_TO_WORLD (7) */ 27
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 3
-#define TURN_WAIT 6
 #define THRUST_WAIT 4
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 0
-
-#define MAX_DOGGIES 4
-
+#define TURN_WAIT 6
 #define SHIP_MASS 10
+
+// Photon Shard
+#define WEAPON_ENERGY_COST 5
+#define WEAPON_WAIT 0
+#define CHENJESU_OFFSET 16
+#define MISSILE_OFFSET 0
 #define MISSILE_SPEED DISPLAY_TO_WORLD (16)
-#define MISSILE_LIFE 90 /* actually, it's as long as you
-										 * hold the button down.
-										 */
+#define MISSILE_LIFE 90
+		/* actually, it's as long as you hold the button down. */
+#define MISSILE_HITS 10
+#define MISSILE_DAMAGE 6
+#define NUM_SPARKLES 8
+
+// Shrapnel
+#define FRAGMENT_OFFSET 2
+#define NUM_FRAGMENTS 8
+#define FRAGMENT_LIFE 10
+#define FRAGMENT_SPEED MISSILE_SPEED
+#define FRAGMENT_RANGE (FRAGMENT_LIFE * FRAGMENT_SPEED)
+		/* This bit is for the cyborg only. */
+#define FRAGMENT_HITS 1
+#define FRAGMENT_DAMAGE 2
+
+// DOGI
+#define SPECIAL_ENERGY_COST MAX_ENERGY
+#define SPECIAL_WAIT 0
+#define DOGGY_OFFSET 18
+#define DOGGY_SPEED DISPLAY_TO_WORLD (8)
+#define ENERGY_DRAIN 10
+#define MAX_DOGGIES 4
+#define DOGGY_HITS 3
+#define DOGGY_MASS 4
 
 static RACE_DESC chenjesu_desc =
 {
@@ -116,17 +137,9 @@ static RACE_DESC chenjesu_desc =
 	0, /* CodeRef */
 };
 
-#define FRAGMENT_LIFE 10
-#define FRAGMENT_SPEED MISSILE_SPEED
-#define FRAGMENT_RANGE (FRAGMENT_LIFE * FRAGMENT_SPEED)
-
 static void
 crystal_postprocess (ELEMENT *ElementPtr)
 {
-#define FRAGMENT_HITS 1
-#define FRAGMENT_DAMAGE 2
-#define FRAGMENT_OFFSET 2
-#define NUM_FRAGMENTS 8
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -212,7 +225,6 @@ crystal_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	{
 		ELEMENT *BlastElementPtr;
 
-#define NUM_SPARKLES 8
 		LockElement (hBlastElement, &BlastElementPtr);
 		BlastElementPtr->current.location = ElementPtr1->current.location;
 
@@ -230,9 +242,6 @@ crystal_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		UnlockElement (hBlastElement);
 	}
 }
-
-#define DOGGY_OFFSET 18
-#define DOGGY_SPEED DISPLAY_TO_WORLD (8)
 
 static void
 doggy_preprocess (ELEMENT *ElementPtr)
@@ -314,7 +323,6 @@ static void
 doggy_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
 {
-#define ENERGY_DRAIN 10
 	collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 	if ((ElementPtr1->state_flags & PLAYER_SHIP)
 			&& !elementsOfSamePlayer (ElementPtr0, ElementPtr1))
@@ -335,8 +343,6 @@ doggy_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ElementPtr0->thrust_wait += COLLISION_THRUST_WAIT << 1;
 }
 
-#define CHENJESU_OFFSET 16
-
 static void
 spawn_doggy (ELEMENT *ElementPtr)
 {
@@ -352,8 +358,8 @@ spawn_doggy (ELEMENT *ElementPtr)
 
 		PutElement (hDoggyElement);
 		LockElement (hDoggyElement, &DoggyElementPtr);
-		DoggyElementPtr->hit_points = 3;
-		DoggyElementPtr->mass_points = 4;
+		DoggyElementPtr->hit_points = DOGGY_HITS;
+		DoggyElementPtr->mass_points = DOGGY_MASS;
 		DoggyElementPtr->thrust_wait = 0;
 		DoggyElementPtr->playerNr = ElementPtr->playerNr;
 		DoggyElementPtr->state_flags = APPEARING;
@@ -499,9 +505,6 @@ chenjesu_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static COUNT
 initialize_crystal (ELEMENT *ShipPtr, HELEMENT CrystalArray[])
 {
-#define MISSILE_HITS 10
-#define MISSILE_DAMAGE 6
-#define MISSILE_OFFSET 0
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 

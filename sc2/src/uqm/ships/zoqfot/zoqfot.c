@@ -22,24 +22,39 @@
 
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 10
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST (MAX_ENERGY * 3 / 4)
 #define ENERGY_WAIT 4
 #define MAX_THRUST 40
 #define THRUST_INCREMENT 10
-#define TURN_WAIT 1
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 6
-
+#define TURN_WAIT 1
 #define SHIP_MASS 5
+
+// Main weapon
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 0
+#define ZOQFOTPIK_OFFSET 13
+#define MISSILE_OFFSET 0
 #define MISSILE_SPEED DISPLAY_TO_WORLD (10)
+		/* Used by the cyborg only. */
 #define MISSILE_LIFE 10
 #define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
+#define MISSILE_DAMAGE 1
+#define MISSILE_HITS 1
+#define SPIT_WAIT 2
+		/* Controls the main weapon color change animation's speed.
+		 * The animation advances one frame every SPIT_WAIT frames. */
+
+// Tongue
+#define SPECIAL_ENERGY_COST (MAX_ENERGY * 3 / 4)
+#define SPECIAL_WAIT 6
+#define TONGUE_SPEED 0
+#define TONGUE_HITS 1
+#define TONGUE_DAMAGE 12
+#define TONGUE_OFFSET 4
 
 static RACE_DESC zoqfotpik_desc =
 {
@@ -112,12 +127,10 @@ static RACE_DESC zoqfotpik_desc =
 	0, /* CodeRef */
 };
 
-#define ZOQFOTPIK_OFFSET 13
-#define SPIT_WAIT 2
-
 static void
 spit_preprocess (ELEMENT *ElementPtr)
 {
+	/* turn_wait is abused here to control the animation speed. */
 	if (ElementPtr->turn_wait > 0)
 		--ElementPtr->turn_wait;
 	else
@@ -136,6 +149,7 @@ spit_preprocess (ELEMENT *ElementPtr)
 				(SIZE)COSINE (angle, speed),
 				(SIZE)SINE (angle, speed));
 
+		/* turn_wait is abused here to control the animation speed. */
 		ElementPtr->turn_wait = SPIT_WAIT;
 		ElementPtr->state_flags |= CHANGING;
 	}
@@ -144,9 +158,6 @@ spit_preprocess (ELEMENT *ElementPtr)
 static COUNT
 initialize_spit (ELEMENT *ShipPtr, HELEMENT SpitArray[])
 {
-#define MISSILE_DAMAGE 1
-#define MISSILE_HITS 1
-#define MISSILE_OFFSET 0
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -199,10 +210,6 @@ tongue_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 static void
 spawn_tongue (ELEMENT *ElementPtr)
 {
-#define TONGUE_SPEED 0
-#define TONGUE_HITS 1
-#define TONGUE_DAMAGE 12
-#define TONGUE_OFFSET 4
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK TongueBlock;
 	HELEMENT Tongue;

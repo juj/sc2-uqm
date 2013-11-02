@@ -22,25 +22,48 @@
 
 #include "uqm/globdata.h"
 
-
+// Core characteristics
 #define MAX_CREW MAX_CREW_SIZE
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 6
-#define SPECIAL_ENERGY_COST (MAX_ENERGY_SIZE / 2)
 #define ENERGY_WAIT 4
 #define MAX_THRUST 30
 #define THRUST_INCREMENT 6
 #define TURN_WAIT 4
 #define THRUST_WAIT 6
-#define WEAPON_WAIT 6
-#define SPECIAL_WAIT 9
-
 #define SHIP_MASS 10
+
+// Buzzsaw
+#define WEAPON_ENERGY_COST 6
+#define WEAPON_WAIT 6
+#define MISSILE_OFFSET 9
+#define KOHR_AH_OFFSET 28
 #define MISSILE_SPEED 64
-#define MISSILE_LIFE 64 /* actually, it's as long as you
-										 * hold the button down.
-										 */
+#define MISSILE_LIFE 64
+		/* actually, it's as long as you hold the button down.*/
+#define MISSILE_HITS 10
+#define MISSILE_DAMAGE 4
+#define SAW_RATE 0
+#define MAX_SAWS 8
+#define ACTIVATE_RANGE 224
+		/* Originally SPACE_WIDTH - the distance within which
+		 * stationary sawblades will home */
+#define TRACK_WAIT 4
+#define FRAGMENT_SPEED MISSILE_SPEED
+#define FRAGMENT_LIFE 10
+#define FRAGMENT_RANGE (FRAGMENT_LIFE * FRAGMENT_SPEED)
+
+// F.R.I.E.D.
+#define SPECIAL_ENERGY_COST (MAX_ENERGY_SIZE / 2)
+#define SPECIAL_WAIT 9
+#define GAS_OFFSET 2
+#define GAS_SPEED 16
+#define GAS_RATE 2 /* Controls animation of the gas cloud decay - the decay
+                    * animation advances one frame every GAS_RATE frames. */
+#define GAS_HITS 100
+#define GAS_DAMAGE 3
+#define GAS_ALT_DAMAGE 50
+#define NUM_GAS_CLOUDS 16
 
 static RACE_DESC black_urquan_desc =
 {
@@ -113,9 +136,6 @@ static RACE_DESC black_urquan_desc =
 	0, /* CodeRef */
 };
 
-#define SAW_RATE 0
-#define MAX_SAWS 8
-
 static void
 spin_preprocess (ELEMENT *ElementPtr)
 {
@@ -154,8 +174,6 @@ spin_preprocess (ELEMENT *ElementPtr)
 	UnlockElement (StarShipPtr->hShip);
 }
 
-#define TRACK_WAIT 4
-
 static void
 buzztrack_preprocess (ELEMENT *ElementPtr)
 {
@@ -172,7 +190,6 @@ buzztrack_preprocess (ELEMENT *ElementPtr)
 		}
 		else
 		{
-#define ACTIVATE_RANGE 224 /* Originally SPACE_WIDTH */
 			SIZE delta_x, delta_y;
 			ELEMENT *eptr;
 
@@ -311,10 +328,6 @@ buzzsaw_postprocess (ELEMENT *ElementPtr)
 static COUNT
 initialize_buzzsaw (ELEMENT *ShipPtr, HELEMENT SawArray[])
 {
-#define MISSILE_HITS 10
-#define MISSILE_DAMAGE 4
-#define MISSILE_OFFSET 9
-#define KOHR_AH_OFFSET 28
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -379,9 +392,6 @@ black_urquan_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	lpEvalDesc = &ObjectsOfConcern[ENEMY_SHIP_INDEX];
 	if (lpEvalDesc->ObjectPtr)
 	{
-#define FRAGMENT_LIFE 10
-#define FRAGMENT_SPEED MISSILE_SPEED
-#define FRAGMENT_RANGE (FRAGMENT_LIFE * FRAGMENT_SPEED)
 		HELEMENT h, hNext;
 		ELEMENT *BuzzSawPtr;
 
@@ -433,8 +443,6 @@ black_urquan_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	}
 }
 
-#define GAS_RATE 2
-
 static void
 gas_cloud_preprocess (ELEMENT *ElementPtr)
 {
@@ -450,8 +458,6 @@ gas_cloud_preprocess (ELEMENT *ElementPtr)
 	}
 }
 
-#define GAS_DAMAGE 3
-
 static void
 gas_cloud_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
@@ -459,7 +465,7 @@ gas_cloud_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	if (ElementPtr1->state_flags & PLAYER_SHIP)
 		ElementPtr0->mass_points = GAS_DAMAGE;
 	else
-		ElementPtr0->mass_points = 50;
+		ElementPtr0->mass_points = GAS_ALT_DAMAGE;
 
 	weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 }
@@ -467,10 +473,6 @@ gas_cloud_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 static void
 spawn_gas_cloud (ELEMENT *ElementPtr)
 {
-#define GAS_SPEED 16
-#define GAS_HITS 100
-#define GAS_OFFSET 2
-#define NUM_GAS_CLOUDS 16
 	SIZE dx, dy;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;

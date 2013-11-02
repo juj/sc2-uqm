@@ -23,25 +23,43 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 40
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 2
 #define ENERGY_WAIT 8
 #define MAX_THRUST /* DISPLAY_TO_WORLD (5) */ 21
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 7
-#define TURN_WAIT 6
 #define THRUST_WAIT 4
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 7
-
+#define TURN_WAIT 6
 #define SHIP_MASS 6
-#define WARP_OFFSET 46 /* How far outside of laser-range ship can warp in */
+
+// Laser
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 0
 #define VUX_OFFSET 12
 #define LASER_BASE 150
 #define LASER_RANGE DISPLAY_TO_WORLD (LASER_BASE + VUX_OFFSET)
+
+// Limpet
+#define SPECIAL_ENERGY_COST 2
+#define SPECIAL_WAIT 7
+#define LIMPET_SPEED 25
+#define LIMPET_OFFSET 8
+#define LIMPET_LIFE 80
+#define LIMPET_HITS 1
+#define LIMPET_DAMAGE 0
+#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (1)
+
+// Aggressive Entry
+#define WARP_OFFSET 46
+		/* How far outside of the laser range can the ship warp in. */
+#define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((LASER_BASE + VUX_OFFSET + WARP_OFFSET) << 1)
+#define MAXY_ENTRY_DIST DISPLAY_TO_WORLD ((LASER_BASE + VUX_OFFSET + WARP_OFFSET) << 1)
+		/* Originally, the warp distance was:
+		 * DISPLAY_TO_WORLD (SPACE_HEIGHT << 1)
+		 * where SPACE_HEIGHT = SCREEN_HEIGHT - (SAFE_Y * 2)
+		 * But in reality this should be relative to the laser-range. */
 
 static RACE_DESC vux_desc =
 {
@@ -114,7 +132,6 @@ static RACE_DESC vux_desc =
 	0, /* CodeRef */
 };
 
-#define LIMPET_SPEED 25
 
 static void
 limpet_preprocess (ELEMENT *ElementPtr)
@@ -128,8 +145,7 @@ limpet_preprocess (ELEMENT *ElementPtr)
 	if ((delta_facing = TrackShip (ElementPtr, &facing)) > 0)
 	{
 		facing = orig_facing + delta_facing;
-		SetVelocityVector (&ElementPtr->velocity,
-				LIMPET_SPEED, facing);
+		SetVelocityVector (&ElementPtr->velocity, LIMPET_SPEED, facing);
 	}
 	ElementPtr->next.image.frame =
 			 IncFrameIndex (ElementPtr->next.image.frame);
@@ -154,7 +170,6 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 			--RDPtr->characteristics.turn_wait;
 		if (++RDPtr->characteristics.thrust_wait == 0)
 			--RDPtr->characteristics.thrust_wait;
-#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (1)
 		if (RDPtr->characteristics.thrust_increment <= MIN_THRUST_INCREMENT)
 		{
 			RDPtr->characteristics.max_thrust =
@@ -193,10 +208,6 @@ limpet_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 static void
 spawn_limpets (ELEMENT *ElementPtr)
 {
-#define LIMPET_OFFSET 8
-#define LIMPET_LIFE 80
-#define LIMPET_HITS 1
-#define LIMPET_DAMAGE 0
 	HELEMENT Limpet;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
@@ -327,12 +338,6 @@ vux_preprocess (ELEMENT *ElementPtr)
 
 			do
 			{
-				// Originally, the warp distance was:
-				// DISPLAY_TO_WORLD (SPACE_HEIGHT << 1)
-				// where SPACE_HEIGHT = SCREEN_HEIGHT - (SAFE_Y * 2)
-				// But in reality this should be relative to the laser-range
-#define MAXX_ENTRY_DIST DISPLAY_TO_WORLD ((LASER_BASE + VUX_OFFSET + WARP_OFFSET) << 1)
-#define MAXY_ENTRY_DIST DISPLAY_TO_WORLD ((LASER_BASE + VUX_OFFSET + WARP_OFFSET) << 1)
 				SIZE dx, dy;
 
 				ElementPtr->current.location.x =

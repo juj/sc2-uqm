@@ -24,23 +24,36 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW MAX_CREW_SIZE
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 2
-#define SPECIAL_ENERGY_COST 1
 #define ENERGY_WAIT 1
 #define MAX_THRUST 35
 #define THRUST_INCREMENT 7
-#define TURN_WAIT 3
 #define THRUST_WAIT 5
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 0
-
+#define TURN_WAIT 3
 #define SHIP_MASS 10
+
+// Laser
+#define WEAPON_ENERGY_COST 2
+#define WEAPON_WAIT 0
 #define CHMMR_OFFSET 18
 #define LASER_RANGE DISPLAY_TO_WORLD (150)
+#define NUM_CYCLES 4
+
+// Tractor Beam
+#define SPECIAL_ENERGY_COST 1
+#define SPECIAL_WAIT 0
+#define NUM_SHADOWS 5
+
+// Satellites
+#define NUM_SATELLITES 3
+#define SATELLITE_OFFSET DISPLAY_TO_WORLD (64)
+#define SATELLITE_HITPOINTS 10
+#define SATELLITE_MASS 10
+#define DEFENSE_RANGE (UWORD)64
+#define DEFENSE_WAIT 2
 
 static RACE_DESC chmmr_desc =
 {
@@ -202,7 +215,6 @@ laser_death (ELEMENT *ElementPtr)
 static COUNT
 initialize_megawatt_laser (ELEMENT *ShipPtr, HELEMENT LaserArray[])
 {
-#define NUM_CYCLES 4
 	RECT r;
 	STARSHIP *StarShipPtr;
 	LASER_BLOCK LaserBlock;
@@ -337,8 +349,6 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 		facing = 0;
 		if (TrackShip (ElementPtr, &facing) >= 0)
 		{
-#define NUM_SHADOWS 5
-					
 			ELEMENT *ShipElementPtr;
 
 			LockElement (ElementPtr->hTarget, &ShipElementPtr);
@@ -444,8 +454,6 @@ chmmr_postprocess (ELEMENT *ElementPtr)
 	StarShipPtr->special_counter = 0;
 }
 
-#define SATELLITE_OFFSET DISPLAY_TO_WORLD (64)
-
 static void
 satellite_preprocess (ELEMENT *ElementPtr)
 {
@@ -502,8 +510,6 @@ satellite_preprocess (ELEMENT *ElementPtr)
 static void
 spawn_point_defense (ELEMENT *ElementPtr)
 {
-#define DEFENSE_RANGE (UWORD)64
-#define DEFENSE_WAIT 2
 	BYTE weakest;
 	UWORD best_dist;
 	STARSHIP *StarShipPtr;
@@ -674,7 +680,6 @@ satellite_death (ELEMENT *ElementPtr)
 static void
 spawn_satellites (ELEMENT *ElementPtr)
 {
-#define NUM_SATELLITES 3
 	COUNT i;
 	STARSHIP *StarShipPtr;
 
@@ -697,8 +702,8 @@ spawn_satellites (ELEMENT *ElementPtr)
 				SattPtr->state_flags = IGNORE_SIMILAR | APPEARING
 						| FINITE_LIFE;
 				SattPtr->life_span = NORMAL_LIFE + 1;
-				SattPtr->hit_points = 10;
-				SattPtr->mass_points = 10;
+				SattPtr->hit_points = SATELLITE_HITPOINTS;
+				SattPtr->mass_points = SATELLITE_MASS;
 
 				angle = (i * FULL_CIRCLE + (NUM_SATELLITES >> 1))
 						/ NUM_SATELLITES;

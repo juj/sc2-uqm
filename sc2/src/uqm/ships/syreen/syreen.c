@@ -22,24 +22,33 @@
 
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define SYREEN_MAX_CREW_SIZE MAX_CREW_SIZE
 #define MAX_CREW 12
 #define MAX_ENERGY 16
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 5
 #define ENERGY_WAIT 6
 #define MAX_THRUST /* DISPLAY_TO_WORLD (8) */ 36
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 9
-#define TURN_WAIT 1
 #define THRUST_WAIT 1
-#define WEAPON_WAIT 8
-#define SPECIAL_WAIT 20
-
+#define TURN_WAIT 1
 #define SHIP_MASS 2
+
+// Particle Beam Stiletto
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 8
+#define SYREEN_OFFSET 30
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 10
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 2
+#define MISSILE_OFFSET 3
+
+// Syreen song
+#define SPECIAL_ENERGY_COST 5
+#define SPECIAL_WAIT 20
+#define ABANDONER_RANGE 208 /* originally SPACE_HEIGHT */
+#define MAX_ABANDONERS 8
 
 static RACE_DESC syreen_desc =
 {
@@ -115,10 +124,6 @@ static RACE_DESC syreen_desc =
 static COUNT
 initialize_dagger (ELEMENT *ShipPtr, HELEMENT DaggerArray[])
 {
-#define SYREEN_OFFSET 30
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 2
-#define MISSILE_OFFSET 3
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -194,13 +199,11 @@ spawn_crew (ELEMENT *ElementPtr)
 
 				dx = WORLD_TO_DISPLAY (dx);
 				dy = WORLD_TO_DISPLAY (dy);
-#define ABANDONER_RANGE 208 /* originally SPACE_HEIGHT */
 				if (dx <= ABANDONER_RANGE && dy <= ABANDONER_RANGE
 						&& (d_squared = (DWORD)((UWORD)dx * (UWORD)dx)
 						+ (DWORD)((UWORD)dy * (UWORD)dy)) <=
 						(DWORD)((UWORD)ABANDONER_RANGE * (UWORD)ABANDONER_RANGE))
 				{
-#define MAX_ABANDONERS 8
 					COUNT crew_loss;
 
 					crew_loss = ((MAX_ABANDONERS

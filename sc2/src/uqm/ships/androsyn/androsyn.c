@@ -22,21 +22,37 @@
 
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 24
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 3
-#define SPECIAL_ENERGY_COST 2
 #define ENERGY_WAIT 8
 #define MAX_THRUST 24
 #define THRUST_INCREMENT 3
 #define TURN_WAIT 4
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 0
-
 #define SHIP_MASS 6
+
+// Bubbles
+#define WEAPON_ENERGY_COST 3
+#define WEAPON_WAIT 0
+#define ANDROSYNTH_OFFSET 14
+#define MISSILE_OFFSET 3
+#define MISSILE_SPEED DISPLAY_TO_WORLD (8)
+#define MISSILE_LIFE 200
+#define MISSILE_HITS 3
+#define MISSILE_DAMAGE 2
+#define TRACK_WAIT 2
+
+// Blazer
+#define SPECIAL_ENERGY_COST 2
+#define BLAZER_DEGENERATION (-1)
+#define SPECIAL_WAIT 0
+#define BLAZER_OFFSET 10
+#define BLAZER_THRUST 60
+#define BLAZER_TURN_WAIT 1
+#define BLAZER_DAMAGE 3
+#define BLAZER_MASS 1
 
 static RACE_DESC androsynth_desc =
 {
@@ -149,15 +165,10 @@ SetCustomShipData (RACE_DESC *pRaceDesc, const CustomShipData_t *data)
 	}
 }
 
-
-#define BLAZER_DAMAGE 3
-#define BLAZER_MASS 1
-
 static void
 blazer_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
 {
-#define BLAZER_OFFSET 10
 	BYTE old_offs;
 	COUNT old_crew_level;
 	COUNT old_life;
@@ -176,8 +187,6 @@ blazer_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	ElementPtr0->state_flags &= ~(DISAPPEARING | NONSOLID);
 	collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 }
-
-#define MISSILE_SPEED DISPLAY_TO_WORLD (8)
 
 static void
 bubble_preprocess (ELEMENT *ElementPtr)
@@ -214,23 +223,15 @@ bubble_preprocess (ELEMENT *ElementPtr)
 			facing -= (COUNT)TFB_Random () & (ANGLE_TO_FACING (HALF_CIRCLE) - 1);
 		SetVelocityVector (&ElementPtr->velocity,
 				MISSILE_SPEED, facing);
-
-#define TRACK_WAIT 2
 		turn_wait = TRACK_WAIT;
 	}
 
 	ElementPtr->turn_wait = MAKE_BYTE (turn_wait, thrust_wait);
 }
 
-#define MISSILE_DAMAGE 2
-#define MISSILE_LIFE 200
-
 static COUNT
 initialize_bubble (ELEMENT *ShipPtr, HELEMENT BubbleArray[])
 {
-#define ANDROSYNTH_OFFSET 14
-#define MISSILE_OFFSET 3
-#define MISSILE_HITS 3
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -364,8 +365,6 @@ androsynth_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	}
 }
 
-#define BLAZER_TURN_WAIT 1
-
 static void
 androsynth_postprocess (ELEMENT *ElementPtr)
 {
@@ -375,7 +374,6 @@ androsynth_postprocess (ELEMENT *ElementPtr)
 			/* take care of blazer effect */
 	if (ElementPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.special)
 	{
-#define BLAZER_DEGENERATION (-1)
 		if ((StarShipPtr->cur_status_flags & SPECIAL)
 				|| StarShipPtr->RaceDescPtr->ship_info.energy_level == 0)
 		{
@@ -484,7 +482,6 @@ androsynth_preprocess (ELEMENT *ElementPtr)
 				--ElementPtr->thrust_wait;
 			else
 			{
-#define BLAZER_THRUST 60
 				COUNT facing;
 
 				facing = StarShipPtr->ShipFacing;

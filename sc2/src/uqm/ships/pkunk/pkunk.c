@@ -24,23 +24,36 @@
 #include "uqm/tactrans.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 8
 #define MAX_ENERGY 12
 #define ENERGY_REGENERATION 0
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 2
 #define ENERGY_WAIT 0
 #define MAX_THRUST 64
 #define THRUST_INCREMENT 16
-#define TURN_WAIT 0
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 16
-
+#define TURN_WAIT 0
 #define SHIP_MASS 1
+
+// Triple Miniguns
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 0
+#define PKUNK_OFFSET 15
+#define MISSILE_OFFSET 1
 #define MISSILE_SPEED DISPLAY_TO_WORLD (24)
 #define MISSILE_LIFE 5
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+
+// Taunt
+#define SPECIAL_ENERGY_COST 2
+#define SPECIAL_WAIT 16
+
+// Respawn
+#define PHOENIX_LIFE 12
+#define START_PHOENIX_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
+#define TRANSITION_LIFE 1
+#define TRANSITION_SPEED DISPLAY_TO_WORLD (20)
 
 static RACE_DESC pkunk_desc =
 {
@@ -173,10 +186,6 @@ animate (ELEMENT *ElementPtr)
 static COUNT
 initialize_bug_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 {
-#define PKUNK_OFFSET 15
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 1
 	COUNT i;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
@@ -363,9 +372,6 @@ intercept_pkunk_death (ELEMENT *ElementPtr)
 	UnlockElement (StarShipPtr->hShip);
 }
 
-#define START_PHOENIX_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
-#define TRANSITION_LIFE 1
-
 static void
 spawn_phoenix_trail (ELEMENT *ElementPtr)
 {
@@ -399,8 +405,6 @@ spawn_phoenix_trail (ELEMENT *ElementPtr)
 	} // else, the element disappears.
 }
 
-#define PHOENIX_LIFE 12
-
 static void
 phoenix_transition (ELEMENT *ElementPtr)
 {
@@ -417,7 +421,6 @@ phoenix_transition (ELEMENT *ElementPtr)
 	}
 	else if ((hShipImage = AllocElement ()))
 	{
-#define TRANSITION_SPEED DISPLAY_TO_WORLD (20)
 		COUNT angle;
 
 		PutElement (hShipImage);

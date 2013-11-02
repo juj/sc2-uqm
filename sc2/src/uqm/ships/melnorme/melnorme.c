@@ -23,23 +23,38 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 5
-#define SPECIAL_ENERGY_COST 20
 #define ENERGY_WAIT 4
 #define MAX_THRUST 36
 #define THRUST_INCREMENT 6
-#define TURN_WAIT 4
 #define THRUST_WAIT 4
-#define WEAPON_WAIT 1
-#define SPECIAL_WAIT 20
-
+#define TURN_WAIT 4
 #define SHIP_MASS 7
+
+// Blaster Pulse
+#define WEAPON_ENERGY_COST 5
+#define WEAPON_WAIT 1
+#define MELNORME_OFFSET 24
+#define LEVEL_COUNTER 72
+#define MAX_PUMP 4
 #define PUMPUP_SPEED DISPLAY_TO_WORLD (45)
 #define PUMPUP_LIFE 10
+#define PUMPUP_DAMAGE 2
+#define MIN_PUMPITUDE_ANIMS 3
+#define NUM_PUMP_ANIMS 5
+#define REVERSE_DIR (BYTE)(1 << 7)
+
+// Confusion Pulse
+#define SPECIAL_ENERGY_COST 20
+#define SPECIAL_WAIT 20
+#define CMISSILE_SPEED DISPLAY_TO_WORLD (30)
+#define CMISSILE_LIFE 20
+#define CMISSILE_HITS 200
+#define CMISSILE_DAMAGE 0
+#define CMISSILE_OFFSET 4
 
 static RACE_DESC melnorme_desc =
 {
@@ -112,9 +127,6 @@ static RACE_DESC melnorme_desc =
 	0, /* CodeRef */
 };
 
-#define NUM_PUMP_ANIMS 5
-#define REVERSE_DIR (BYTE)(1 << 7)
-
 static void
 pump_up_preprocess (ELEMENT *ElementPtr)
 {
@@ -145,11 +157,6 @@ pump_up_preprocess (ELEMENT *ElementPtr)
 }
 
 static COUNT initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[]);
-
-#define MELNORME_OFFSET 24
-#define LEVEL_COUNTER 72
-#define MAX_PUMP 4
-#define PUMPUP_DAMAGE 2
 
 static void
 pump_up_postprocess (ELEMENT *ElementPtr)
@@ -282,7 +289,6 @@ pump_up_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	{
 		ELEMENT *BlastElementPtr;
 
-#define MIN_PUMPITUDE_ANIMS 3
 		LockElement (hBlastElement, &BlastElementPtr);
 
 		BlastElementPtr->life_span =
@@ -474,11 +480,6 @@ confusion_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 static COUNT
 initialize_confusion (ELEMENT *ShipPtr, HELEMENT ConfusionArray[])
 {
-#define CMISSILE_SPEED DISPLAY_TO_WORLD (30)
-#define CMISSILE_HITS 200
-#define CMISSILE_DAMAGE 0
-#define CMISSILE_LIFE 20
-#define CMISSILE_OFFSET 4
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK ConfusionBlock;
 
