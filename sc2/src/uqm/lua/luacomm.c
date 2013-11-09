@@ -223,7 +223,7 @@ luaUqm_comm_stringInterpolate (const char *str)
 
 			if (luaL_loadstring (luaUqm_commState, exprBuf) != LUA_OK) {
 				log_add (log_Error, "luaUqm_stringInterpolate(): "
-						"lua_loadbuffer() failed: %s",
+						"lua_loadstring() failed: %s",
 						lua_tostring (luaUqm_commState, -1));
 				lua_pop (luaUqm_commState, 1);
 						// Pop the error.

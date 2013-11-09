@@ -2295,6 +2295,14 @@ SOURCE=..\..\src\uqm\lua\luacomm.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\uqm\lua\luadebug.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\uqm\lua\luadebug.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\uqm\lua\luaevent.c
 # End Source File
 # Begin Source File
