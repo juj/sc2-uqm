@@ -69,9 +69,7 @@
 #(YES_VERY_EVIL) 2584
 #(give_up_or_die) 
 #(NOT_GIVE_UP) 4686,2664
-#(we_vindicator0) 
-#(we_vindicator1) 
-#(we_vindicator2) 
+#(we_vindicator) 
 #(GOOD_FOR_YOU_1) 4437
 #(come_in_peace) 
 #(GOOD_FOR_YOU_2) 4307

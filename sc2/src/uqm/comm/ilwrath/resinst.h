@@ -7,3 +7,4 @@
 #define ILWRATH_FONT "comm.ilwrath.font"
 #define ILWRATH_MUSIC "comm.ilwrath.music"
 #define ILWRATH_PMAP_ANIM "comm.ilwrath.graphics"
+#define ILWRATH_SCRIPT "comm.ilwrath.script"

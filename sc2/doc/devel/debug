@@ -60,6 +60,12 @@ listed below:
   This function is not defined in sc2code/uqmdebug.h, but in libs/uio.h.
   This function can interactively (tty-based) display information on
   the state of the uio file system, and modifications can be made.
+- the function luaUqm_debug_run()
+  This function is not defined in sc2code/uqmdebug.h, but in
+  uqm/lua/luadebug.c
+  This function can be used to interactively (tty-based) execute Lua
+  commands. Put 'return' in front of an expression to show its result.
+  Press CTRL-D to exit (on *nix; probably CTRL-Z on Windows).
 - the function dumpStrings()
   This function prints all the game strings, and is useful to check whether
   the various string bases, as defined in gamestr.h, are correct.

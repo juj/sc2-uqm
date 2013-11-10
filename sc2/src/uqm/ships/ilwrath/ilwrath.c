@@ -55,6 +55,7 @@
 static RACE_DESC ilwrath_desc =
 {
 	{ /* SHIP_INFO */
+		"avenger",
 		FIRES_FORE,
 		10, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

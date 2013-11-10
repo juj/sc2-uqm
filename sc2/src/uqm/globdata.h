@@ -26,6 +26,7 @@
 #include "sis.h"
 #include "velocity.h"
 #include "commanim.h"
+#include "lua/luastate.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -172,10 +173,26 @@ enum
 
 #define YEARS_TO_KOHRAH_VICTORY 4
 
+// A structure describing how many bits are used for each game state value.
+typedef struct GameStateBitMap GameStateBitMap;
+struct GameStateBitMap {
+	const char *name;
+	BYTE numBits;
+};
+
+BOOLEAN serialiseGameState (const GameStateBitMap *bm,
+		BYTE **buf, size_t *numBytes);
+BOOLEAN deserialiseGameState (const GameStateBitMap *bm,
+		const BYTE *buf, size_t numBytes);
+
 #define START_GAME_STATE enum {
 #define ADD_GAME_STATE(SName,NumBits) SName, END_##SName = SName + NumBits - 1,
 #define END_GAME_STATE NUM_GAME_STATE_BITS };
 
+// This enum is now only used for the symbolic names, and the comments.
+// XXX: When all the dialogs are moved to Lua scripts, this will become
+// obsolete. Perhaps it would be best to move the comments to
+// content/base/script/initgame/initprops.lua then.
 START_GAME_STATE
 		/* Shofixti states */
 	ADD_GAME_STATE (SHOFIXTI_VISITS, 3)
@@ -571,13 +588,16 @@ START_GAME_STATE
 	ADD_GAME_STATE (UMGAH_BROADCASTERS_ON_SHIP, 1)
 
 	ADD_GAME_STATE (LIGHT_MINERAL_LOAD, 3)
+			/* Number of times the captain has brought in a light mineral
+			 * load (<1000 RU). Max 6. */
 	ADD_GAME_STATE (MEDIUM_MINERAL_LOAD, 3)
+			/* Number of times the captain has brought in a medium mineral
+			 * load (>=1000 RU, <2500 RU). Max 6. */
 	ADD_GAME_STATE (HEAVY_MINERAL_LOAD, 3)
+			/* Number of times the captain has brought in a heavy mineral
+			 * load (>=2500 RU). Max 6. */
 
-	ADD_GAME_STATE (STARBASE_BULLETS0, 8)
-	ADD_GAME_STATE (STARBASE_BULLETS1, 8)
-	ADD_GAME_STATE (STARBASE_BULLETS2, 8)
-	ADD_GAME_STATE (STARBASE_BULLETS3, 8)
+	ADD_GAME_STATE (STARBASE_BULLETS, 32)
 
 	ADD_GAME_STATE (STARBASE_MONTH, 4)
 	ADD_GAME_STATE (STARBASE_DAY, 5)
@@ -811,75 +831,20 @@ START_GAME_STATE
 
 /* These state bits are actually offsets into defgrp.dat. They really
  * shouldn't be part of the serialized Game State array! --MCM */
-	ADD_GAME_STATE (SHOFIXTI_GRPOFFS0, 8)
-	ADD_GAME_STATE (SHOFIXTI_GRPOFFS1, 8)
-	ADD_GAME_STATE (SHOFIXTI_GRPOFFS2, 8)
-	ADD_GAME_STATE (SHOFIXTI_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (ZOQFOT_GRPOFFS0, 8)
-	ADD_GAME_STATE (ZOQFOT_GRPOFFS1, 8)
-	ADD_GAME_STATE (ZOQFOT_GRPOFFS2, 8)
-	ADD_GAME_STATE (ZOQFOT_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME0_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME0_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME0_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME0_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME1_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME1_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME1_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME1_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME2_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME2_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME2_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME2_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME3_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME3_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME3_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME3_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME4_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME4_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME4_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME4_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME5_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME5_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME5_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME5_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME6_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME6_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME6_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME6_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME7_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME7_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME7_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME7_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (MELNORME8_GRPOFFS0, 8)
-	ADD_GAME_STATE (MELNORME8_GRPOFFS1, 8)
-	ADD_GAME_STATE (MELNORME8_GRPOFFS2, 8)
-	ADD_GAME_STATE (MELNORME8_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (URQUAN_PROBE_GRPOFFS0, 8)
-	ADD_GAME_STATE (URQUAN_PROBE_GRPOFFS1, 8)
-	ADD_GAME_STATE (URQUAN_PROBE_GRPOFFS2, 8)
-	ADD_GAME_STATE (URQUAN_PROBE_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (COLONY_GRPOFFS0, 8)
-	ADD_GAME_STATE (COLONY_GRPOFFS1, 8)
-	ADD_GAME_STATE (COLONY_GRPOFFS2, 8)
-	ADD_GAME_STATE (COLONY_GRPOFFS3, 8)
-
-	ADD_GAME_STATE (SAMATRA_GRPOFFS0, 8)
-	ADD_GAME_STATE (SAMATRA_GRPOFFS1, 8)
-	ADD_GAME_STATE (SAMATRA_GRPOFFS2, 8)
-	ADD_GAME_STATE (SAMATRA_GRPOFFS3, 8)
+	ADD_GAME_STATE (SHOFIXTI_GRPOFFS, 32)
+	ADD_GAME_STATE (ZOQFOT_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME0_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME1_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME2_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME3_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME4_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME5_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME6_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME7_GRPOFFS, 32)
+	ADD_GAME_STATE (MELNORME8_GRPOFFS, 32)
+	ADD_GAME_STATE (URQUAN_PROBE_GRPOFFS, 32)
+	ADD_GAME_STATE (COLONY_GRPOFFS, 32)
+	ADD_GAME_STATE (SAMATRA_GRPOFFS, 32)
 
 END_GAME_STATE
 
@@ -957,8 +922,6 @@ typedef struct
 	QUEUE built_ship_q;
 			/* List of SIS escort ships;
 			 * queue element is SHIP_FRAGMENT */
-
-	BYTE GameState[(NUM_GAME_STATE_BITS + 7) >> 3];
 } GAME_STATE;
 
 typedef struct
@@ -998,40 +961,11 @@ enum {
 
 //#define STATE_DEBUG
 
-extern BYTE getGameState (BYTE *state, int startBit, int endBit);
-extern void setGameState (BYTE *state, int startBit, int endBit, BYTE val
-#ifdef STATE_DEBUG
-		, const char *name
-#endif
-		);
-extern void copyGameState (BYTE *dest, DWORD target, BYTE *src, DWORD begin, DWORD end);
+#define SET_GAME_STATE(SName, val) \
+		setGameStateUint (#SName, (val))
+#define GET_GAME_STATE(SName) \
+		getGameStateUint (#SName)
 
-#define GET_GAME_STATE(SName) getGameState (GLOBAL(GameState), (SName), (END_##SName))
-#ifdef STATE_DEBUG
-#	define SET_GAME_STATE(SName, val) \
-			setGameState (GLOBAL(GameState), (SName), (END_##SName), (val), #SName)
-#else
-#	define SET_GAME_STATE(SName, val) \
-			setGameState (GLOBAL(GameState), (SName), (END_##SName), (val))
-#endif
-
-extern DWORD getGameState32 (BYTE *state, int startBit);
-extern void setGameState32 (BYTE *state, int startBit, DWORD val
-#ifdef STATE_DEBUG
-		, const char *name
-#endif
-		);
-
-#define GET_GAME_STATE_32(SName) getGameState32 (GLOBAL(GameState), (SName))
-#ifdef STATE_DEBUG
-#	define SET_GAME_STATE_32(SName, val) \
-			setGameState32 (GLOBAL(GameState), (SName), (val), #SName)
-#else
-#	define SET_GAME_STATE_32(SName, val) \
-			setGameState32 (GLOBAL(GameState), (SName), (val))
-#endif
-
-	
 extern CONTEXT RadarContext;
 
 extern void FreeSC2Data (void);

@@ -55,6 +55,12 @@ typedef enum
 	OPENING
 } ARILOU_GATE_STATE;
 
+extern int eventIdStrToNum (const char *eventIdStr);
+extern const char *eventIdNumToStr (int eventNum);
+
+extern void initEventSystem (void);
+extern void uninitEventSystem (void);
+
 extern void AddInitialGameEvents (void);
 extern void EventHandler (BYTE selector);
 extern void SetRaceDest (BYTE which_race, COORD x, COORD y, BYTE days_left,

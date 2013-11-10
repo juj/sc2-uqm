@@ -51,6 +51,7 @@
 static RACE_DESC slylandro_desc =
 {
 	{ /* SHIP_INFO */
+		"probe",
 		SEEKING_WEAPON | CREW_IMMUNE,
 		17, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

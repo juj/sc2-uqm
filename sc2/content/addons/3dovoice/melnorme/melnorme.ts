@@ -230,7 +230,7 @@
 #(OK_BUY_NEW_TECH_13) 5297
 #(CHARITY) 6379,5098,8502,7200
 #(NEW_TECH_ALL_GONE) 6677,5268
-#(we_are_from_alliance0) 
+#(we_are_from_alliance) 
 #(STRIP_HEAD) 
 #(LANDERS) 
 #(THRUSTERS) 
@@ -247,8 +247,7 @@
 #(name_1) 
 #(name_2) 
 #(name_3) 
-#(name_40) 
-#(name_41) 
+#(name_4) 
 #(ENUMERATE_ONE) 
 #(ENUMERATE_TWO) 
 #(ENUMERATE_THREE) 

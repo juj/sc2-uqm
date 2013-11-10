@@ -7,8 +7,7 @@
 #(DID_NOTHING) 6231
 #(umgah_zombies) 
 #(WORKS_LIKE_THIS) 3527,3489,4380
-#(we_are_vindicator0) 
-#(we_are_vindicator1) 
+#(we_are_vindicator) 
 #(GOOD_FOR_YOU) 4963,4970
 #(must_explain_presence) 
 #(EXPLAIN_NOTHING_MONKEY_BOY) 3637,3139,4759,1530,6548,2499

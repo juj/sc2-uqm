@@ -38,6 +38,7 @@
 static RACE_DESC probe_desc =
 {
 	{ /* SHIP_INFO */
+		"urquanprobe",
 		0,
 		0, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

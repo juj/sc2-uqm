@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 
 #define STROBE_RATE   10
@@ -471,11 +472,11 @@ CompelPlayer (RESPONSE_REF R)
 		DISABLE_PHRASE (what_do_to_umgah);
 		LastStack = 1;
 	}
-	else if (PLAYER_SAID (R, we_are_vindicator0))
+	else if (PLAYER_SAID (R, we_are_vindicator))
 	{
 		NPCPhrase (GOOD_FOR_YOU);
 
-		DISABLE_PHRASE (we_are_vindicator0);
+		DISABLE_PHRASE (we_are_vindicator);
 		LastStack = 2;
 	}
 	else if (R != 0)
@@ -515,35 +516,17 @@ CompelPlayer (RESPONSE_REF R)
 		else
 			pStr[1] = umgah_zombies;
 	}
-	if (PHRASE_ENABLED (we_are_vindicator0))
-	{
-		construct_response (
-				shared_phrase_buf,
-				we_are_vindicator0,
-				GLOBAL_SIS (ShipName),
-				we_are_vindicator1,
-				(UNICODE*)NULL);
-		pStr[2] = we_are_vindicator0;
-	}
+	if (PHRASE_ENABLED (we_are_vindicator))
+		pStr[2] = we_are_vindicator;
 	else
 		pStr[2] = must_explain_presence;
 
 	if (pStr[LastStack])
-	{
-		if (pStr[LastStack] != we_are_vindicator0)
-			Response (pStr[LastStack], CompelPlayer);
-		else
-			DoResponsePhrase (pStr[LastStack], CompelPlayer, shared_phrase_buf);
-	}
+		Response (pStr[LastStack], CompelPlayer);
 	for (i = 0; i < 3; ++i)
 	{
 		if (i != LastStack && pStr[i])
-		{
-			if (pStr[i] != we_are_vindicator0)
-				Response (pStr[i], CompelPlayer);
-			else
-				DoResponsePhrase (pStr[i], CompelPlayer, shared_phrase_buf);
-		}
+			Response (pStr[i], CompelPlayer);
 	}
 	Response (bye_at_umgah, CompelPlayer);
 }
@@ -804,6 +787,7 @@ Intro (void)
 static COUNT
 uninit_talkpet (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -821,6 +805,10 @@ init_talkpet_comm (void)
 	talkpet_desc.init_encounter_func = Intro;
 	talkpet_desc.post_encounter_func = post_talkpet_enc;
 	talkpet_desc.uninit_encounter_func = uninit_talkpet;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be 
+			// generalised in the future.
 
 	talkpet_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	talkpet_desc.AlienTextBaseline.y = 0;

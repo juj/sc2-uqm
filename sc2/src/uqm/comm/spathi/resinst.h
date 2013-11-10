@@ -12,3 +12,4 @@
 #define SPATHI_HOME_PMAP_ANIM "comm.safeones.graphics"
 #define SPATHI_MUSIC "comm.spathi.music"
 #define SPATHI_PMAP_ANIM "comm.spathi.graphics"
+#define SPATHI_SCRIPT "comm.spathi.script"

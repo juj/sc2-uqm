@@ -45,9 +45,7 @@
 #(HOSTILITY_IS_BAD_1) 5107
 #(hostile_2) 
 #(HOSTILITY_IS_BAD_2) 6579
-#(we_are_vindicator0) 
-#(we_are_vindicator1) 
-#(we_are_vindicator2) 
+#(we_are_vindicator) 
 #(NICE_TO_MEET_YOU) 6560
 #(seem_like_nice_guys) 
 #(ARE_NICE_WANT_ALLY) 5068,6699,3125

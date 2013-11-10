@@ -21,12 +21,13 @@
 #include "battle.h"
 		// For instantVictory
 #include "races.h"
+#include "lua/luacomm.h"
+#include "libs/log.h"
 
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
-#include "libs/log.h"
 
 static int NPCNumberPhrase (int number, const char *fmt, UNICODE **ptrack);
 
@@ -35,59 +36,31 @@ static int NPCNumberPhrase (int number, const char *fmt, UNICODE **ptrack);
 void
 NPCPhrase_cb (int index, CallbackFunction cb)
 {
-	UNICODE *pStr, buf[400];
-	void *pClip, *pTimeStamp;
+	char *pStr;
+	void *pClip;
+	void *pTimeStamp;
+	BOOLEAN isPStrAlloced = FALSE;
 
-	switch (index)
+	if (index == 0)
+		return;
+
+	pStr = (UNICODE *)GetStringAddress (
+			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
+	pClip = GetStringSoundClip (
+			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
+	pTimeStamp = GetStringTimeStamp (
+			SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1));
+		
+	if (luaUqm_comm_stringNeedsInterpolate (pStr))
 	{
-		case GLOBAL_PLAYER_NAME:
-			pStr = GLOBAL_SIS (CommanderName);
-			pClip = 0;
-			pTimeStamp = 0;
-			break;
-		case GLOBAL_SHIP_NAME:
-			pStr = GLOBAL_SIS (ShipName);
-			pClip = 0;
-			pTimeStamp = 0;
-			break;
-		case 0:
-		{
-			return;
-		}
-		default:
-			if (index < 0)
-			{	// One of the alliance name variants
-				COUNT i;
-				STRING S;
-
-				index -= GLOBAL_ALLIANCE_NAME;
-
-				i = GET_GAME_STATE (NEW_ALLIANCE_NAME);
-				S = SetAbsStringTableIndex (CommData.ConversationPhrases, (index - 1) + i);
-				strcpy (buf, (UNICODE *)GetStringAddress (S));
-				if (i == 3)
-					strcat (buf, GLOBAL_SIS (CommanderName));
-
-				pStr = buf;
-				pClip = 0;
-				pTimeStamp = 0;
-			}
-			else
-			{
-				pStr = (UNICODE *)GetStringAddress (
-						SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1)
-						);
-				pClip = GetStringSoundClip (
-						SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1)
-						);
-				pTimeStamp = GetStringTimeStamp (
-						SetAbsStringTableIndex (CommData.ConversationPhrases, index - 1)
-						);
-			}
-			break;
+		pStr = luaUqm_comm_stringInterpolate (pStr);
+		isPStrAlloced = TRUE;
 	}
 
 	SpliceTrack (pClip, pStr, pTimeStamp, cb);
+
+	if (isPStrAlloced)
+		HFree (pStr);
 }
 
 // Special case variant: prevents page breaks.
@@ -237,24 +210,6 @@ NPCNumberPhrase (int number, const char *fmt, UNICODE **ptrack)
 	}
 	
 	return queued;
-}
-
-void
-GetAllianceName (UNICODE *buf, RESPONSE_REF name_1)
-{
-	COUNT i;
-	STRING S;
-
-	i = GET_GAME_STATE (NEW_ALLIANCE_NAME);
-	S = SetAbsStringTableIndex (CommData.ConversationPhrases, (name_1 - 1) + i);
-	// XXX: this should someday be changed so that the function takes
-	//   the buffer size as an argument
-	strcpy (buf, (UNICODE *)GetStringAddress (S));
-	if (i == 3)
-	{
-		strcat (buf, GLOBAL_SIS (CommanderName));
-		strcat (buf, (UNICODE *)GetStringAddress (SetRelStringTableIndex (S, 1)));
-	}
 }
 
 void
@@ -419,3 +374,27 @@ init_race (CONVERSATION comm_id)
 			return init_chmmr_comm ();
 	}
 }
+
+RESPONSE_REF
+phraseIdStrToNum(const char *phraseIdStr)
+{
+	STRING phrase = GetStringByName (GetStringTable(
+			CommData.ConversationPhrases), phraseIdStr);
+	if (phrase == NULL)
+		return (RESPONSE_REF) -1;
+
+	return GetStringTableIndex (phrase) + 1;
+			// Index 0 is for NULL_PHRASE, hence the '+ 1"
+}
+
+const char *
+phraseIdNumToStr (RESPONSE_REF response)
+{
+	STRING phrase = SetAbsStringTableIndex (
+			CommData.ConversationPhrases, response - 1);
+			// Index 0 is for NULL_PHRASE, hence the '- 1'.
+	if (phrase == NULL)
+		return NULL;
+	return GetStringName (phrase);
+}
+

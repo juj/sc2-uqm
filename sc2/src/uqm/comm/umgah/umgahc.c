@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 
 
@@ -300,11 +301,11 @@ Zombies (RESPONSE_REF R)
 			DISABLE_PHRASE (evil_blobbies);
 			LastStack = 0;
 		}
-		else if (PLAYER_SAID (R, we_vindicator0))
+		else if (PLAYER_SAID (R, we_vindicator))
 		{
 			NPCPhrase (GOOD_FOR_YOU_1);
 
-			DISABLE_PHRASE (we_vindicator0);
+			DISABLE_PHRASE (we_vindicator);
 			LastStack = 1;
 		}
 		else if (PLAYER_SAID (R, come_in_peace))
@@ -364,17 +365,8 @@ Zombies (RESPONSE_REF R)
 		else
 			pStr[0] = give_up_or_die;
 
-		if (PHRASE_ENABLED (we_vindicator0))
-		{
-			construct_response (shared_phrase_buf,
-					we_vindicator0,
-					GLOBAL_SIS (CommanderName),
-					we_vindicator1,
-					GLOBAL_SIS (ShipName),
-					we_vindicator2,
-					(UNICODE*)NULL);
-			pStr[1] = we_vindicator0;
-		}
+		if (PHRASE_ENABLED (we_vindicator))
+			pStr[1] = we_vindicator;
 		else if (PHRASE_ENABLED (come_in_peace))
 			pStr[1] = come_in_peace;
 
@@ -391,21 +383,11 @@ Zombies (RESPONSE_REF R)
 			pStr[3] = arilou_told_us;
 
 		if (pStr[LastStack])
-		{
-			if (pStr[LastStack] != we_vindicator0)
-				Response (pStr[LastStack], Zombies);
-			else
-				DoResponsePhrase (pStr[LastStack], Zombies, shared_phrase_buf);
-		}
+			Response (pStr[LastStack], Zombies);
 		for (i = 0; i < 4; ++i)
 		{
 			if (i != LastStack && pStr[i])
-			{
-				if (pStr[i] != we_vindicator0)
-					Response (pStr[i], Zombies);
-				else
-					DoResponsePhrase (pStr[i], Zombies, shared_phrase_buf);
-			}
+				Response (pStr[i], Zombies);
 		}
 		Response (bye_zombie, CombatIsInevitable);
 	}
@@ -689,6 +671,7 @@ Intro (void)
 static COUNT
 uninit_umgah (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -709,6 +692,10 @@ init_umgah_comm (void)
 	umgah_desc.init_encounter_func = Intro;
 	umgah_desc.post_encounter_func = post_umgah_enc;
 	umgah_desc.uninit_encounter_func = uninit_umgah;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	umgah_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	umgah_desc.AlienTextBaseline.y = 0;

@@ -75,12 +75,9 @@ Very well.  From this day forward, we are The Concordance of Alien Nations!
 #(OK_THE_UFW) commander-014.ogg
 That has a familiar ring to it... nonetheless, we will make it so - The United Federation of Worlds!
 
-#(OK_THE_NAME_IS_EMPIRE0) commander-015.ogg
+#(OK_THE_NAME_IS_EMPIRE) commander-015.ogg
 Ulp!  Well... you're the one with the big starship.
-So be it - The Empire of 
-
-#(OK_THE_NAME_IS_EMPIRE1)
-!
+So be it - The Empire of <% state.sis.getCaptainName() %>!
 
 #(FUEL_UP0) commander-016.ogg
 We are initiating transfer of radioactives, Captain.
@@ -294,11 +291,8 @@ What will you give us in exchange for radioactives?
 #(before_radios_we_need_info)
 Before we help you, we require certain information.
 
-#(no_but_well_help0)
-No, this is the starship 
-
-#(no_but_well_help1)
-, but we stand ready to assist you.
+#(no_but_well_help)
+No, this is the starship <% state.sis.getShipName() %>, but we stand ready to assist you.
 
 #(yes_this_is_supply_ship)
 Uh.. yes, this IS the resupply vessel. What do you need resupplied?
@@ -312,14 +306,8 @@ Actually I lied, this isn't the resupply vessel. Sorry.
 #(plumb_out)
 Er..., oh dang!  Wouldn't you know it; we're plumb out of those.
 
-#(we_are_vindicator0)
-I am Captain 
-
-#(we_are_vindicator1)
- of the starship 
-
-#(we_are_vindicator2)
-. We are the survivors of a Star Control science research team to the Vela star system.
+#(we_are_vindicator)
+I am Captain <% state.sis.getCaptainName() %> of the starship <% state.sis.getShipName() %>. We are the survivors of a Star Control science research team to the Vela star system.
 
 #(first_give_info)
 I need you to explain a few things.
@@ -381,10 +369,8 @@ The Concordance of Alien Nations!
 #(name_3)
 The United Federation of Worlds!
 
-#(name_40)
-The Empire of 
-#(name_41)
-!
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %>!
 
 #(i_lost_my_lander)
 Due to circumstances beyond our control, our only landing vehicle was destroyed.  Can you replace it?

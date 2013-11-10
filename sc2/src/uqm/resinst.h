@@ -22,3 +22,4 @@
 #include "istrtab.h"
 #include "isndres.h"
 #include "imusicre.h"
+#include "iscriptres.h"

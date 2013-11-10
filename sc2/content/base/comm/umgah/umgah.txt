@@ -359,14 +359,8 @@ HUMAN. INTERFERENCE. REACHES. INTOLERABLE. LEVEL.
 PLAN. MUST. NOT. BE. DELAYED.
 ELIMINATE. HUMAN.
 
-#(we_vindicator0)
-I am Captain 
-
-#(we_vindicator1)
-, of the starship 
-
-#(we_vindicator2)
-. What is your response?
+#(we_vindicator)
+I am Captain <% state.sis.getCaptainName() %>, of the starship <% state.sis.getShipName() %>. What is your response?
 
 #(GOOD_FOR_YOU_1)	umgah-049.ogg
 WE. RESPOND. WITH. APPROPRIATE. AWE. AND. RESPECT.
@@ -377,7 +371,7 @@ Our message is Peace Between All Species!... blobbies included.
 
 #(GOOD_FOR_YOU_2)	umgah-050.ogg
 YES. PEACE. GOOD. WE. WANT. PEACE. ALSO.
-DEMONSTRATE. PEACE. NOW. BY. DEPARTING. OUR. SPACE. IMMEDIATELY. 
+DEMONSTRATE. PEACE. NOW. BY. DEPARTING. OUR. SPACE. IMMEDIATELY.
 
 #(know_any_jokes)
 Umgah humor is renowned across space, so... know any good jokes?!

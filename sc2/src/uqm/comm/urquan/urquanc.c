@@ -417,7 +417,7 @@ Intro (void)
 		return;
 	}
 
-	GrpOffs = GET_GAME_STATE_32 (URQUAN_PROBE_GRPOFFS0);
+	GrpOffs = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
 			&& GLOBAL (BattleGroupRef)
 			&& GLOBAL (BattleGroupRef) == GrpOffs)
@@ -441,7 +441,7 @@ Intro (void)
 			SET_GAME_STATE (URQUAN_SENSES_EVIL, 1);
 		}
 
-		GrpOffs = GET_GAME_STATE_32 (COLONY_GRPOFFS0);
+		GrpOffs = GET_GAME_STATE (COLONY_GRPOFFS);
 		if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
 				&& GLOBAL (BattleGroupRef)
 				&& GLOBAL (BattleGroupRef) == GrpOffs)
@@ -452,7 +452,7 @@ Intro (void)
 			return;
 		}
 
-		GrpOffs = GET_GAME_STATE_32 (SAMATRA_GRPOFFS0);
+		GrpOffs = GET_GAME_STATE (SAMATRA_GRPOFFS);
 		if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
 				&& GLOBAL (BattleGroupRef)
 				&& GLOBAL (BattleGroupRef) == GrpOffs)
@@ -536,7 +536,7 @@ init_urquan_comm (void)
 	urquan_desc.AlienTextBaseline.y = 0;
 	urquan_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
 
-	GrpOffs = GET_GAME_STATE_32 (URQUAN_PROBE_GRPOFFS0);
+	GrpOffs = GET_GAME_STATE (URQUAN_PROBE_GRPOFFS);
 	if (GET_GAME_STATE (PLAYER_HYPNOTIZED)
 			|| LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE
 			|| (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY

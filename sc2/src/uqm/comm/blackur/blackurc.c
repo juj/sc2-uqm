@@ -466,7 +466,7 @@ Intro (void)
 		SET_GAME_STATE (KOHR_AH_SENSES_EVIL, 1);
 	}
 
-	GrpOffs = GET_GAME_STATE_32 (SAMATRA_GRPOFFS0);
+	GrpOffs = GET_GAME_STATE (SAMATRA_GRPOFFS);
 	if (LOBYTE (GLOBAL (CurrentActivity)) == IN_INTERPLANETARY
 			&& GLOBAL (BattleGroupRef)
 			&& GLOBAL (BattleGroupRef) == GrpOffs)

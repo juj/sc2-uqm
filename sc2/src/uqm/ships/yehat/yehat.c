@@ -52,6 +52,7 @@
 static RACE_DESC yehat_desc =
 {
 	{ /* SHIP_INFO */
+		"terminator",
 		FIRES_FORE | SHIELD_DEFENSE,
 		23, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

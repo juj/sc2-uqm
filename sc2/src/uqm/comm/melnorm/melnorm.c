@@ -25,6 +25,7 @@
 #include "libs/inplib.h"
 #include "libs/mathlib.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/hyper.h"
 			// for SOL_X/SOL_Y
 #include "uqm/planets/planets.h"
@@ -1472,18 +1473,8 @@ yack0_respond (void)
 	switch (GET_GAME_STATE (MELNORME_YACK_STACK0))
 	{
 		case 0:
-		{
-			UNICODE buf[ALLIANCE_NAME_BUFSIZE];
-
-			GetAllianceName (buf, name_1);
-			construct_response (
-					shared_phrase_buf,
-					we_are_from_alliance0,
-					buf,
-					(RESPONSE_REF)-1);
-			DoResponsePhrase (we_are_from_alliance0, DoFirstMeeting, shared_phrase_buf);
+			Response (we_are_from_alliance, DoFirstMeeting);
 			break;
-		}
 		case 1:
 			Response (how_know, DoFirstMeeting);
 			break;
@@ -1557,7 +1548,7 @@ DoFirstMeeting (RESPONSE_REF R)
 		}
 		SET_GAME_STATE (MELNORME_BUSINESS_COUNT, business_count);
 	}
-	else if (PLAYER_SAID (R, we_are_from_alliance0))
+	else if (PLAYER_SAID (R, we_are_from_alliance))
 	{
 		SET_GAME_STATE (MELNORME_YACK_STACK0, 1);
 		NPCPhrase (KNOW_OF_YOU);
@@ -1818,6 +1809,7 @@ Intro (void)
 static COUNT
 uninit_melnorme (void)
 {
+	luaUqm_comm_uninit ();
 	return 0;
 }
 
@@ -1837,6 +1829,10 @@ init_melnorme_comm (void)
 	melnorme_desc.init_encounter_func = Intro;
 	melnorme_desc.post_encounter_func = post_melnorme_enc;
 	melnorme_desc.uninit_encounter_func = uninit_melnorme;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	melnorme_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	melnorme_desc.AlienTextBaseline.y = 0;

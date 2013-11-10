@@ -7,3 +7,4 @@
 #define DRUUGE_FONT "comm.druuge.font"
 #define DRUUGE_MUSIC "comm.druuge.music"
 #define DRUUGE_PMAP_ANIM "comm.druuge.graphics"
+#define DRUUGE_SCRIPT "comm.druuge.script"

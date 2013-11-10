@@ -34,29 +34,20 @@ Greetings and Salutations. May fertilizer flow on your roots.
 #(ALLIED_HOMEWORLD_HELLO_4)	supox-009.ogg
 Hello there Good Folk. May your flowers always be pollinated.
 
-#(i_am0)
-I am Captain 
-
-#(i_am1)
- from Earth. We come in peace.
+#(i_am)
+I am Captain <% state.sis.getCaptainName() %> from Earth. We come in peace.
 
 #(WE_ARE_SUPOX)	supox-010.ogg
 I am Captain Ala-la'la. We come in peace.
 
-#(my_ship0)	 
-Our starship is called 
-
-#(my_ship1)
-.
+#(my_ship)
+Our starship is called <% state.sis.getShipName() %>.
 
 #(OUR_SHIP)	supox-011.ogg
 Our starship is called the Tender Shoot.
 
-#(from_alliance0)
-We are 
-
-#(from_alliance1)
- From Earth.
+#(from_alliance)
+We are <% comm.getPhrase("name_" .. (state.prop.get("NEW_ALLIANCE_NAME") + 1)) %> from Earth.
 
 #(FROM_SUPOX)	supox-012.ogg
 We are the Supox Utricularia from Earth.
@@ -391,10 +382,8 @@ The Concordance of Alien Nations
 #(name_3)
 The United Federation of Worlds
 
-#(name_40)
-The Empire of 
-#(name_41)
- 
+#(name_4)
+The Empire of <% state.sis.getCaptainName() %>
 
 #(OUT_TAKES)	supox-056.ogg
 Whew! I'm glad that's all over.

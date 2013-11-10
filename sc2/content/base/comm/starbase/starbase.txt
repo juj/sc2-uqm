@@ -13,198 +13,127 @@
 #(BEFORE_WE_GO_ON_7) starbase-006.ogg
  I know you're busy, but I've got some news.
 
-#(NORMAL_HELLO_A0) starbase-007.ogg
-Welcome back, Captain
-#(NORMAL_HELLO_A1)
-.
+#(NORMAL_HELLO_A) starbase-007.ogg
+Welcome back, Captain <% state.sis.getCaptainName() %>.
 
-#(NORMAL_HELLO_B0) starbase-008.ogg
-Greetings, Captain
-#(NORMAL_HELLO_B1) 
-. I am ready to assist you.
+#(NORMAL_HELLO_B) starbase-008.ogg
+Greetings, Captain <% state.sis.getCaptainName() %>. I am ready to assist you.
 
-#(NORMAL_HELLO_C0) starbase-009.ogg
-It's good to see you again, Captain
-#(NORMAL_HELLO_C1)
-.
+#(NORMAL_HELLO_C) starbase-009.ogg
+It's good to see you again, Captain <% state.sis.getCaptainName() %>.
 
-#(NORMAL_HELLO_D0) starbase-010.ogg
-Ah, Captain
-#(NORMAL_HELLO_D1) 
-, I'm glad you're back.
+#(NORMAL_HELLO_D) starbase-010.ogg
+Ah, Captain <% state.sis.getCaptainName() %>, I'm glad you're back.
 
-#(NORMAL_HELLO_E0) starbase-011.ogg
-Hello Captain
-#(NORMAL_HELLO_E1)
-.
+#(NORMAL_HELLO_E) starbase-011.ogg
+Hello Captain <% state.sis.getCaptainName() %>.
 
-#(NORMAL_HELLO_F0) starbase-012.ogg
-I am at your disposal, Captain
-#(NORMAL_HELLO_F1)
-.
+#(NORMAL_HELLO_F) starbase-012.ogg
+I am at your disposal, Captain <% state.sis.getCaptainName() %>.
 
-#(NORMAL_HELLO_G0) starbase-013.ogg
-Captain
-#(NORMAL_HELLO_G1) 
-. I'm glad you made it back in one piece.
+#(NORMAL_HELLO_G) starbase-013.ogg
+Captain <% state.sis.getCaptainName() %>. I'm glad you made it back in one piece.
 
-#(NORMAL_HELLO_H0) starbase-014.ogg
-I hope the battle fares well, Captain
-#(NORMAL_HELLO_H1)
-.
+#(NORMAL_HELLO_H) starbase-014.ogg
+I hope the battle fares well, Captain <% state.sis.getCaptainName() %>.
 
 #(RETURN_HELLO) starbase-015.ogg
 Yes, Captain?
 
-#(NORMAL_HELLO_TAIL)
- 
+#(NORMAL_GOODBYE_A) starbase-016.ogg
+Goodbye, Captain <% state.sis.getCaptainName() %>.
 
-#(NORMAL_GOODBYE_A0) starbase-016.ogg
-Goodbye, Captain
-#(NORMAL_GOODBYE_A1)
-.
-#(NORMAL_GOODBYE_B0) starbase-017.ogg
-Bring back lots of minerals, Captain
-#(NORMAL_GOODBYE_B1)
-.
-#(NORMAL_GOODBYE_C0) starbase-018.ogg
-Return soon, Captain
-#(NORMAL_GOODBYE_C1)
-.
-#(NORMAL_GOODBYE_D0) starbase-019.ogg
-Farewell Captain
-#(NORMAL_GOODBYE_D1)
-.
-#(NORMAL_GOODBYE_E0) starbase-020.ogg
-Try to avoid getting gruesomely killed, Captain
-#(NORMAL_GOODBYE_E1)
-.
-#(NORMAL_GOODBYE_F0) starbase-021.ogg
-We shall await your return, Captain
-#(NORMAL_GOODBYE_F1)
-.
-#(NORMAL_GOODBYE_G0) starbase-022.ogg
-Blow up an Ur-Quan for me, Captain
-#(NORMAL_GOODBYE_G1)
-.
-#(NORMAL_GOODBYE_H0) starbase-023.ogg
-Be careful out there, Captain
-#(NORMAL_GOODBYE_H1)
-.
+#(NORMAL_GOODBYE_B) starbase-017.ogg
+Bring back lots of minerals, Captain <% state.sis.getCaptainName() %>.
 
-#(LIGHT_LOAD_A0) starbase-024.ogg
-The more minerals you bring us, Captain
-#(LIGHT_LOAD_A1) 
-, the faster we'll be able to tackle the Ur-Quan.
+#(NORMAL_GOODBYE_C) starbase-018.ogg
+Return soon, Captain <% state.sis.getCaptainName() %>.
 
-#(LIGHT_LOAD_B0) starbase-025.ogg
-Light load this time, Captain
-#(LIGHT_LOAD_B1)
-.
+#(NORMAL_GOODBYE_D) starbase-019.ogg
+Farewell Captain <% state.sis.getCaptainName() %>.
+
+#(NORMAL_GOODBYE_E) starbase-020.ogg
+Try to avoid getting gruesomely killed, Captain <% state.sis.getCaptainName() %>.
+
+#(NORMAL_GOODBYE_F) starbase-021.ogg
+We shall await your return, Captain <% state.sis.getCaptainName() %>.
+
+#(NORMAL_GOODBYE_G) starbase-022.ogg
+Blow up an Ur-Quan for me, Captain <% state.sis.getCaptainName() %>.
+
+#(NORMAL_GOODBYE_H) starbase-023.ogg
+Be careful out there, Captain <% state.sis.getCaptainName() %>.
+
+#(LIGHT_LOAD_A) starbase-024.ogg
+The more minerals you bring us, Captain <% state.sis.getCaptainName() %>, the faster we'll be able to tackle the Ur-Quan.
+
+#(LIGHT_LOAD_B) starbase-025.ogg
+Light load this time, Captain <% state.sis.getCaptainName() %>.
 
 #(LIGHT_LOAD_C0) starbase-026.ogg
-Another small load, Captain
+Another small load, Captain <% state.sis.getCaptainName() %>.
 
 #(LIGHT_LOAD_C1) starbase-027.ogg
-. Well, I suppose something is better than nothing.
+Well, I suppose something is better than nothing.
 
-#(LIGHT_LOAD_D0) starbase-028.ogg
-I don't mean to criticize, Captain
-#(LIGHT_LOAD_D1) 
-, but, uh, wouldn't it be more efficient if you could return with larger loads?
+#(LIGHT_LOAD_D) starbase-028.ogg
+I don't mean to criticize, Captain <% state.sis.getCaptainName() %>, but, uh, wouldn't it be more efficient if you could return with larger loads?
 
-#(LIGHT_LOAD_E0) starbase-029.ogg
-Pretty small amounts, Captain 
-#(LIGHT_LOAD_E1)
-.  Bringing those small amounts of minerals is not cost-effective. Try getting larger loads.
+#(LIGHT_LOAD_E) starbase-029.ogg
+Pretty small amounts, Captain <% state.sis.getCaptainName() %>. Bringing those small amounts of minerals is not cost-effective. Try getting larger loads.
 
-#(LIGHT_LOAD_F0) starbase-030.ogg
-Not too much today, Captain
-#(LIGHT_LOAD_F1) 
-. I hope you have better luck next time.
+#(LIGHT_LOAD_F) starbase-030.ogg
+Not too much today, Captain <% state.sis.getCaptainName() %>. I hope you have better luck next time.
 
-#(LIGHT_LOAD_G0) starbase-030.ogg
-Not too much today, Captain
-#(LIGHT_LOAD_G1) 
-. I hope you have better luck next time.
+#(LIGHT_LOAD_G) starbase-030.ogg
+Not too much today, Captain <% state.sis.getCaptainName() %>. I hope you have better luck next time.
 
-#(MEDIUM_LOAD_A0) starbase-031.ogg
-Not a bad job, Captain
-#(MEDIUM_LOAD_A1)
-.
+#(MEDIUM_LOAD_A) starbase-031.ogg
+Not a bad job, Captain <% state.sis.getCaptainName() %>.
 
-#(MEDIUM_LOAD_B0) starbase-032.ogg
-Good work, Captain
-#(MEDIUM_LOAD_B1)
-.
+#(MEDIUM_LOAD_B) starbase-032.ogg
+Good work, Captain <% state.sis.getCaptainName() %>.
 
-#(MEDIUM_LOAD_C0) starbase-033.ogg
-Thanks, Captain
-#(MEDIUM_LOAD_C1)
-.
+#(MEDIUM_LOAD_C) starbase-033.ogg
+Thanks, Captain <% state.sis.getCaptainName() %>.
 
-#(MEDIUM_LOAD_D0) starbase-034.ogg
-Keep it coming, Captain
-#(MEDIUM_LOAD_D1)
-.
+#(MEDIUM_LOAD_D) starbase-034.ogg
+Keep it coming, Captain <% state.sis.getCaptainName() %>.
 
-#(MEDIUM_LOAD_E0) starbase-035.ogg
-Pretty fair load, Captain
-#(MEDIUM_LOAD_E1)
-. Can you do better next time?
+#(MEDIUM_LOAD_E) starbase-035.ogg
+Pretty fair load, Captain <% state.sis.getCaptainName() %>. Can you do better next time?
 
-#(MEDIUM_LOAD_F0) starbase-036.ogg
-Don't stop now, Captain
-#(MEDIUM_LOAD_F1) 
-. We can use every bit you bring us.
+#(MEDIUM_LOAD_F) starbase-036.ogg
+Don't stop now, Captain <% state.sis.getCaptainName() %>. We can use every bit you bring us.
 
-#(MEDIUM_LOAD_G0) starbase-037.ogg
-A fair haul, Captain
-#(MEDIUM_LOAD_G1) 
-. Maybe you should consider adding a storage bay so you can gather larger loads.
+#(MEDIUM_LOAD_G) starbase-037.ogg
+A fair haul, Captain <% state.sis.getCaptainName() %>. Maybe you should consider adding a storage bay so you can gather larger loads.
 
-#(HEAVY_LOAD_A0) starbase-038.ogg
-Excellent work, Captain
-#(HEAVY_LOAD_A1)
-!
+#(HEAVY_LOAD_A) starbase-038.ogg
+Excellent work, Captain <% state.sis.getCaptainName() %>!
 
-#(HEAVY_LOAD_B0) starbase-039.ogg
-This will really help, Captain
-#(HEAVY_LOAD_B1)
-.
+#(HEAVY_LOAD_B) starbase-039.ogg
+This will really help, Captain <% state.sis.getCaptainName() %>.
 
-#(HEAVY_LOAD_C0) starbase-040.ogg
-A fine job, Captain
-#(HEAVY_LOAD_C1)
-!
+#(HEAVY_LOAD_C) starbase-040.ogg
+A fine job, Captain <% state.sis.getCaptainName() %>!
 
-#(HEAVY_LOAD_D0) starbase-041.ogg
-Wow,
-#(HEAVY_LOAD_D1)
-, you really hit the mother lode this time!
+#(HEAVY_LOAD_D) starbase-041.ogg
+Wow, <% state.sis.getCaptainName() %>, you really hit the mother lode this time!
 
-#(HEAVY_LOAD_E0) starbase-042.ogg
-If you can keep this up,
-#(HEAVY_LOAD_E1) 
-, we'll turn that flagship of yours into a genuine Dreadnought-Killer.
+#(HEAVY_LOAD_E) starbase-042.ogg
+If you can keep this up, <% state.sis.getCaptainName() %>, we'll turn that flagship of yours into a genuine Dreadnought-Killer.
 
-#(HEAVY_LOAD_F0) starbase-043.ogg
-Captain
-#(HEAVY_LOAD_F1) 
-, you are to be commended. Keep up the good work!
+#(HEAVY_LOAD_F) starbase-043.ogg
+Captain <% state.sis.getCaptainName() %>, you are to be commended. Keep up the good work!
 
-#(HEAVY_LOAD_G0) starbase-044.ogg
-More fuel for the fire, eh, Captain
-#(HEAVY_LOAD_G1) 
-?  That last load should keep it blazing!
+#(HEAVY_LOAD_G) starbase-044.ogg
+More fuel for the fire, eh, Captain <% state.sis.getCaptainName() %>? That last load should keep it blazing!
 
-#(STARBASE_IS_READY_A) starbase-045.ogg
+#(STARBASE_IS_READY) starbase-045.ogg
 I have good news to report, Captain.
 We have successfully integrated the Precursor technology from your ship into our fabricator system
-and as you can see, we have already begun minor repairs on 
-
-#(STARBASE_IS_READY_B)
-, patching up some of the micro-meteorite holes.
+and as you can see, we have already begun minor repairs on the <% state.sis.getShipName() %>, patching up some of the micro-meteorite holes.
 We noticed that your ship does not have an emergency warp escape unit
 So our engineers rigged up some for you and each of your escorts.
 Now you should be able to escape from a bad situation
@@ -212,10 +141,7 @@ with the touch of a button.  But there is a cost, however
 The unit gulps up five fuel units each time your Precursor ship uses it.
 Also, we now have a limited capacity to make modifications to your ship
 to refine starship fuel, to build additional combat ships
-and to train new members of your crew for the 
-
-#(STARBASE_IS_READY_C)
- and any ships you acquire for your fleet.
+and to train new members of your crew for the <% state.sis.getShipName() %> and any ships you acquire for your fleet.
 Captain, I know you're eager to get to work, so I'll be brief.
 If you have any questions -- how this Starbase works, what resources we need
 or just some background information on the galaxy -- don't hesitate to ask.
@@ -262,11 +188,9 @@ when put in the second slot, it fires two shots spread to the left and right of 
 when put in the third slot, it fires two shots directly left and right
 and when put in the last or rear slot, it fires a single shot straight backwards.
 
-#(ABOUT_CREW0) starbase-053.ogg
+#(ABOUT_CREW) starbase-053.ogg
 We have almost 2000 highly-motivated, skilled professionals aboard this starbase
-and every single one of them wants a berth aboard 
-#(ABOUT_CREW1)
-. However, each hand we lose to your ship means less manpower here at the starbase
+and every single one of them wants a berth aboard the <% state.sis.getShipName() %>. However, each hand we lose to your ship means less manpower here at the starbase
 and this is reflected in the Crew RU cost.
 As long as you don't lose too many crew members to combat or planet exploration
 the RU cost will remain static; but we have only so many warm bodies on this starbase
@@ -1259,15 +1183,11 @@ You have answered my questions on this topic.
 #(enough_mission)
 I have learned what I need to know about this subject, for now.
 
-#(tell_me_about_fuel0)
-How will I get fuel for the 
-#(tell_me_about_fuel1)
-?
+#(tell_me_about_fuel)
+How will I get fuel for the <% state.sis.getShipName() %>?
 
-#(tell_me_about_modules0)
-What can you do to enhance and modify the 
-#(tell_me_about_modules1)
-?
+#(tell_me_about_modules)
+What can you do to enhance and modify the <% state.sis.getShipName() %>?
 
 #(tell_me_about_crew)
 How will we acquire additional personnel for my ship?
@@ -1412,14 +1332,3 @@ What is the fastest way for us to build up our strength?
 
 #(what_do_now)
 If you were in my shoes, what would you do now?
-
-#(YOUR_FLAGSHIP_PC) 
-the 
-#(YOUR_FLAGSHIP_3DO0) 
-flagship
-#(YOUR_FLAGSHIP_3DO1) 
-your ship
-#(YOUR_FLAGSHIP_3DO2) 
-your starship
-#(SPACE) 
- 

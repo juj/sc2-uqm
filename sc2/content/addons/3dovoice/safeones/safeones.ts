@@ -17,9 +17,7 @@
 #(HATE_YOU_FOREVER) 4968,3264
 #(WHAT_IS_PASSWORD) 
 #(WHAT_IS_PASSWORD_AGAIN) 2664
-#(we_are_vindicator0) 
-#(we_are_vindicator1) 
-#(we_are_vindicator2) 
+#(we_are_vindicator) 
 #(gort_merenga) 
 #(guph_florp) 
 #(pleeese) 

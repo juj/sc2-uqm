@@ -7,3 +7,4 @@
 #define THRADD_FONT "comm.thraddash.font"
 #define THRADD_MUSIC "comm.thraddash.music"
 #define THRADD_PMAP_ANIM "comm.thraddash.graphics"
+#define THRADD_SCRIPT "comm.thraddash.script"

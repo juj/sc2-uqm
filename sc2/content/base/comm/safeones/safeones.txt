@@ -70,12 +70,8 @@ What is the Secret Cypher?
 We'll give you just one more chance.
 What is the Cypher?
 
-#(we_are_vindicator0)
-Attention aliens: I am 
-#(we_are_vindicator1)
- acting Captain of the starship 
-#(we_are_vindicator2)
-. Please Respond.
+#(we_are_vindicator)
+Attention aliens: I am <% state.sis.getCaptainName() %>, acting Captain of the starship <% state.sis.getShipName() %>. Please Respond.
 
 #(gort_merenga)
 Uh... Gort, merenga!

@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 #include "uqm/gameev.h"
 
@@ -443,7 +444,7 @@ ThraddDemeanor (RESPONSE_REF R)
 
 		SET_GAME_STATE (THRADD_CULTURE, 2);
 	}
-	else if (PLAYER_SAID (R, the_slave_empire0))
+	else if (PLAYER_SAID (R, the_slave_empire))
 	{
 		SET_GAME_STATE (THRADD_CULTURE, 3);
 
@@ -486,16 +487,9 @@ ThraddCulture (RESPONSE_REF R)
 	}
 	NPCPhrase (WHAT_NAME_FOR_CULTURE);
 
-	construct_response (
-			shared_phrase_buf,
-			the_slave_empire0,
-			GLOBAL_SIS (CommanderName),
-			the_slave_empire1,
-			(UNICODE*)NULL);
-
 	Response (you_decide, ThraddDemeanor);
 	Response (fat, ThraddDemeanor);
-	DoResponsePhrase (the_slave_empire0, ThraddDemeanor, shared_phrase_buf);
+	Response (the_slave_empire, ThraddDemeanor);
 }
 
 static void
@@ -917,6 +911,7 @@ Intro (void)
 static COUNT
 uninit_thradd (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -934,6 +929,10 @@ init_thradd_comm (void)
 	thradd_desc.init_encounter_func = Intro;
 	thradd_desc.post_encounter_func = post_thradd_enc;
 	thradd_desc.uninit_encounter_func = uninit_thradd;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	thradd_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	thradd_desc.AlienTextBaseline.y = 0;

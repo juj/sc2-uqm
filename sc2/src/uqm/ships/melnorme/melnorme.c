@@ -59,6 +59,7 @@
 static RACE_DESC melnorme_desc =
 {
 	{ /* SHIP_INFO */
+		"trader",
 		FIRES_FORE,
 		18, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

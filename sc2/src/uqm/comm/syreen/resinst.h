@@ -7,3 +7,4 @@
 #define SYREEN_FONT "comm.syreen.font"
 #define SYREEN_MUSIC "comm.syreen.music"
 #define SYREEN_PMAP_ANIM "comm.syreen.graphics"
+#define SYREEN_SCRIPT "comm.syreen.script"

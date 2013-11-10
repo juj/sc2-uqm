@@ -57,6 +57,7 @@
 static RACE_DESC human_desc =
 {
 	{ /* SHIP_INFO */
+		"cruiser",
 		FIRES_FORE | SEEKING_WEAPON | POINT_DEFENSE,
 		11, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

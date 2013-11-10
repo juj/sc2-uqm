@@ -39,12 +39,14 @@
 #include "planets/planets.h"
 		// for ExploreSolarSys()
 #include "uqmdebug.h"
+#include "uqm/lua/luastate.h"
 #include "libs/tasklib.h"
 #include "libs/log.h"
 #include "libs/gfxlib.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/graphics/tfb_draw.h"
 #include "libs/misc.h"
+#include "libs/scriptlib.h"
 
 #include "uqmversion.h"
 #include "options.h"
@@ -214,8 +216,11 @@ while (--ac > 0)
 			log_add (log_Fatal, "Could not set player input.");
 			explode ();  // Does not return;
 		}
+
+		luaUqm_initState ();
 		InitGameStructures ();
 		InitGameClock ();
+		initEventSystem ();
 		AddInitialGameEvents();
 
 		do
@@ -304,8 +309,10 @@ while (--ac > 0)
 		} while (!(GLOBAL (CurrentActivity) & CHECK_ABORT));
 
 		StopSound ();
+		uninitEventSystem ();
 		UninitGameClock ();
 		UninitGameStructures ();
+		luaUqm_uninitState ();
 		ClearPlayerInputAll ();
 	}
 //	CloseJournal ();

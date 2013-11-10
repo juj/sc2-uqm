@@ -20,6 +20,7 @@
 #include "resinst.h"
 #include "strings.h"
 
+#include "uqm/lua/luacomm.h"
 #include "uqm/build.h"
 
 
@@ -305,26 +306,26 @@ NeutralSupox (RESPONSE_REF R)
 
 	LastStack = 0;
 	pStr[0] = pStr[1] = pStr[2] = 0;
-	if (PLAYER_SAID (R, i_am0))
+	if (PLAYER_SAID (R, i_am))
 	{
 		NPCPhrase (WE_ARE_SUPOX);
 
 		SET_GAME_STATE (SUPOX_STACK1, 1);
-		DISABLE_PHRASE (i_am0);
+		DISABLE_PHRASE (i_am);
 	}
-	else if (PLAYER_SAID (R, my_ship0))
+	else if (PLAYER_SAID (R, my_ship))
 	{
 		NPCPhrase (OUR_SHIP);
 
 		SET_GAME_STATE (SUPOX_STACK1, 2);
-		DISABLE_PHRASE (my_ship0);
+		DISABLE_PHRASE (my_ship);
 	}
-	else if (PLAYER_SAID (R, from_alliance0))
+	else if (PLAYER_SAID (R, from_alliance))
 	{
 		NPCPhrase (FROM_SUPOX);
 
 		SET_GAME_STATE (SUPOX_STACK1, 3);
-		DISABLE_PHRASE (from_alliance0);
+		DISABLE_PHRASE (from_alliance);
 	}
 	else if (PLAYER_SAID (R, are_you_copying))
 	{
@@ -422,36 +423,15 @@ NeutralSupox (RESPONSE_REF R)
 	switch (GET_GAME_STATE (SUPOX_STACK1))
 	{
 		case 0:
-			construct_response (shared_phrase_buf,
-					i_am0,
-					GLOBAL_SIS (CommanderName),
-					i_am1,
-					(UNICODE*)NULL);
-			pStr[0] = i_am0;
+			pStr[0] = i_am;
 			pStr[1] = 0;
 			break;
 		case 1:
-			construct_response (shared_phrase_buf,
-					my_ship0,
-					GLOBAL_SIS (ShipName),
-					my_ship1,
-					(UNICODE*)NULL);
-			pStr[0] = my_ship0;
+			pStr[0] = my_ship;
 			pStr[1] = 0;
 			break;
 		case 2:
-			{
-				UNICODE buf[ALLIANCE_NAME_BUFSIZE];
-
-				GetAllianceName (buf, name_1);
-				construct_response (
-						shared_phrase_buf,
-						from_alliance0,
-						buf,
-						from_alliance1,
-						(UNICODE*)NULL);
-			}
-			pStr[0] = from_alliance0;
+			pStr[0] = from_alliance;
 			pStr[1] = 0;
 			break;
 		case 3:
@@ -485,21 +465,11 @@ NeutralSupox (RESPONSE_REF R)
 		}
 	}
 	if (pStr[LastStack])
-	{
-		if (LastStack != 0 || GET_GAME_STATE (SUPOX_STACK1) > 2)
-			Response (pStr[LastStack], NeutralSupox);
-		else
-			DoResponsePhrase (pStr[LastStack], NeutralSupox, shared_phrase_buf);
-	}
+		Response (pStr[LastStack], NeutralSupox);
 	for (i = 0; i < 3; ++i)
 	{
 		if (i != LastStack && pStr[i])
-		{
-			if (i != 0 || GET_GAME_STATE (SUPOX_STACK1) > 2)
-				Response (pStr[i], NeutralSupox);
-			else
-				DoResponsePhrase (pStr[i], NeutralSupox, shared_phrase_buf);
-		}
+			Response (pStr[i], NeutralSupox);
 	}
 	if (!GET_GAME_STATE (SUPOX_ULTRON_HELP))
 	{
@@ -671,6 +641,7 @@ Intro (void)
 static COUNT
 uninit_supox (void)
 {
+	luaUqm_comm_uninit ();
 	return (0);
 }
 
@@ -688,6 +659,10 @@ init_supox_comm (void)
 	supox_desc.init_encounter_func = Intro;
 	supox_desc.post_encounter_func = post_supox_enc;
 	supox_desc.uninit_encounter_func = uninit_supox;
+
+	luaUqm_comm_init (NULL, NULL_RESOURCE);
+			// Initialise Lua for string interpolation. This will be
+			// generalised in the future.
 
 	supox_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	supox_desc.AlienTextBaseline.y = 0;

@@ -52,6 +52,7 @@
 static RACE_DESC mycon_desc =
 {
 	{ /* SHIP_INFO */
+		"podship",
 		FIRES_FORE | SEEKING_WEAPON,
 		21, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

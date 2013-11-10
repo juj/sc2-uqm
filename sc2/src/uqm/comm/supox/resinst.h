@@ -7,3 +7,4 @@
 #define SUPOX_FONT "comm.supox.font"
 #define SUPOX_MUSIC "comm.supox.music"
 #define SUPOX_PMAP_ANIM "comm.supox.graphics"
+#define SUPOX_SCRIPT "comm.supox.script"

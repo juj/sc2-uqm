@@ -40,10 +40,8 @@ Now I've got to kill you in some really sneaky way
 so that no one will guess I was the agent of your demise. *sigh*
 -<GET LOST IN A BAD NEIGHBORHOOD!>-
 
-#(we_are_vindicator0)
-I am Captain of the starship 
-#(we_are_vindicator1)
-. We have come in peace to talk with the Umgah leaders about overthrowing the Ur-Quan Hierarchy.
+#(we_are_vindicator)
+I am Captain of the starship <% state.sis.getShipName() %>. We have come in peace to talk with the Umgah leaders about overthrowing the Ur-Quan Hierarchy.
 
 #(GOOD_FOR_YOU)	talkingpet-005.ogg
 Good idea! May I just say, I am behind you 100 percent!

@@ -62,6 +62,7 @@
 static RACE_DESC thraddash_desc =
 {
 	{ /* SHIP_INFO */
+		"torch",
 		FIRES_FORE,
 		10, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

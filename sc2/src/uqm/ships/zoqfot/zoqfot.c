@@ -59,6 +59,7 @@
 static RACE_DESC zoqfotpik_desc =
 {
 	{ /* SHIP_INFO */
+		"stinger",
 		FIRES_FORE,
 		6, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

@@ -1,8 +1,7 @@
 #(name_1) 
 #(name_2) 
 #(name_3) 
-#(name_40) 
-#(name_41) 
+#(name_4) 
 #(tanaka) 
 #(katana) 
 #(HOSTILE_KATANA_1) 8071,3406
@@ -41,10 +40,7 @@
 #(HANG_YOUR) 5407
 #(donkey_breath) 
 #(DGRUNTI) 5207,1302,2494
-#(i_am_captain0) 
-#(i_am_captain1) 
-#(i_am_captain2) 
-#(i_am_captain3) 
+#(i_am_captain) 
 #(i_am_nice) 
 #(i_am_guy) 
 #(SO_SORRY) 1752,1382

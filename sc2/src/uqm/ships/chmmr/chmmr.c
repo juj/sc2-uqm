@@ -58,6 +58,7 @@
 static RACE_DESC chmmr_desc =
 {
 	{ /* SHIP_INFO */
+		"avatar",
 		FIRES_FORE | IMMEDIATE_WEAPON | SEEKING_SPECIAL | POINT_DEFENSE,
 		30, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

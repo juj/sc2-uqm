@@ -7,3 +7,4 @@
 #define SLYLANDRO_FONT "comm.slylandro.font"
 #define SLYLANDRO_MUSIC "comm.slylandro.music"
 #define SLYLANDRO_PMAP_ANIM "comm.slylandro.graphics"
+#define SLYLANDRO_SCRIPT "comm.slylandro.script"

@@ -57,6 +57,7 @@
 static RACE_DESC spathi_desc =
 {
 	{ /* SHIP_INFO */
+		"eluder",
 		FIRES_FORE | FIRES_AFT | SEEKING_SPECIAL | DONT_CHASE,
 		18, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

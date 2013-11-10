@@ -74,20 +74,12 @@ extern UNICODE shared_phrase_buf[2048];
 #define Response(i,a) \
 		DoResponsePhrase(i,(RESPONSE_FUNC)a,0)
 
-enum
-{
-	GLOBAL_PLAYER_NAME = -1000000,
-	GLOBAL_SHIP_NAME,
-	GLOBAL_ALLIANCE_NAME,
-};
-
 typedef COUNT RESPONSE_REF;
 
 typedef void (*RESPONSE_FUNC) (RESPONSE_REF R);
 
 extern void DoResponsePhrase (RESPONSE_REF R, RESPONSE_FUNC
 		response_func, UNICODE *ContstructStr);
-extern void DoNPCPhrase (UNICODE *pStr);
 
 // The CallbackFunction is queued and executes synchronously
 // on the Starcon2Main thread
@@ -95,9 +87,6 @@ extern void NPCPhrase_cb (int index, CallbackFunction cb);
 #define NPCPhrase(index) NPCPhrase_cb ((index), NULL)
 extern void NPCPhrase_splice (int index);
 extern void NPCNumber (int number, const char *fmt);
-
-#define ALLIANCE_NAME_BUFSIZE 256
-extern void GetAllianceName (UNICODE *buf, RESPONSE_REF name_1);
 
 extern void construct_response (UNICODE *buf, int R /* promoted from
 		RESPONSE_REF */, ...);
@@ -117,6 +106,9 @@ typedef enum {
 
 void setSegue (Segue segue);
 Segue getSegue (void);
+
+extern RESPONSE_REF phraseIdStrToNum(const char *phraseId);
+extern const char *phraseIdNumToStr (RESPONSE_REF response);
 
 extern LOCDATA* init_race (CONVERSATION comm_id);
 

@@ -69,6 +69,7 @@
 static RACE_DESC mmrnmhrm_desc =
 {
 	{ /* SHIP_INFO */
+		"xform",
 		FIRES_FORE | IMMEDIATE_WEAPON,
 		19, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

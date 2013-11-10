@@ -34,6 +34,7 @@
 #include "libs/input/input_common.h"
 #include "libs/inplib.h"
 #include "libs/tasklib.h"
+#include "libs/scriptlib.h"
 #include "uqm/controls.h"
 #include "uqm/battle.h"
 		// For BATTLE_FRAME_RATE
@@ -401,6 +402,8 @@ main (int argc, char *argv[])
 
 	InitTimeSystem ();
 	InitTaskSystem ();
+	
+	luaUqm_init ();
 
 	Alarm_init ();
 	Callback_init ();
@@ -480,6 +483,8 @@ main (int argc, char *argv[])
 
 		Callback_uninit ();
 		Alarm_uninit ();
+		
+		luaUqm_uninit ();
 
 		CleanupTaskSystem ();
 		UnInitTimeSystem ();
@@ -1262,3 +1267,4 @@ boolNotOptString (const struct bool_option *option)
 {
 	return option->value ? "off" : "on";
 }
+

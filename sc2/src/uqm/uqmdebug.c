@@ -36,6 +36,7 @@
 #include "setup.h"
 #include "state.h"
 #include "libs/mathlib.h"
+#include "lua/luadebug.h"
 
 #include <stdio.h>
 #include <errno.h>
@@ -140,6 +141,7 @@ debugKeyPressed (void)
 
 	// Interactive:
 //	uio_debugInteractive(stdin, stdout, stderr);
+//	luaUqm_debug_run();
 }
 
 ////////////////////////////////////////////////////////////////////////////

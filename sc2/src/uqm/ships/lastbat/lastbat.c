@@ -83,6 +83,7 @@
 static RACE_DESC samatra_desc =
 {
 	{ /* SHIP_INFO */
+		"samatra",
 		/* FIRES_FORE | */ IMMEDIATE_WEAPON | CREW_IMMUNE,
 		16, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

@@ -268,14 +268,8 @@ We have no time for childish nonsense. We require information. Comply at once.
 *Extra sick fish* need *special training* for extra *fun*.
 We will have a *happy party* now.
 
-#(we_are_vindicator0)
-Greetings. I am Captain 
-
-#(we_are_vindicator1)
-, of the starship 
-
-#(we_are_vindicator2)
-. We are having some difficulty translating your messages.
+#(we_are_vindicator)
+Greetings. I am Captain <% state.sis.getCaptainName() %>, of the starship <% state.sis.getShipName() %>. We are having some difficulty translating your messages.
 
 #(NICE_TO_MEET_YOU)	orz-035.ogg
 Yes, of course. Difficulty. Problems are difficult.

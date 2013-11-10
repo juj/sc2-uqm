@@ -7,3 +7,4 @@
 #define URQUAN_FONT "comm.urquan.font"
 #define URQUAN_MUSIC "comm.urquan.music"
 #define URQUAN_PMAP_ANIM "comm.urquan.graphics"
+#define URQUAN_SCRIPT "comm.urquan.script"

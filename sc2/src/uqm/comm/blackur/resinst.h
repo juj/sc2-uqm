@@ -7,3 +7,4 @@
 #define BLACKURQ_FONT "comm.kohrah.font"
 #define BLACKURQ_MUSIC "comm.kohrah.music"
 #define BLACKURQ_PMAP_ANIM "comm.kohrah.graphics"
+#define BLACKURQ_SCRIPT "comm.kohrah.script"

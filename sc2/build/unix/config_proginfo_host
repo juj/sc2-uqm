@@ -274,7 +274,6 @@ case "$HOST_SYSTEM" in
 esac
 
 
-
 ### pthread ###
 LIB_pthread_NAME="pthread"
 case "$HOST_SYSTEM" in
@@ -298,6 +297,20 @@ case "$HOST_SYSTEM" in
 		LIB_pthread_VERSION=""
 		;;
 esac
+
+
+### Lua ###
+LIB_lua_NAME="Lua"
+case "$HOST_SYSTEM" in
+	FreeBSD|OpenBSD)
+		LIB_lua_LDFLAGS="-L/usr/local/lib -llua"
+		;;
+	*)
+		LIB_lua_LDFLAGS="-llua"
+		;;
+esac
+LIB_lua_VERSION=""
+LIB_lua_DETECT="try_pkgconfig_lib lua lua"
 
 
 # Additional platform-specific libraries for networking.

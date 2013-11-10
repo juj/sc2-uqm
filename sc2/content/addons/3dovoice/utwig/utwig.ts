@@ -33,9 +33,7 @@
 #(TAUNT_US_BUT_WE_LOOK) 6870,4316,4536
 #(TRICKED_US_1) 2424,8772
 #(TRICKED_US_2) 5018,4917
-#(we_are_vindicator0) 
-#(we_are_vindicator1) 
-#(we_are_vindicator2) 
+#(we_are_vindicator) 
 #(WOULD_BE_HAPPY_BUT) 5638,5508,3856,6128,8182,6179,7250,6319,4597,6539,7171
 #(why_sad) 
 #(ULTRON_BROKE) 7961,7962,2954,5338,3585,7601,5578,4887
@@ -65,8 +63,7 @@
 #(name_1) 
 #(name_2) 
 #(name_3) 
-#(name_40) 
-#(name_41) 
+#(name_4) 
 #(HAPPY_DAYS) 8248,4550,3438,6809,7239,8386,9858,3511,4358,7358,3549,9578,4409,8529,5438,4378,8120
 #(OK_ATTACK_KOHRAH) 1122,7551,5608,6479,5738,1252,2984,5608,5679,6589
 #(whats_up_after_space) 

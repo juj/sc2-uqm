@@ -47,6 +47,7 @@
 static RACE_DESC arilou_desc =
 {
 	{ /* SHIP_INFO */
+		"skiff",
 		/* FIRES_FORE | */ IMMEDIATE_WEAPON,
 		16, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

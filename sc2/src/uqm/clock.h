@@ -29,10 +29,6 @@ extern "C" {
 
 #define START_YEAR 2155
 
-#define UPDATE_DAY (1 << 0)
-#define UPDATE_MONTH (1 << 1)
-#define UPDATE_YEAR (1 << 2)
-
 typedef struct
 {
 	BYTE day_index, month_index;

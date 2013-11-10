@@ -20,6 +20,7 @@
 
 #include "build.h"
 #include "encount.h"
+#include "gameev.h"
 #include "starmap.h"
 #include "libs/file.h"
 #include "globdata.h"
@@ -339,16 +340,41 @@ LoadGameState (GAME_STATE *GSPtr, void *fh)
 	{
 		return FALSE;
 	}
-	memset (GSPtr->GameState, 0, sizeof (GSPtr->GameState));
-	read_32 (fh, &magic);
-	if (magic > sizeof (GSPtr->GameState))
 	{
-		read_a8 (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
-		skip_8  (fh, magic - sizeof (GSPtr->GameState));
-	}
-	else
-	{
-		read_a8 (fh, GSPtr->GameState, magic);
+		size_t gameStateByteCount = (NUM_GAME_STATE_BITS + 7) >> 3;
+		BYTE *buf;
+		BOOLEAN result;
+
+		read_32 (fh, &magic);
+		if (magic < gameStateByteCount)
+		{
+			log_add (log_Error, "Warning: Savegame is corrupt: saved game "
+					"state is too small.");
+			return FALSE;
+		}
+
+		buf = HMalloc (gameStateByteCount);
+		if (buf == NULL)
+		{
+			log_add (log_Error, "Warning: Cannot allocate enough bytes for "
+					"the saved game state (%zu bytes).", gameStateByteCount);
+			return FALSE;
+		}
+
+		read_a8 (fh, buf, gameStateByteCount);
+		result = deserialiseGameState (gameStateBitMap, buf,
+				gameStateByteCount);
+		HFree(buf);
+		if (result == FALSE)
+		{
+			// An error message is already printed.
+			return FALSE;
+		}
+
+		if (magic > gameStateByteCount)
+		{
+			skip_8 (fh, magic - gameStateByteCount);
+		}
 	}
 	return TRUE;
 }
@@ -401,7 +427,8 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 	if (!LoadSisState (&SummPtr->SS, fp))
 		return FALSE;
 
-	if (		read_8  (fp, &SummPtr->Activity) != 1 ||
+	if (
+			read_8  (fp, &SummPtr->Activity) != 1 ||
 			read_8  (fp, &SummPtr->Flags) != 1 ||
 			read_8  (fp, &SummPtr->day_index) != 1 ||
 			read_8  (fp, &SummPtr->month_index) != 1 ||
@@ -489,19 +516,48 @@ LoadGroupList (uio_Stream *fh, DWORD chunksize)
 			read_8  (fh, &race_outer);
 			read_16 (fh, &ip.group_counter);
 			read_8  (fh, &ip.race_id);
-                        read_8  (fh, &ip.sys_loc);
-                        read_8  (fh, &ip.task);
-                        read_8  (fh, &ip.in_system);
-                        read_8  (fh, &ip.dest_loc);
-                        read_8  (fh, &ip.orbit_pos);
-                        read_8  (fh, &ip.group_id);
-                        read_16 (fh, &ip.loc.x);
-                        read_16 (fh, &ip.loc.y);
+			read_8  (fh, &ip.sys_loc);
+			read_8  (fh, &ip.task);
+			read_8  (fh, &ip.in_system);
+			read_8  (fh, &ip.dest_loc);
+			read_8  (fh, &ip.orbit_pos);
+			read_8  (fh, &ip.group_id);
+			read_16 (fh, &ip.loc.x);
+			read_16 (fh, &ip.loc.y);
 
 			swrite_8 (fp, race_outer);
 			WriteIpGroup (fp, &ip);
 		}
 		CloseStateFile (fp);
+	}
+}
+
+static void
+SetBattleGroupOffset (int encounterIndex, DWORD offset)
+{
+	// The reason for this switch, even though the group offsets are
+	// successive, is because SET_GAME_STATE is a #define, which stringizes
+	// its first argument.
+	switch (encounterIndex)
+	{
+		case  1: SET_GAME_STATE (SHOFIXTI_GRPOFFS,     offset); break;
+		case  2: SET_GAME_STATE (ZOQFOT_GRPOFFS,       offset); break;
+		case  3: SET_GAME_STATE (MELNORME0_GRPOFFS,    offset); break;
+		case  4: SET_GAME_STATE (MELNORME1_GRPOFFS,    offset); break;
+		case  5: SET_GAME_STATE (MELNORME2_GRPOFFS,    offset); break;
+		case  6: SET_GAME_STATE (MELNORME3_GRPOFFS,    offset); break;
+		case  7: SET_GAME_STATE (MELNORME4_GRPOFFS,    offset); break;
+		case  8: SET_GAME_STATE (MELNORME5_GRPOFFS,    offset); break;
+		case  9: SET_GAME_STATE (MELNORME6_GRPOFFS,    offset); break;
+		case 10: SET_GAME_STATE (MELNORME7_GRPOFFS,    offset); break;
+		case 11: SET_GAME_STATE (MELNORME8_GRPOFFS,    offset); break;
+		case 12: SET_GAME_STATE (URQUAN_PROBE_GRPOFFS, offset); break;
+		case 13: SET_GAME_STATE (COLONY_GRPOFFS,       offset); break;
+		case 14: SET_GAME_STATE (SAMATRA_GRPOFFS,      offset); break;
+		default:
+			log_add (log_Warning, "SetBattleGroupOffset: invalid encounter "
+					"index.\n");
+			break;
 	}
 }
 
@@ -564,13 +620,13 @@ LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
 			BYTE race_outer;
 			SHIP_FRAGMENT sf;
 			read_8  (fh, &race_outer);
-                        read_8  (fh, &sf.captains_name_index);
-                        read_8  (fh, &sf.race_id);
-                        read_8  (fh, &sf.index);
-                        read_16 (fh, &sf.crew_level);
-                        read_16 (fh, &sf.max_crew);
-                        read_8  (fh, &sf.energy_level);
-                        read_8  (fh, &sf.max_energy);
+			read_8  (fh, &sf.captains_name_index);
+			read_8  (fh, &sf.race_id);
+			read_8  (fh, &sf.index);
+			read_16 (fh, &sf.crew_level);
+			read_16 (fh, &sf.max_crew);
+			read_8  (fh, &sf.energy_level);
+			read_8  (fh, &sf.max_energy);
 			chunksize -= 10;
 
 			swrite_8 (fp, race_outer);
@@ -585,7 +641,7 @@ LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
 	/* And update the gamestate accordingly, if we're a defined group. */
 	if (encounter)
 	{
-		SET_GAME_STATE_32 (SHOFIXTI_GRPOFFS0 + (encounter - 1) * 32, offset);
+		SetBattleGroupOffset (encounter, offset);
 		if (current)
 		{
 			GLOBAL (BattleGroupRef) = offset;
@@ -639,8 +695,12 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 	ReinitQueue (&GLOBAL (ip_group_q));
 	ReinitQueue (&GLOBAL (npc_built_ship_q));
 	ReinitQueue (&GLOBAL (built_ship_q));
+	
+	uninitEventSystem ();
+	luaUqm_uninitState();
+	luaUqm_initState();
+	initEventSystem ();
 
-	memset (&GLOBAL (GameState[0]), 0, sizeof (GLOBAL (GameState)));
 	Activity = GLOBAL (CurrentActivity);
 	if (!LoadGameState (&GlobData.Game_state, in_fp))
 	{

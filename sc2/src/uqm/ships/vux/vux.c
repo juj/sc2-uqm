@@ -64,6 +64,7 @@
 static RACE_DESC vux_desc =
 {
 	{ /* SHIP_INFO */
+		"intruder",
 		FIRES_FORE | SEEKING_SPECIAL | IMMEDIATE_WEAPON,
 		12, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,

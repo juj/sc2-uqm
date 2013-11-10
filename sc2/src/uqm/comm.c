@@ -38,6 +38,7 @@
 #include "sounds.h"
 #include "nameref.h"
 #include "uqmdebug.h"
+#include "lua/luacomm.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/inplib.h"
 #include "libs/sound/sound.h"
@@ -77,6 +78,7 @@ typedef struct response_entry
 	RESPONSE_REF response_ref;
 	TEXT response_text;
 	RESPONSE_FUNC response_func;
+	char *allocedResponse;
 } RESPONSE_ENTRY;
 
 typedef struct encounter_state
@@ -683,7 +685,6 @@ TalkSegue (COUNT wait_track)
 	else if (!PlayingTrack ())
 	{	// initial start of player
 		PlayTrack ();
-		assert (PlayingTrack ());
 	}
 
 	// Run the talking controls
@@ -918,6 +919,21 @@ DoConvSummary (SUMMARY_STATE *pSS)
 	return TRUE; // keep going
 }
 
+static void
+ClearResponses (ENCOUNTER_STATE *pES)
+{
+	size_t responseI;
+
+	for (responseI = 0; responseI < MAX_RESPONSES; responseI++) {
+		RESPONSE_ENTRY *response = &pES->response_list[responseI];
+		if (response->allocedResponse != NULL)
+		{
+			HFree (response->allocedResponse);
+			response->allocedResponse = NULL;
+		}
+	}
+}
+
 // Called when the player presses the select button on a response.
 static void
 SelectResponse (ENCOUNTER_STATE *pES)
@@ -935,6 +951,7 @@ SelectResponse (ENCOUNTER_STATE *pES)
 
 	TalkingFinished = FALSE;
 	pES->num_responses = 0;
+	ClearResponses (pES);
 	(*pES->response_list[pES->cur_response].response_func)
 			(pES->response_list[pES->cur_response].response_ref);
 }
@@ -1153,13 +1170,15 @@ DoResponsePhrase (RESPONSE_REF R, RESPONSE_FUNC response_func,
 				(COUNT) (R - 1));
 		pEntry->response_text.pStr =
 				(UNICODE *) GetStringAddress (locString);
-		pEntry->response_text.CharCount = GetStringLength (locString);
-//#define BVT_PROBLEM
-#ifdef BVT_PROBLEM
-		if (pEntry->response_text.pStr[pEntry->response_text.CharCount - 1]
-				== '\0')
-			--pEntry->response_text.CharCount;
-#endif /* BVT_PROBLEM */
+
+		if (luaUqm_comm_stringNeedsInterpolate (pEntry->response_text.pStr))
+		{
+			pEntry->allocedResponse = luaUqm_comm_stringInterpolate(
+					pEntry->response_text.pStr);
+			pEntry->response_text.pStr = pEntry->allocedResponse;
+		}
+
+		pEntry->response_text.CharCount = (COUNT)~0;
 	}
 	pEntry->response_func = response_func;
 	++pES->num_responses;
@@ -1272,6 +1291,7 @@ HailAlien (void)
 		(*CommData.post_encounter_func) ();
 	(*CommData.uninit_encounter_func) ();
 
+	ClearResponses (&ES);
 	SetContext (SpaceContext);
 	SetContextFont (OldFont);
 

@@ -9,3 +9,4 @@
 #define YEHAT_FONT "comm.yehat.font"
 #define YEHAT_MUSIC "comm.yehat.music"
 #define YEHAT_PMAP_ANIM "comm.yehat.graphics"
+#define YEHAT_SCRIPT "comm.yehat.script"

@@ -83,9 +83,7 @@
 #(BAD_IDEA) 
 #(no_conquest) 
 #(GOOD_IDEA) 5418,3425,6009,6549,6289,5248
-#(we_are_vindicator0) 
-#(we_are_vindicator1) 
-#(we_are_vindicator2) 
+#(we_are_vindicator) 
 #(WHY_YOU_HERE) 2163,4958,6559
 #(we_here_to_help) 
 #(NEED_HELP) 3675,4226,6810,3124,6760,8222,4166

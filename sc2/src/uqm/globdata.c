@@ -31,12 +31,11 @@
 #include "state.h"
 #include "grpinfo.h"
 #include "gamestr.h"
+#include "libs/scriptlib.h"
+#include "libs/log.h"
 
 #include <assert.h>
 #include <stdlib.h>
-#ifdef STATE_DEBUG
-#	include "libs/log.h"
-#endif
 
 
 static void CreateRadar (void);
@@ -47,92 +46,240 @@ FRAME PlayFrame;
 GLOBDATA GlobData;
 
 
-BYTE
-getGameState (BYTE *state, int startBit, int endBit)
+// Pre: 0 <= bits <= 32
+// This function is necessary because expressions such as '(1 << bits) - 1'
+// or '~(~0 << bits)' may shift by 32 bits, which is undefined (for 32 bits
+// integers). This is not a hypothetical issue; 'uint8_t numBits = 32;
+// printf("%u\n", (1 << numBits));' will return 1 on x86 when compiled with
+// gcc (4.4.3).
+static inline DWORD
+bitmask32 (BYTE bits)
 {
-	return (BYTE) (((startBit >> 3) == (endBit >> 3)
-			? (state[startBit >> 3] >> (startBit & 7))
-			: ((state[startBit >> 3] >> (startBit & 7))
-			  | (state[endBit >> 3]
-			  << (endBit - startBit - (endBit & 7)))))
-			& ((1 << (endBit - startBit + 1)) - 1));
+	return (bits >= 32) ? 0xffffffff : ((1U << bits) - 1);
 }
 
-void
-setGameState (BYTE *state, int startBit, int endBit, BYTE val
-#ifdef STATE_DEBUG
-		, const char *name
-#endif
-)
+// Pre: 0 <= bits <= 32
+// This function is necessary because shifting by 32 bits is undefined (for
+// 32 bits integers). This is not a hypothetical issue; 'uint8_t numBits =
+// 32; printf("%u\n", (1 << numBits));' will return 1 on x86 when compiled
+// with gcc (4.4.3).
+static inline DWORD
+shl32 (DWORD value, BYTE shift)
 {
-	state[startBit >> 3] =
-			(state[startBit >> 3]
-			& (BYTE) ~(((1 << (endBit - startBit + 1)) - 1) << (startBit & 7)))
-			| (BYTE)((val) << (startBit & 7));
-
-	if ((startBit >> 3) < (endBit >> 3)) {
-		state[endBit >> 3] =
-				(state[endBit >> 3]
-				& (BYTE)~((1 << ((endBit & 7) + 1)) - 1))
-				| (BYTE)((val) >> (endBit - startBit - (endBit & 7)));
-	}
-#ifdef STATE_DEBUG
-	log_add (log_Debug, "State '%s' set to %d.", name, (int)val);
-#endif
+	return (shift >= 32) ? 0 : (value << shift);
 }
 
-DWORD
-getGameState32 (BYTE *state, int startBit)
+// Returns the total number of bits which are needed to store a game state
+// according to 'bm'.
+static size_t
+totalBitsForGameState (const GameStateBitMap *bm)
 {
-	DWORD v;
-	int shift;
+	size_t totalBits = 0;
+	const GameStateBitMap *bmPtr;
 
-	for (v = 0, shift = 0; shift < 32; shift += 8, startBit += 8)
+	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
+		totalBits += bmPtr->numBits;
+
+	return totalBits;
+}
+
+// Write 'valueBitCount' bits from 'value' into the buffer pointed to
+// by '*bufPtrPtr'.
+// '*restBitsPtr' is used to store the bits in which do not make up
+// a byte yet. The number of bits stored is kept in '*restBitCount'.
+static inline void
+serialiseBits (BYTE **bufPtrPtr, DWORD *restBitsPtr, size_t *restBitCount,
+		BYTE value, size_t valueBitCount)
+{
+	BYTE valueBitMask;
+
+	assert (*restBitCount < 8);
+	assert (valueBitCount <= 8);
+
+	valueBitMask = (1 << valueBitCount) - 1;
+
+	// Add the bits from 'value' to the working 'buffer' (*restBits).
+	*restBitsPtr |= (value & valueBitMask) << *restBitCount;
+	*restBitCount += valueBitCount;
+
+	// Write out restBits (possibly partialy), if we have enough bits to
+	// make a byte.
+	if (*restBitCount >= 8)
 	{
-		v |= getGameState (state, startBit, startBit + 7) << shift;
+		**bufPtrPtr = *restBitsPtr & 0xff;
+		*restBitsPtr >>= 8;
+		(*bufPtrPtr)++;
+		*restBitCount -= 8;
 	}
-
-	return v;
 }
 
-void
-setGameState32 (BYTE *state, int startBit, DWORD val
-#ifdef STATE_DEBUG
-		, const char *name
-#endif
-)
+// Serialise the current game state into a newly allocated buffer,
+// according to the GameStateBitMap 'bm'.
+// Only the (integer) values from 'bm' are saved, in the specified order.
+// This function fills in '*buf' with the newly allocated buffer, and
+// '*numBytes' with its size. The caller becomes the owner of '*buf' and
+// is responsible for freeing it.
+BOOLEAN
+serialiseGameState (const GameStateBitMap *bm, BYTE **buf, size_t *numBytes)
 {
-	DWORD v = val;
-	int i;
+	size_t totalBits;
+	size_t totalBytes;
+	const GameStateBitMap *bmPtr;
+	BYTE *result;
+	BYTE *bufPtr;
 
-	for (i = 0; i < 4; ++i, v >>= 8, startBit += 8)
+	DWORD restBits = 0;
+			// Bits which have not yet been stored because they did not form
+			// an entire byte.
+	size_t restBitCount = 0;
+
+	// Determine the total number of bits/bytes required.
+	totalBits = totalBitsForGameState (bm);
+	totalBytes = (totalBits + 7) / 8;
+
+	// Allocate memory for the serialised data.
+	result = HMalloc (totalBytes);
+	if (result == NULL)
+		return FALSE;
+
+	bufPtr = result;
+	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
 	{
-		setGameState (state, startBit, startBit + 7, v & 0xff
+		DWORD value = getGameStateUint (bmPtr->name);
+		BYTE numBits = bmPtr->numBits;
+
 #ifdef STATE_DEBUG
-				, "(ignored)"
-#endif
-				);
+		log_add (log_Debug, "Saving: GameState[\'%s\'] = %u", bmPtr->name,
+				value);
+#endif  /* STATE_DEBUG */
+
+		if (value > bitmask32(numBits))
+		{
+			log_add (log_Error, "Warning: serialiseGameState(): the value "
+					"of the property '%s' (%u) does not fit in the reserved "
+					"number of bits (%d).", bmPtr->name, value, numBits);
+		}
+
+		// Store multi-byte values with the least significant byte first.
+		while (numBits >= 8)
+		{
+		
+			serialiseBits (&bufPtr, &restBits, &restBitCount, value & 0xff, 8);
+			value >>= 8;
+			numBits -= 8;
+		}
+		if (numBits > 0)
+			serialiseBits (&bufPtr, &restBits, &restBitCount, value, numBits);
 	}
 
-#ifdef STATE_DEBUG
-	log_add (log_Debug, "State '%s' set to %u.", name, (unsigned)val);
-#endif
+	// Pad the end up to a byte.
+	if (restBitCount > 0)
+		serialiseBits (&bufPtr, &restBits, &restBitCount, 0, 8 - restBitCount);
+
+	*buf = result;
+	*numBytes = totalBytes;
+	return TRUE;
 }
 
-void
-copyGameState (BYTE *dest, DWORD target, BYTE *src, DWORD begin, DWORD end)
-{
-	while (begin < end)
+// Read 'numBits' bits from '*bytePtr', starting at the bit offset
+// '*bitPtr'. The result is returned.
+// '*bitPtr' and '*bytePtr' are updated by this function.
+static inline DWORD
+deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
+	assert (*bitPtr < 8);
+	assert (numBits <= 8);
+
+	if (numBits <= (size_t) (8 - *bitPtr))
 	{
-		BYTE b;
-		DWORD delta = 7;
-		if (begin + delta > end)
-			delta = end - begin;
-		b = getGameState (src, begin, begin + delta);
-		setGameState (dest, target, target + delta, b);
-		begin += 8;
-		target += 8;
+		// Can get the entire value from one byte.
+		// We want bits *bitPtr through (excluding) *bitPtr+numBits
+		DWORD result = ((*bytePtr)[0] >> *bitPtr) & bitmask32(numBits);
+
+		// Update the pointers.
+		if (numBits == (size_t) (8 - *bitPtr))
+		{
+			// The entire (rest of the) byte is read. Go to the next byte.
+			(*bytePtr)++;
+			*bitPtr = 0;
+		}
+		else
+		{
+			// There are still unread bits in the byte.
+			*bitPtr += numBits;
+		}
+		return result;
 	}
+	else
+	{
+		// The result comes from two bytes.
+		// We get the *bitPtr most significant bits from [0], as the least
+		// significant bits of the result, and the (numBits - *bitPtr) least
+		// significant bits from [1], as the most significant bits of the
+		// result.
+		DWORD result = (((*bytePtr)[0] >> *bitPtr)
+				| ((*bytePtr)[1] << (numBits - *bitPtr))) &
+				bitmask32(numBits);
+		(*bytePtr)++;
+		*bitPtr += numBits - 8;
+		return result;
+	}
+}
+
+// Deserialise the current game state from the bit array in 'buf', which
+// has size 'numBytes', according to the GameStateBitMap 'bm'.
+BOOLEAN
+deserialiseGameState (const GameStateBitMap *bm,
+		const BYTE *buf, size_t numBytes)
+{
+	size_t totalBits;
+	const GameStateBitMap *bmPtr;
+
+	const BYTE *bytePtr = buf;
+	BYTE bitPtr = 0;
+			// Number of bits already processed from the byte pointed at by
+			// bytePtr.
+
+	// Sanity check: determine the number of bits required, and check
+	// whether 'numBytes' is large enough.
+	totalBits = totalBitsForGameState (bm);
+	if (numBytes * 8 < totalBits)
+	{
+		log_add (log_Error, "Warning: deserialiseGameState(): Corrupt "
+				"save game: state: less bytes available than expected.");
+		return FALSE;
+	}
+
+	for (bmPtr = bm; bmPtr->name != NULL; bmPtr++)
+	{
+		DWORD value = 0;
+		BYTE numBits = bmPtr->numBits;
+		BYTE bitsLeft = numBits;
+
+		// Multi-byte values are stored with the least significant byte
+		// first.
+		while (bitsLeft >= 8)
+		{
+			DWORD bits = deserialiseBits (&bytePtr, &bitPtr, 8);
+			value |= shl32(bits, numBits - bitsLeft);
+			bitsLeft -= 8;
+		}
+		if (bitsLeft > 0) {
+			value |= shl32(deserialiseBits (&bytePtr, &bitPtr, bitsLeft),
+					numBits - bitsLeft);
+		}
+	
+#ifdef STATE_DEBUG
+		log_add (log_Debug, "Loading: GameState[\'%s\'] = %u", bmPtr->name,
+				value);
+#endif  /* STATE_DEBUG */
+
+		setGameStateUint (bmPtr->name, value);
+	}
+#ifdef STATE_DEBUG
+	fflush (stderr);
+#endif  /* STATE_DEBUG */
+
+	return TRUE;
 }
 
 static void
@@ -193,6 +340,7 @@ copyFleetInfo (FLEET_INFO *dst, SHIP_INFO *src, FLEET_STUFF *fleet)
 	dst->max_crew = src->max_crew;
 	dst->max_energy = src->max_energy;
 
+	dst->shipIdStr = src->idStr;
 	dst->race_strings = src->race_strings;
 	dst->icons = src->icons;
 	dst->melee_icon = src->melee_icon;

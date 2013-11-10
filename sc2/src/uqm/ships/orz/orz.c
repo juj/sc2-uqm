@@ -64,6 +64,7 @@
 static RACE_DESC orz_desc =
 {
 	{ /* SHIP_INFO */
+		"nemesis",
 		FIRES_FORE | SEEKING_SPECIAL,
 		23, /* Super Melee cost */
 		MAX_CREW, MAX_CREW,
