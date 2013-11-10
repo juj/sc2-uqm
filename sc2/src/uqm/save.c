@@ -589,31 +589,6 @@ SaveFlagshipState (void)
 }
 
 static void
-SaveStateFile (DWORD statefileId, DWORD tag, uio_Stream *fh)
-{
-	GAME_STATE_FILE *fp;
-	char buf[256];
-	fp = OpenStateFile (statefileId, "rb");
-	if (fp)
-	{
-		DWORD flen = LengthStateFile (fp);
-		write_32 (fh, tag);
-		write_32 (fh, flen);
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			ReadStateFile (buf, num_bytes, 1, fp);
-			write_a8 (fh, buf, num_bytes);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
-}
-
-static void
 SaveStarInfo (uio_Stream *fh)
 {
 	GAME_STATE_FILE *fp;
