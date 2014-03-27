@@ -10,3 +10,7 @@
 /uqm-debug
 /uqm-wrapper
 /uqm
+/*.exe
+/*.dll
+/*.ilk
+/*.dbg
