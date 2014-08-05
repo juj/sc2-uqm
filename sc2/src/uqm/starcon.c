@@ -205,6 +205,7 @@ while (--ac > 0)
 	log_add (log_Info, "We've loaded the Kernel");
 
 	GLOBAL (CurrentActivity) = 0;
+	luaUqm_initState ();
 	// show splash and init the kernel in the meantime
 	SplashScreen (BackgroundInitKernel);
 
@@ -217,7 +218,7 @@ while (--ac > 0)
 			explode ();  // Does not return;
 		}
 
-		luaUqm_initState ();
+		luaUqm_reinitState ();
 		InitGameStructures ();
 		InitGameClock ();
 		initEventSystem ();
@@ -312,10 +313,10 @@ while (--ac > 0)
 		uninitEventSystem ();
 		UninitGameClock ();
 		UninitGameStructures ();
-		luaUqm_uninitState ();
 		ClearPlayerInputAll ();
 	}
 //	CloseJournal ();
+	luaUqm_uninitState ();
 
 	UninitGameKernel ();
 	FreeMasterShipList ();

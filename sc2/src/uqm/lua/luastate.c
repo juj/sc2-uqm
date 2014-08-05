@@ -37,11 +37,13 @@ static const char eventRegistryKey[] =
 		"uqm_event_registryKey";
 
 
-// Init the global Lua state. Called at the start of a new game, or when a
-// game is loaded.
+// Init the global Lua state. Called at the start of the main loop.
 void
 luaUqm_initState(void) {
-	assert(luaUqm_globalState == NULL);
+	if (luaUqm_globalState != NULL) {
+		log_add(log_Warning, "Lua state multiply uninitialized");
+		luaUqm_uninitState ();
+	}
 	luaUqm_globalState = luaL_newstate();
 	luaUqm_initStatePropertyTable(luaUqm_globalState);
 	luaUqm_initEventTable(luaUqm_globalState);
@@ -55,9 +57,27 @@ luaUqm_initState(void) {
 // Uninit the global Lua state.
 void
 luaUqm_uninitState(void) {
-	assert(luaUqm_globalState != NULL);
-	lua_close(luaUqm_globalState);
-	luaUqm_globalState = NULL;
+	if (luaUqm_globalState != NULL) {
+		lua_close(luaUqm_globalState);
+		luaUqm_globalState = NULL;
+	} else {
+		log_add(log_Warning, "Lua state multiply uninitialized");
+	}
+}
+
+// Reinit the global Lua state. This does nothing that initState doesn't
+// do, but unlike initState it warns only if you call it without having
+// old data to dispose of. Called at the start of a new game, or when a
+// game is loaded.
+
+void
+luaUqm_reinitState(void) {
+	if (luaUqm_globalState == NULL) {
+		log_add(log_Warning, "Lua state reinitialized while NULL");
+	} else {
+		luaUqm_uninitState ();
+	}
+	luaUqm_initState ();
 }
 
 /////////////////////////////////////////////////////////////////////////////

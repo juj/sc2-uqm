@@ -28,6 +28,7 @@ extern lua_State *luaUqm_globalState;
 
 void luaUqm_initState(void);
 void luaUqm_uninitState(void);
+void luaUqm_reinitState(void);
 void luaUqm_getProp(lua_State *luaState, int nameIndex);
 void luaUqm_setProp(lua_State *luaState, int nameIndex, int valueIndex);
 int luaUqm_checkPropValueType (lua_State *luaState, const char *funName,
