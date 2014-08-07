@@ -166,7 +166,7 @@ ByeBye (RESPONSE_REF R)
 {
 	(void) R;  // ignored
 
-	CurBulletinMask |= GET_GAME_STATE (STARBASE_BULLET);
+	CurBulletinMask |= GET_GAME_STATE (STARBASE_BULLETS);
 	SET_GAME_STATE (STARBASE_BULLETS, CurBulletinMask);
 
 	/* if (R == goodbye_starbase_commander) */

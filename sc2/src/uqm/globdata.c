@@ -217,7 +217,7 @@ deserialiseBits (const BYTE **bytePtr, BYTE *bitPtr, size_t numBits) {
 		// significant bits from [1], as the most significant bits of the
 		// result.
 		DWORD result = (((*bytePtr)[0] >> *bitPtr)
-				| ((*bytePtr)[1] << (numBits - *bitPtr))) &
+				| ((*bytePtr)[1] << (8 - *bitPtr))) &
 				bitmask32(numBits);
 		(*bytePtr)++;
 		*bitPtr += numBits - 8;
