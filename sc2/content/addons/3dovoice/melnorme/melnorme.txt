@@ -38,7 +38,7 @@ Our origins and purposes are, frankly, mysterious and due to several unavoidable
 we are unable to discuss ourselves in any great detail.
 
 #(what_factors)
-What are these 'unavoidable factors'?
+What are these `unavoidable factors'?
 
 #(FACTORS_ARE)	melnorme-006.ogg
 First and foremost among these factors
@@ -670,7 +670,7 @@ Although it is probably too early to tell, it would appear that the Kohr-Ah are 
 No doubt you are familiar with an alien race called the Umgah who live in the Orionis constellation.
 While they are renowned for their potent and often cruel sense of humor
 they have outdone themselves in recent years.
-Specifically, they have used an unusual HyperWave `Caster
+Specifically, they have used an unusual HyperWave 'Caster
 to impersonate the Ilwrath gods Dogar and Kazon.
 When the Ilwrath began tuning-in to `the voices of their gods' on their HyperWave receivers
 their priest caste was understandably skeptical
@@ -1034,7 +1034,7 @@ Kohr-Ah proposed a simpler alternative, the `Eternal Doctrine.'
 Simply put, this scheme called for the systematic eradication of all sentient life in the universe
 aside from the Ur-Quan.
 Captain, if these positions seem to you extreme or unwarranted
-you must remember that the Ur-Quan had been unwilling slaves for millenia
+you must remember that the Ur-Quan had been unwilling slaves for millennia
 and that each of them had to remain in agony for years in order to defeat the Dnyarri.
 The followers of Kzer-Za and Kohr-Ah were all on the brink of madness
 but neither side would submit, and so they fought a bloody civil war.
@@ -1114,7 +1114,7 @@ modifications to your planet landers which will double their speed.
 
 #(NEW_TECH_3)	melnorme-133.ogg
 The technology we are now offering includes details on how to add
-'point-defense' laser defense systems for your flagship.
+`point-defense' laser defense systems for your flagship.
 
 #(NEW_TECH_4)	melnorme-134.ogg
 The technology we are now offering includes plans for building
@@ -1151,7 +1151,7 @@ modifications to your planet landers which make them resistant to planetary hot-
 
 #(NEW_TECH_12)	melnorme-142.ogg
 The technology we are now offering is plans for building
-'Hellbore Cannons', a weapon much more destructive than a simple blaster.
+`Hellbore Cannons', a weapon much more destructive than a simple blaster.
 
 #(NEW_TECH_13)	melnorme-143.ogg
 The technology we are now offering includes details on how to develop
@@ -1227,7 +1227,7 @@ I am certain you will appreciate this new module, Captain!
 With it you should be able to destroy and devastate twice as fast as before.
 
 #(CHARITY)	melnorme-157.ogg
-Since you have no useful, easily removeable equipment on your vessel
+Since you have no useful, easily removable equipment on your vessel
 we have decided to provide you with fuel at no cost.
 Please do not make the mistake of thinking of this as a `gift' or act of altruism
 we are merely investing in our relationship with you, the customer.

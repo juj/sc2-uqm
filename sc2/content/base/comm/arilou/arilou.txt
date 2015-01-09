@@ -35,7 +35,7 @@ I'll be. It's the Arilou. Why the hell did you run out on the Alliance of Free S
 You're annoyed. How interesting.
 It has been so long since I dealt with Humans. I had forgotten what it was like.
 Now let's see, how shall I best appease you? Yes, if I remember, an honest answer would help.
-We didn't exactly 'run out' on the Alliance.
+We didn't exactly `run out' on the Alliance.
 We chose to leave when there was no longer a reason to stay.
 You humans seemed safe enough under the Ur-Quan slave shield.
 In fact, we rather liked the idea and wished we had thought of it ourselves.

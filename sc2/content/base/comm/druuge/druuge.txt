@@ -333,7 +333,7 @@ and is available for salvage by anyone who finds it.
 #(GEN_INFO_AT_TRADE_WORLD_3)	druuge-044.ogg
 In case it has not been made clear to you, Captain
 aside from your crew, there are certain items which we are willing to trade for.
-Specifically, these include: Vortex Spawners, HyperWave `Casters
+Specifically, these include: Vortex Spawners, HyperWave 'Casters
 and the tough, fungal mats discarded by the Mycon Deep Children
 as they penetrate a planet's crust.
 
@@ -369,7 +369,7 @@ Signed, The Druuge.
 
 #(SCAN_MAIDENS)	druuge-046.ogg
 It has come to our attention that you have female Shofixti creatures on board your ship.
-We have the means to fertilze these creatures artificially
+We have the means to fertilize these creatures artificially
 allowing us to produce a hybrid beast to attend our furnaces.
 We must have those females, Captain!
 We are prepared to offer you fully six of our devastating Mauler starships in exchange.
@@ -379,11 +379,11 @@ We know that you have Mycon Deep Child egg case fragments aboard your vessel.
 Would you consider trading them to us for a shiny new Mauler starship?
 
 #(SCAN_DRUUGE_CASTER)	druuge-048.ogg
-Our sensors reveal that you have one of our more powerful HyperWave `Casters on board your ship.
+Our sensors reveal that you have one of our more powerful HyperWave 'Casters on board your ship.
 Have no fear, Captain. It was abandoned on the Burvixese moon
 and by our law it belongs to you; however
 we are fond of the device and wish to regain it through trade.
-Give us the `Caster, and we will give you all the fuel your ship can hold.
+Give us the 'Caster, and we will give you all the fuel your ship can hold.
 
 #(SCAN_ARILOU_SPAWNER)	druuge-049.ogg
 We note you possess a Vortex Spawner.
@@ -453,7 +453,7 @@ I do not wish to sell anything more.
 I will sell the Shofixti Maidens to you.
 
 #(sell_caster)
-I will sell the HyperWave `Caster to you.
+I will sell the HyperWave 'Caster to you.
 
 #(sell_fragments)
 I will sell the Egg Case fragments to you.

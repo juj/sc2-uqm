@@ -495,7 +495,7 @@ It doesn't use its electrical discharge device in combat.
 What missile batteries? It always attacked us with lightning bolts!
 
 #(LIGHTNING_ONLY_FOR_HARVESTING)	slylandro-047.ogg
-That's impossible! Its inconceivable!
+That's impossible! It's inconceivable!
 The electrical discharge device is used only for breaking down raw replication materials
 into their component compounds for easy gathering.
 

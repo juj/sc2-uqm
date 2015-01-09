@@ -238,7 +238,7 @@ who inhabited the region of stars which you call `Orionis'.
 They spent their time happily exploring and mining the nearby planetary systems
 and engaging in elaborate, and to our way of thinking, cruel practical jokes.
 One particularly nasty prank was the time they broadcast a trick message through space
-declaring the arrival of the 'Grand Master Planet Eaters' or some such nonsense.
+declaring the arrival of the `Grand Master Planet Eaters' or some such nonsense.
 This caused several alien cultures to go mad with panic
 including, you might be surprised to know, ourselves.
 
@@ -573,10 +573,10 @@ Have there been any developments of significance?
 
 #(GENERAL_INFO_1)	safeones-074.ogg
 Perhaps Captain. I will explain.
-We have been investigating the `Caster which we took away from the Umgah
+We have been investigating the 'Caster which we took away from the Umgah
 after the `Jud the Vug' scandal, 8 years ago.
 We have uncovered evidence of something strange going on between the Umgah and the Ilwrath over the past many years.
-We suspect that the Umgah were using the `Caster to pull off some kind of long-term joke on the Ilwrath
+We suspect that the Umgah were using the 'Caster to pull off some kind of long-term joke on the Ilwrath
 but we are unable to glean any more details.
 
 #(GENERAL_INFO_2)	safeones-075.ogg

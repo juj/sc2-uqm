@@ -18,7 +18,7 @@ Unfortunately, to do this, we may need to blast you into your component atoms.
 
 #(HOSTILE_SPACE_HELLO_3)	thraddash-002.ogg
 Attention weak, ugly humans aboard that wallowing garbage scow of a ship, SNORT!
-Unless you are even more inferior that we believe and that's hard to imagine
+Unless you are even more inferior than we believe and that's hard to imagine
 you already know who we are -- the Thraddash of Culture Nineteen
 We are the original Ur-Quan fighting slaves, the cream of their elite forces
 your instructors in the harsh realities of life.
@@ -80,7 +80,7 @@ If you want to know about hostility, let us tell you about Culture Twelve!
 Culture Twelve was SO hostile that while they were on their way to their first great battle
 Jugkah, the battlemaster, stepped on Gnusko the tactician's foot, causing him great pain.
 The annoyed Gnusko turned on his battlemaster, Jugkah, and sliced his body in half!
-This miffed Jugkah's troops who took it upon themslves to murder Gnusko and his elite troops.
+This miffed Jugkah's troops who took it upon themselves to murder Gnusko and his elite troops.
 The REAL trouble started when now-dead Jugkah's master sergeants Muuhd and Pudt
 started arguing about how to kill Gnusko -- simple crucifixion, or the slower `Lead Tatoo' technique.
 The argument was resolved when Muuhd and his five hundred troops were slaughtered by Pudt and his gang.
@@ -301,7 +301,7 @@ We will now give you the opportunity to give them to us.
 We wish nothing from you, save your friendship.
 
 #(NO_FRIENDS_1)	thraddash-027.ogg
-Perhaps, after we have made you our slaves, we can accomodate your wishes.
+Perhaps, after we have made you our slaves, we can accommodate your wishes.
 Until then...
 
 #(be_friends_2)
@@ -767,7 +767,7 @@ then we attack them!
 Yes, that is an excellent plan!
 
 #(speak_pig_latin)
-To really capture the spirit of Interstellar Diplomactic Protocol you should speak pig latin.
+To really capture the spirit of Interstellar Diplomatic Protocol you should speak pig latin.
 
 #(OK_PIG_LATIN)	thraddash-092.ogg
 Pig-Latin, eh? Isn't that where you take the first letter or two of a word, put it at the end
