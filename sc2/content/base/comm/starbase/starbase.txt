@@ -816,7 +816,7 @@ All six of them have exceptionally high esper ratings.
 In the two weeks that have passed since the Chmmr began to work on your vessel
 they attached the Utwig bomb to your ship, and have also put in place
 their own crystalline amplification devices to boost dramatically the power of the weapon.
-This work is now complete, and your flagship is ready for what ever final modifications you desire.
+This work is now complete, and your flagship is ready for whatever final modifications you desire.
 The Chmmr technicians wanted me to explain to you that the bomb and its crystal power boosters
 are fragile and cannot be moved from their positions at the back of your vehicle.
 Now I have some bad news, and some good news.
@@ -1000,7 +1000,7 @@ on its true function and power.
 #(ABOUT_UCASTER) starbase-141.ogg
 SUBJECT: HyperWave Broadcaster - Umgah Design.
 DATA: This unit is capable of generating extremely intense HyperWave transmissions
-though it is otherwise similar to our own `Casters.
+though it is otherwise similar to our own 'Casters.
 SUMMARY: This thing would be great for practical jokes. You could scream `Boo!' from an Oort Cloud
 and scare the pants, or whatever, off everyone in the system.
 If you used it in HyperSpace, there's no telling who might hear you and come running.

@@ -150,7 +150,7 @@ So, what ARE you doing here on Pluto?
 When the Ur-Quan armada entered this system to subjugate formally the Earthlings,
 the Ur-Quan presented the humans with the standard slave options:
 join the Hierarchy as combat thralls, and retain some autonomy, including the right to travel through space
-or become a 'fallow' species and return to pre-atomic savagery on the surface of their homeworld
+or become a `fallow' species and return to pre-atomic savagery on the surface of their homeworld
 encased for all time beneath an impenetrable force shield.
 The Humans chose the latter option, and so were swiftly imprisoned on the surface of Earth
 but the Ur-Quan didn't trust them to obey the restrictions...so
@@ -174,8 +174,8 @@ Do you know anything about other alien races?
 We know only bits and pieces of what happened to each race; for instance,
 when defeated, the Yehat joined the Hierarchy as combat thralls,
 while the Syreen chose to be slave shielded on a planet in the BugSquirt star system.
-No, that's not right -- I forget it's name, anyway where was I?
-Oh yes, the Shofixti! They were utterly wiped out in a gigantic 'blaze of glory'.
+No, that's not right -- I forget its name, anyway where was I?
+Oh yes, the Shofixti! They were utterly wiped out in a gigantic `blaze of glory'.
 
 #(what_doing_on_pluto_3)
 TELL ME what you are doing on Pluto, NOW!
@@ -192,7 +192,7 @@ The female parent was kind and sweet to all of us.
 Why, she once even called me by NAME; she said
 `Fwiffo! Fwiffo darling! Would you please answer the door? I think someone's there.'
 What a treat! A golden memory.
-I swiftly matured into a fine example of my species, with my parents' assistance, achieved independence.
+I swiftly matured into a fine example of my species, and with my parents' assistance, achieved independence.
 Specifically, they pried me from the doorjamb, and rolled me into the street.
 Thus prepared, I set out to make my fortune.
 I had great dreams in those days, yes, great dreams!
@@ -228,7 +228,7 @@ What do you mean, `blaze of glory'? What happened to the Shofixti?
 #(BLAZE_IS)	spathi-019.ogg
 The Shofixti were half feral, as you know, having been uplifted by the Yehat
 just a few decades before the start of the war.
-Given their habit of detonating those suicidal, so-called 'Glory Devices' in combat
+Given their habit of detonating those suicidal, so-called `Glory Devices' in combat
 it came as no particular surprise to me when, upon the arrival of the Ur-Quan primary task force at their homeworld
 the Shofixti caused their sun to explode in a colossal supernova
 destroying the entire planetary system, and not incidentally dozens of Ur-Quan Dreadnoughts!
@@ -294,7 +294,7 @@ we knew it would be grossly stupid to disobey them completely
 but we decided that it would be okay to send just one ship home.
 We used one of our most ancient and solemn rituals, Puun-Taffy, to pick the lucky ship.
 Then... some months later, we decided that it wouldn't REALLY hurt if we sent one more ship home
-and then later we sent another, and then another...well, you get the idea.
+and then later we sent another, and then another... well, you get the idea.
 Alas, as fate would have it, when the final ritual was performed
 I, Fwiffo, was left here alone, for as even the most immature encrustling knows
 there must always be one Spathi who picks the short Ta Puun stick.
@@ -384,7 +384,7 @@ Whew, thanks! For a minute there, I thought you were going to kill me!
 
 #(HATE_YOU_FOREVER_SPACE)	spathi-035.ogg
 I fear to face you in combat, but I know if I do not, you will just grow stronger with each passing week.
-Therfore I must face you now.
+Therefore I must face you now.
 I set the thrusters to maximum, close my eye, and begin pressing the fire stud wildly.
 
 #(INIT_ANGRY_HELLO_SPACE)	spathi-036.ogg
@@ -592,7 +592,7 @@ We have heard that you are a race of cowards. Is this true?
 
 #(DARN_TOOTIN)	spathi-061.ogg
 Yes, absolutely, and with no qualifications.
-This system has kept us alive for millenia, and we see no reason to change it now.
+This system has kept us alive for millennia, and we see no reason to change it now.
 
 #(wanna_fight)
 Wanna fight?

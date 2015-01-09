@@ -75,7 +75,7 @@ but besides that, all is well.  It is good to see you again.
 #(FRIENDLY_SPACE_HELLO_3)	pkunk-007.ogg
 Human!  I was just thinking of you!
 Ah, but I see you are not surprised, and why should you be?
-Amazing psychic occurences are commonplace for us Pkunk.
+Amazing psychic occurrences are commonplace for us Pkunk.
 I am filled with love at the sight of you.
 Perhaps we can converse together, or just coexist for a few special moments.
 
@@ -90,7 +90,7 @@ My love gushes forth.
 #(FRIENDLY_SPACE_HELLO_5)	pkunk-009.ogg
 Ah, Captain human! I was hoping you would return. I have great news!
 Were you aware that in one of your previous lives, you were Duke Franz Ferdinand?
-It's true! And before that, you were the Egyptian god-pharoah Atum-ta, the sixth!
+It's true! And before that, you were the Egyptian god-pharaoh Atum-ta, the sixth!
 This is amazing, Captain, just fantastic. Imagine, having been so many important people!
 Well, to be frank, your case is not all that unusual.
 It just so happens that almost everyone's past lives were as famous, rich or interesting people.
@@ -202,7 +202,7 @@ and how to keep largely free of lice and other annoying parasites that tend to g
 
 #(GENERAL_INFO_NEUTRAL_4)	pkunk-028.ogg
 You may wonder about our name... Pkunk.
-'Pkunk' means 'Peace' in our language, and we are devoted to this joyous concept.
+`Pkunk' means `Peace' in our language, and we are devoted to this joyous concept.
 
 #(good_reason_1)
 Turn back! Our most mystical device, the, er... Ouija Board, gave a definite NO when we asked it about your trip.

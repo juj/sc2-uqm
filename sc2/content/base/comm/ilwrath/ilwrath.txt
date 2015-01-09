@@ -71,7 +71,7 @@ What Is That? The Voices Of Our Gods Dogar And Kazon? Surely It Cannot Be!
 And Yet My Set Is Tuned To The Mystic 44 -- Who Else Could It Be?
 I Am Unworthy Of Such Attention As This!
 Dogar -- Kazon! Your Divine Words Will Surely Consume Me.
-I Beeseech Thee! Speak Directly To The Leaders At Homeworld!
+I Beseech Thee! Speak Directly To The Leaders At Homeworld!
 I Am Unworthy.
 
 #(GRUNTS_AGAIN) ilwrath-013.ogg
@@ -238,7 +238,7 @@ We Will Go NOW, And Kill All Of Them!
 
 #(GOODBYE_GODS) ilwrath-035.ogg
 Farewell Dogar And Kazon. We Are Awed By Your Malevolent Presence, And Swear Unto You
-To Commit Even More Vile And Treacherous Deeds Tommorrow Than We Did Today!
+To Commit Even More Vile And Treacherous Deeds Tomorrow Than We Did Today!
 
 #(INIT_HELLO_SPACE) ilwrath-036.ogg
 What? Can I Believe My Sensory Cluster? I Sense Hu-Mans!
@@ -407,7 +407,7 @@ Second, It Made It Easy For Us To Properly Identify
 What Might Be Mistaken For Mad Rambling As The Sacred Words.
 You See, Dogar Possesses 44 Eyes That See Into The 44 Planes Of Existence
 And Each Of Kazon's 44 Sub-Tongues Is Made Up Of 44 Plump, Writhing Cilia.
-Besides, They Knew We Were 'Captain Satellite' Viewers.
+Besides, They Knew We Were `Captain Satellite' Viewers.
 
 #(WHAT_ABOUT_ILWRATH) ilwrath-057.ogg
 Your Interest Is Not Unusual. It Is Through The Omniscient Guidance

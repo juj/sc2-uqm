@@ -47,7 +47,7 @@ I am Captain of the starship
 
 #(GOOD_FOR_YOU)	talkingpet-005.ogg
 Good idea! May I just say, I am behind you 100 percent!
-But unfortunately, the Umgah are all too busy to come to the HyperWave `Caster right now
+But unfortunately, the Umgah are all too busy to come to the HyperWave 'Caster right now
 so... er... come back later... much later.
 
 #(must_explain_presence)
@@ -104,7 +104,7 @@ Umgah commander, summon your ten combat ships and attack this intruder instantly
 
 #(LETS_MAKE_A_DEAL)	talkingpet-013.ogg
 Uh, hi there, friendly starship Captain!
-You will never believe this, but somewhow, the injuries I suffered when the Ur-Quan crashed
+You will never believe this, but somehow, the injuries I suffered when the Ur-Quan crashed
 triggered some kind of, uh... personality transformation
 I became evil and spiteful! Cruel and nasty! Whimsically unpleasant!
 You may also have noticed that I gained some kind of `temporary psychic powers'
@@ -443,7 +443,7 @@ Here I go...
 I'm scared, Dnyarri. What if this doesn't work?
 
 #(STUPID_FOP)	talkingpet-051.ogg
-'I'm scared, Dnyarri. What if this doesn't work?'
+`I'm scared, Dnyarri. What if this doesn't work?'
 My species have waited two hundred centuries for this moment
 SO STOP BLUBBERING!
 Let's get to work.
@@ -573,7 +573,7 @@ No! It does not!
 Well the war was over pretty quickly, and my species lost.
 Instead of just killing us, the Ur-Quan modified our genes
 Our children were born non-sentient, dumb animals.
-For the past twenty millenia, we Dnyarri have been serving the Ur-Quan
+For the past twenty millennia, we Dnyarri have been serving the Ur-Quan
 in the most demeaning way they could imagine
 acting as mindless translators who communicate the words of inferior races.
 

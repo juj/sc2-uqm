@@ -73,7 +73,7 @@ FTC 3000
 SYNC 5000
 #(Text fade-in)
 TFI Based on the source code of STAR CONTROL II
-(STAR CONTROL is a trademark of Atari)
+(STAR CONTROL is a trademark of Stardock)
 #(Synchronize)
 SYNC 8000
 #(Text fade-out)

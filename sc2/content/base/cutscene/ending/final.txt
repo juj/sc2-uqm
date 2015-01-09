@@ -489,7 +489,7 @@ FTC 0
 WAIT 1000
 
 #(Text fade-in)
-TFI But Grandfather then what
+TFI But Grandfather, then what
 happened?
 #(Wait)
 WAIT 2500

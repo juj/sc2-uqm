@@ -49,7 +49,7 @@ We must be getting about the business of killing you!
 You must help us. Surely you owe us this much, at least!
 
 #(NO_HELP_ENEMY)	yehat-005.ogg
-It is an unbelieveable thing!
+It is an unbelievable thing!
 Ye speak the words that ruffle our feathers and cause our blood to boil!
 We, the loyal servants of our Queen, bless her Beak, will not be helping the likes of you
 or any of the traitor Yehat bastards ye may have found among the ranks of the starship Clans!

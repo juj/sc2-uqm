@@ -67,7 +67,7 @@ In answer to your question, yes! I accept your offer.
 Deliver the creature to me, and I shall give you the Shofixti Maidens.
 I will even provide you with a clue to finding the creature's native planet!
 My source for this information is an ancient wildlife handbook
-written millenia ago by some unknown alien author. The pertinent passage goes as follows
+written millennia ago by some unknown alien author. The pertinent passage goes as follows
 `... demise, It(!) basks in yellow light within the constellation Linch-Nas-Ploh.'
 We have translated `Linch-Nas-Ploh' to mean approximately
 `the long, thin creature who has swallowed the huge beast.'
@@ -80,7 +80,7 @@ Would you tell me again where I can find that creature you want so badly?
 #(CREATURE_AGAIN)	vux-009.ogg
 Certainly, my smooth-skinned friend!
 My source for this information is an ancient wildlife handbook
-written millenia ago by some unknown alien author. The pertinent passage goes as follows
+written millennia ago by some unknown alien author. The pertinent passage goes as follows
 `... demise, It(!) basks in yellow light within the constellation Linch-Nas-Ploh.'
 We have translated `Linch-Nas-Ploh' to mean approximately
 `the long, thin creature who has swallowed the huge beast.'

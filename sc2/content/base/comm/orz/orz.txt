@@ -357,7 +357,7 @@ This is a good plan. Orz are accomplishing this for better *games*.
 Now is time for *dissolving*.
 
 #(ANGRY_SPACE_HELLO_2)	orz-044.ogg
-So many times Orz are say 'Hello, we are Orz', but next is always same.
+So many times Orz are say `Hello, we are Orz', but next is always same.
 Certainly you are *silly cows*.
 Now is try again for *dissolving*. Of course this is best for extra fun.
 After dissolved, *silly cows* will not be *frumple*

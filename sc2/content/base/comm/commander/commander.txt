@@ -251,7 +251,7 @@ If that probe gets back to the Ur-Quan, Captain, we are BOTH in deep trouble!
 As I said before, after the Ur-Quan erected the slave shield around the Earth and assembled this space station
 they decided to leave a contingent of Spathi and Ilwrath ships stationed on the moon.
 We have looked at the moonbase through our telescopes and can confirm that there is still substantial activity down there
-but we have never been able to make contact with the base using either HyperWave `Caster
+but we have never been able to make contact with the base using either HyperWave 'Caster
 or traditional radio signals.
 
 #(COOK_BUTTS) commander-043.ogg
