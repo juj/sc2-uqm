@@ -3,7 +3,7 @@
 	url = https://github.com/juj/ogg.git
 [submodule "vorbis"]
 	path = vorbis
-	url = hhttps://github.com/juj/vorbis.git
+	url = https://github.com/juj/vorbis.git
 [submodule "SDL"]
 	path = SDL
 	url = https://github.com/juj/SDL-emscripten.git
