@@ -57,5 +57,8 @@
 /* Defined if your system has wint_t of its own */
 #define HAVE_WINT_T
 
+/* Defined if your system has _Bool of its own */
+#define HAVE__BOOL
+
 #endif /* _CONFIG_VC6_H */
 

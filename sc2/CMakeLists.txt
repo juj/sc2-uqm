@@ -2,83 +2,82 @@ cmake_minimum_required(VERSION 2.8)
 
 project(uqm)
 
-find_package (PkgConfig)
-include (FindPackageHandleStandardArgs)
-#set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
+find_package(PkgConfig)
+include(FindPackageHandleStandardArgs)
 
-function (find_libogg return_name)
-	pkg_check_modules (PC_LIBOGG QUIET libogg)
-	set (LIBOGG_DEFINITIONS ${PC_LIBOGG_CFLAGS_OTHER})
+function(find_libogg return_name)
+	pkg_check_modules(PC_LIBOGG QUIET libogg)
+	set(LIBOGG_DEFINITIONS ${PC_LIBOGG_CFLAGS_OTHER})
 
-	find_path (LIBOGG_INCLUDE_DIR ogg/ogg.h
+	find_path(LIBOGG_INCLUDE_DIR ogg/ogg.h
 				HINTS ${PC_LIBOGG_INCLUDEDIR} ${PC_LIBOGG_INCLUDE_DIRS}
 				PATH_SUFFIXES libogg)
 
-	find_library (LIBOGG_LIBRARY NAMES ogg libogg
-					HINTS ${PC_LIBOGG_LIBDIR} ${PC_LIBOGG_LIBRARY_DIRS})
+	find_library(LIBOGG_LIBRARY NAMES ogg libogg
+					HINTS ${PC_LIBOGG_LIBDIR} ${PC_LIBOGG_LIBRARY_DIRS} "${CMAKE_SOURCE_DIR}/../ogg")
 
-	find_package_handle_standard_args (LibOgg  DEFAULT_MSG
+	find_package_handle_standard_args(LibOgg  DEFAULT_MSG
 										LIBOGG_LIBRARY LIBOGG_INCLUDE_DIR)
 
-	mark_as_advanced (LIBOGG_INCLUDE_DIR LIBOGG_LIBRARY)
+	mark_as_advanced(LIBOGG_INCLUDE_DIR LIBOGG_LIBRARY)
 
-	set (LIBOGG_LIBRARIES ${LIBOGG_LIBRARY} PARENT_SCOPE)
-	set (LIBOGG_INCLUDE_DIRS ${LIBOGG_INCLUDE_DIR} PARENT_SCOPE)
-	set (${return_name} ${LIBOGG_FOUND} PARENT_SCOPE)
-endfunction (find_libogg)
+	set(LIBOGG_LIBRARIES ${LIBOGG_LIBRARY} PARENT_SCOPE)
+	set(LIBOGG_INCLUDE_DIRS ${LIBOGG_INCLUDE_DIR} PARENT_SCOPE)
+	set(${return_name} ${LIBOGG_FOUND} PARENT_SCOPE)
+endfunction()
 
-function (find_libvorbis return_name)
-	pkg_check_modules (PC_LIBVORBIS QUIET libvorbis)
-	set (LIBVORBIS_DEFINITIONS ${PC_LIBVORBIS_CFLAGS_OTHER})
+function(find_libvorbis return_name)
+	pkg_check_modules(PC_LIBVORBIS QUIET libvorbis)
+	set(LIBVORBIS_DEFINITIONS ${PC_LIBVORBIS_CFLAGS_OTHER})
 
-	find_path (LIBVORBIS_INCLUDE_DIR vorbis/codec.h
+	find_path(LIBVORBIS_INCLUDE_DIR vorbis/codec.h
 				HINTS ${PC_LIBVORBIS_INCLUDEDIR} ${PC_LIBVORBIS_INCLUDE_DIRS}
 				PATH_SUFFIXES libvorbis)
 
-	find_library (LIBVORBIS_LIBRARY NAMES vorbis libvorbis
+	find_library(LIBVORBIS_LIBRARY NAMES vorbis libvorbis
 					HINTS ${PC_LIBVORBIS_LIBDIR} ${PC_LIBVORBIS_LIBRARY_DIRS})
 
-	find_package_handle_standard_args (LibVorbis  DEFAULT_MSG
+	find_package_handle_standard_args(LibVorbis  DEFAULT_MSG
 										LIBVORBIS_LIBRARY LIBVORBIS_INCLUDE_DIR)
 
-	mark_as_advanced (LIBVORBIS_INCLUDE_DIR LIBVORBIS_LIBRARY)
+	mark_as_advanced(LIBVORBIS_INCLUDE_DIR LIBVORBIS_LIBRARY)
 
-	set (LIBVORBIS_LIBRARIES ${LIBVORBIS_LIBRARY} PARENT_SCOPE)
-	set (LIBVORBIS_INCLUDE_DIRS ${LIBVORBIS_INCLUDE_DIR} PARENT_SCOPE)
-	set (${return_name} ${LIBVORBIS_FOUND} PARENT_SCOPE)
-endfunction (find_libvorbis)
+	set(LIBVORBIS_LIBRARIES ${LIBVORBIS_LIBRARY} PARENT_SCOPE)
+	set(LIBVORBIS_INCLUDE_DIRS ${LIBVORBIS_INCLUDE_DIR} PARENT_SCOPE)
+	set(${return_name} ${LIBVORBIS_FOUND} PARENT_SCOPE)
+endfunction()
 
-function (find_libvorbisfile return_name)
-	pkg_check_modules (PC_LIBVORBISFILE QUIET libvorbisfile)
-	set (LIBVORBISFILE_DEFINITIONS ${PC_LIBVORBISFILE_CFLAGS_OTHER})
+function(find_libvorbisfile return_name)
+	pkg_check_modules(PC_LIBVORBISFILE QUIET libvorbisfile)
+	set(LIBVORBISFILE_DEFINITIONS ${PC_LIBVORBISFILE_CFLAGS_OTHER})
 
-	find_path (LIBVORBISFILE_INCLUDE_DIR vorbis/vorbisfile.h
+	find_path(LIBVORBISFILE_INCLUDE_DIR vorbis/vorbisfile.h
 				HINTS ${PC_LIBVORBISFILE_INCLUDEDIR} ${PC_LIBVORBISFILE_INCLUDE_DIRS}
 				PATH_SUFFIXES libvorbisfile)
 
-	find_library (LIBVORBISFILE_LIBRARY NAMES vorbisfile libvorbisfile
+	find_library(LIBVORBISFILE_LIBRARY NAMES vorbisfile libvorbisfile
 					HINTS ${PC_LIBVORBISFILE_LIBDIR} ${PC_LIBVORBISFILE_LIBRARY_DIRS})
 
-	find_package_handle_standard_args (LibVorbisFile  DEFAULT_MSG
+	find_package_handle_standard_args(LibVorbisFile  DEFAULT_MSG
 										LIBVORBISFILE_LIBRARY LIBVORBISFILE_INCLUDE_DIR)
 
-	mark_as_advanced (LIBVORBISFILE_INCLUDE_DIR LIBVORBISFILE_LIBRARY)
+	mark_as_advanced(LIBVORBISFILE_INCLUDE_DIR LIBVORBISFILE_LIBRARY)
 
-	set (LIBVORBISFILE_LIBRARIES ${LIBVORBISFILE_LIBRARY} PARENT_SCOPE)
-	set (LIBVORBISFILE_INCLUDE_DIRS ${LIBVORBISFILE_INCLUDE_DIR} PARENT_SCOPE)
-	set (${return_name} ${LIBVORBISFILE_FOUND} PARENT_SCOPE)
-endfunction (find_libvorbisfile)
+	set(LIBVORBISFILE_LIBRARIES ${LIBVORBISFILE_LIBRARY} PARENT_SCOPE)
+	set(LIBVORBISFILE_INCLUDE_DIRS ${LIBVORBISFILE_INCLUDE_DIR} PARENT_SCOPE)
+	set(${return_name} ${LIBVORBISFILE_FOUND} PARENT_SCOPE)
+endfunction()
 
-find_libogg(LIBOGG_FOUND)
-find_libvorbis(LIBVORBIS_FOUND)
-find_libvorbisfile(LIBVORBISFILE_FOUND)
+#find_libogg(LIBOGG_FOUND)
+#find_libvorbis(LIBVORBIS_FOUND)
+#find_libvorbisfile(LIBVORBISFILE_FOUND)
 #	if (LIBOGG_FOUND AND LIBVORBIS_FOUND)
 
 #set(CMAKE_CXX_STANDARD 11)
 #add_definitions(-Wall -Wcast-qual -Wextra -Wshadow -fno-exceptions -fno-rtti -pedantic -flto -m64)
 
-find_package(SDL REQUIRED)
-find_package(SDL_image REQUIRED)
+#find_package(SDL REQUIRED)
+#find_package(SDL_image REQUIRED)
 
 include_directories(src)
 include_directories(src/libs/lua)

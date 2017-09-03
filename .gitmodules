@@ -1,12 +1,12 @@
 [submodule "ogg"]
 	path = ogg
-	url = https://git.xiph.org/mirrors/ogg.git
+	url = https://github.com/juj/ogg.git
 [submodule "vorbis"]
 	path = vorbis
-	url = https://git.xiph.org/mirrors/vorbis.git
+	url = hhttps://github.com/juj/vorbis.git
 [submodule "SDL"]
 	path = SDL
-	url = https://github.com/spurious/SDL-mirror.git
+	url = https://github.com/juj/SDL-emscripten.git
 [submodule "SDL_image"]
 	path = SDL_image
-	url = https://github.com/aduros/SDL_image.git
+	url = https://github.com/juj/SDL_image.git
