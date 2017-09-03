@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(uqm)
 
-find_package(PkgConfig)
-include(FindPackageHandleStandardArgs)
+#find_package(PkgConfig)
+#include(FindPackageHandleStandardArgs)
 
 function(find_libogg return_name)
 	pkg_check_modules(PC_LIBOGG QUIET libogg)
@@ -82,6 +82,7 @@ endfunction()
 include_directories(src)
 include_directories(src/libs/lua)
 include_directories(${SDL_INCLUDE_DIR})
+include_directories(${SDLIMAGE_INCLUDE_DIR})
 include_directories(cmake) # For pregenerated config_unix.h
 
 add_definitions(-DDEBUG -DGFXMODULE_SDL -DUSE_INTERNAL_MIKMOD -DUSE_INTERNAL_LUA -DTHREADLIB_PTHREAD)
@@ -125,9 +126,16 @@ add_executable(uqm ${sourceFiles} ${gameFiles} ${libFiles} ${threadFiles} ${logF
 set_target_properties(uqm PROPERTIES LINK_FLAGS_DEBUG "${linkFlagsDebug} ${linkFlags}")
 set_target_properties(uqm PROPERTIES LINK_FLAGS_RELEASE "${linkFlags}")
 
-target_link_libraries(uqm ${SDL_LIBRARY})
-target_link_libraries(uqm ${SDLIMAGE_LIBRARY})
-target_link_libraries(uqm ${LIBOGG_LIBRARIES})
-target_link_libraries(uqm ${LIBVORBIS_LIBRARIES})
-target_link_libraries(uqm ${LIBVORBISFILE_LIBRARIES})
+target_link_libraries(uqm SDL2-static)
+target_link_libraries(uqm SDL_image)
+target_link_libraries(uqm ogg)
+target_link_libraries(uqm vorbis)
+target_link_libraries(uqm ogg)
+
+#target_link_libraries(uqm ${SDL_LIBRARY})
+#target_link_libraries(uqm ${SDLIMAGE_LIBRARY})
+#target_link_libraries(uqm ${LIBOGG_LIBRARIES})
+#target_link_libraries(uqm ${LIBVORBIS_LIBRARIES})
+#target_link_libraries(uqm ${LIBVORBISFILE_LIBRARIES})
 target_link_libraries(uqm m)
+target_link_libraries(uqm pthread)

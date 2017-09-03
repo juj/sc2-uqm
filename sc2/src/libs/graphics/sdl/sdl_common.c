@@ -35,6 +35,8 @@
 #include "libs/vidlib.h"
 #include SDL_INCLUDE(SDL_thread.h)
 
+SDL_Window *SDL_MainWindow;
+SDL_Renderer *SDL_MainRenderer;
 SDL_Surface *SDL_Video;
 SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
@@ -58,9 +60,9 @@ void
 TFB_PreInit (void)
 {
 	log_add (log_Info, "Initializing base SDL functionality.");
-	log_add (log_Info, "Using SDL version %d.%d.%d (compiled with "
-			"%d.%d.%d)", SDL_Linked_Version ()->major,
-			SDL_Linked_Version ()->minor, SDL_Linked_Version ()->patch,
+	log_add (log_Info, "Using SDL version %d.%d.%d (compiled with %d.%d.%d)",
+//		SDL_Linked_Version ()->major, SDL_Linked_Version ()->minor, SDL_Linked_Version ()->patch,
+		2,0,0, // TODO: Does there exist an equivalent of SDL_Linked_Version in SDL2?
 			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
 #if 0
 	if (SDL_Linked_Version ()->major != SDL_MAJOR_VERSION ||
@@ -126,7 +128,7 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height)
 	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-	SDL_WM_SetCaption (caption, NULL);
+	SDL_SetWindowTitle(SDL_MainWindow, caption);
 
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		SDL_ShowCursor (SDL_DISABLE);
@@ -163,7 +165,7 @@ TFB_InitGraphics (int driver, int flags, int width, int height)
 	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s", 
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, 
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-	SDL_WM_SetCaption (caption, NULL);
+	SDL_SetWindowTitle(SDL_MainWindow, caption);
 
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		SDL_ShowCursor (SDL_DISABLE);
@@ -204,10 +206,10 @@ TFB_ProcessEvents ()
 		ProcessInputEvent (&Event);
 		/* Handle graphics and exposure events. */
 		switch (Event.type) {
+#if 0 /* Currently disabled in mainline */
 			case SDL_ACTIVEEVENT:    /* Lose/gain visibility or focus */
 				/* Up to three different state changes can occur in one event. */
 				/* Here, disregard least significant change (mouse focus). */
-#if 0 /* Currently disabled in mainline */
 				// This controls the automatic sleep/pause when minimized.
 				// On small displays (e.g. mobile devices), APPINPUTFOCUS would 
 				//  be an appropriate substitution for APPACTIVE:
@@ -219,12 +221,13 @@ TFB_ProcessEvents ()
 			case SDL_QUIT:
 				QuitPosted = 1;
 				break;
-			case SDL_VIDEORESIZE:    /* User resized video mode */
+//			case SDL_VIDEORESIZE:    /* User resized video mode */
 				// TODO
-				break;
-			case SDL_VIDEOEXPOSE:    /* Screen needs to be redrawn */
-				TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
-				break;
+//				break;
+//			case SDL_VIDEOEXPOSE:    /* Screen needs to be redrawn */
+				// TODO: What is the equivalent of SDL_VIDEOEXPOSE in SDL 2?
+//				TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
+//				break;
 			default:
 				break;
 		}
@@ -332,11 +335,17 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 	newsurf = SDL_ConvertSurface (surface, dstfmt, surface->flags);
 	// SDL_SRCCOLORKEY and SDL_SRCALPHA cannot work at the same time,
 	// so we need to disable one of them
-	if ((surface->flags & SDL_SRCCOLORKEY) && newsurf
-			&& (newsurf->flags & SDL_SRCCOLORKEY)
-			&& (newsurf->flags & SDL_SRCALPHA))
-		SDL_SetAlpha (newsurf, 0, 255);
+	Uint32 colorkey;
+	bool oldSurfHasColorKey = SDL_GetColorKey(surface, &colorkey) == 0;
 
+	if (newsurf)
+	{
+		Uint32 colorkey2;
+		int newSurfHasColorKey = SDL_GetColorKey(newsurf, &colorkey2) == 0;
+
+		if (oldSurfHasColorKey && newsurf && newSurfHasColorKey /* && TODO: newsurf->flags & SDL_SRCALPHA */)
+			SDL_SetSurfaceAlphaMod(newsurf, 255);
+	}
 	return newsurf;
 }
 
@@ -362,7 +371,9 @@ TFB_UploadTransitionScreen (void)
 bool
 TFB_SetGamma (float gamma)
 {
-	return (SDL_SetGamma (gamma, gamma, gamma) == 0);
+	// TODO: SDL_SetGamma equivalent in SDL 2?
+	return true;
+//	return (SDL_SetGamma (gamma, gamma, gamma) == 0);
 }
 
 SDL_Surface *

@@ -21,7 +21,6 @@
 
 #include "port.h"
 #include SDL_INCLUDE(SDL.h)
-#include SDL_INCLUDE(SDL_byteorder.h)
 #include SDL_IMAGE_INCLUDE(SDL_image.h)
 
 #include "../gfxintrn.h"
@@ -38,6 +37,8 @@ typedef struct _tfb_graphics_backend {
 
 extern TFB_GRAPHICS_BACKEND *graphics_backend;
 
+extern SDL_Window *SDL_MainWindow;
+extern SDL_Renderer *SDL_MainRenderer;
 extern SDL_Surface *SDL_Video;
 extern SDL_Surface *SDL_Screen;
 extern SDL_Surface *TransitionScreen;

@@ -164,7 +164,8 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 		return -1;
 	}
 
-	SDL_AudioDriverName (devicename, sizeof (devicename));
+	// TODO: SDL_AudioDriverName (devicename, sizeof (devicename)); in SDL 2?
+	strcpy(devicename, "sdl_audio");
 	log_add (log_Info, "    using %s at %d Hz 16 bit %s, "
 			"%d samples audio buffer",
 			devicename, obtained.freq,

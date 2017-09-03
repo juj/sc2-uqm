@@ -39,7 +39,7 @@ typedef enum {
 typedef struct {
 	VCONTROL_GESTURE_TYPE type;
 	union {
-		SDLKey key;
+		SDL_Keycode key;
 		struct { int port, index, polarity; } axis;
 		struct { int port, index; } button;
 		struct { int port, index; Uint8 dir; } hat;
@@ -50,8 +50,8 @@ typedef struct {
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);
 void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);
 
-int  VControl_AddKeyBinding (SDLKey symbol, int *target);
-void VControl_RemoveKeyBinding (SDLKey symbol, int *target);
+int  VControl_AddKeyBinding (SDL_Keycode symbol, int *target);
+void VControl_RemoveKeyBinding (SDL_Keycode symbol, int *target);
 int  VControl_AddJoyAxisBinding (int port, int axis, int polarity, int *target);
 void VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target);
 int  VControl_SetJoyThreshold (int port, int threshold);
@@ -69,8 +69,8 @@ void VControl_BeginFrame (void);
  * fabricating an SDL_Event. 
  */
 void VControl_HandleEvent (const SDL_Event *e);
-void VControl_ProcessKeyDown (SDLKey symbol);
-void VControl_ProcessKeyUp (SDLKey symbol);
+void VControl_ProcessKeyDown (SDL_Keycode symbol);
+void VControl_ProcessKeyUp (SDL_Keycode symbol);
 void VControl_ProcessJoyButtonDown (int port, int button);
 void VControl_ProcessJoyButtonUp (int port, int button);
 void VControl_ProcessJoyAxis (int port, int axis, int value);

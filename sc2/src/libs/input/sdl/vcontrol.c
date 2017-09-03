@@ -184,9 +184,9 @@ static void
 key_init (void)
 {
 	unsigned int i;
-	int num_keys; // Temp to match type of param for SDL_GetKeyState().
+	int num_keys; // Temp to match type of param for SDL_GetKeyboardState().
 	pool = allocate_key_chunk ();
-	(void)SDL_GetKeyState (&num_keys);
+	(void)SDL_GetKeyboardState (&num_keys);
 	num_sdl_keys = num_keys;
 	bindings = (keybinding **) HMalloc (sizeof (keybinding *) * num_sdl_keys);
 	for (i = 0; i < num_sdl_keys; i++)
@@ -393,7 +393,7 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 	{
 	case SDL_KEYDOWN:
 		g->type = VCONTROL_KEY;
-		g->gesture.key = e->key.keysym.sym;
+		g->gesture.key = e->key.keysym.scancode;
 		break;
 	case SDL_JOYAXISMOTION:
 		g->type = VCONTROL_JOYAXIS;
@@ -489,7 +489,7 @@ VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target)
 }
 
 int
-VControl_AddKeyBinding (SDLKey symbol, int *target)
+VControl_AddKeyBinding (SDL_Keycode symbol, int *target)
 {
 	if ((unsigned int) symbol >= num_sdl_keys) {
 		log_add (log_Warning, "VControl: Illegal key index %d", symbol);
@@ -500,7 +500,7 @@ VControl_AddKeyBinding (SDLKey symbol, int *target)
 }
 
 void
-VControl_RemoveKeyBinding (SDLKey symbol, int *target)
+VControl_RemoveKeyBinding (SDL_Keycode symbol, int *target)
 {
 	if ((unsigned int) symbol >= num_sdl_keys) {
 		log_add (log_Warning, "VControl: Illegal key index %d", symbol);
@@ -766,7 +766,7 @@ VControl_RemoveAllBindings (void)
 }
 
 void
-VControl_ProcessKeyDown (SDLKey symbol)
+VControl_ProcessKeyDown (SDL_Keycode symbol)
 {
 	if (symbol >= num_sdl_keys) {
 		log_add (log_Warning, "VControl: Got unknown key index %d", symbol);
@@ -777,7 +777,7 @@ VControl_ProcessKeyDown (SDLKey symbol)
 }
 
 void
-VControl_ProcessKeyUp (SDLKey symbol)
+VControl_ProcessKeyUp (SDL_Keycode symbol)
 {
 	if (symbol >= num_sdl_keys)
 		return;
@@ -944,12 +944,12 @@ VControl_HandleEvent (const SDL_Event *e)
 	switch (e->type)
 	{
 		case SDL_KEYDOWN:
-			VControl_ProcessKeyDown (e->key.keysym.sym);
+			VControl_ProcessKeyDown (e->key.keysym.scancode);
 			last_interesting = *e;
 			event_ready = 1;
 			break;
 		case SDL_KEYUP:
-			VControl_ProcessKeyUp (e->key.keysym.sym);
+			VControl_ProcessKeyUp (e->key.keysym.scancode);
 			break;
 
 #ifdef HAVE_JOYSTICK

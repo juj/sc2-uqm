@@ -113,9 +113,8 @@ AttemptColorDepth (int flags, int width, int height, int bpp)
 		videomode_flags |= SDL_FULLSCREEN;
 	videomode_flags |= SDL_ANYFORMAT;
 
-	SDL_Video = SDL_SetVideoMode (ScreenWidthActual, ScreenHeightActual, 
-		bpp, videomode_flags);
-	if (SDL_Video == NULL)
+	SDL_MainWindow = SDL_CreateWindow("The Ur-Quan Masters", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidthActual, ScreenHeightActual, videomode_flags);
+	if (SDL_MainWindow == NULL)
 	{
 		log_add (log_Error, "Couldn't set OpenGL %ix%ix%i video mode: %s",
 				ScreenWidthActual, ScreenHeightActual, bpp,
@@ -124,11 +123,14 @@ AttemptColorDepth (int flags, int width, int height, int bpp)
 	}
 	else
 	{
+		SDL_MainRenderer = SDL_CreateRenderer(SDL_MainWindow, -1, SDL_RENDERER_SOFTWARE);
+		SDL_Video = SDL_GetWindowSurface(SDL_MainWindow);
+
 		log_add (log_Info, "Set the resolution to: %ix%ix%i"
 				" (surface reports %ix%ix%i)",
 				width, height, bpp,			 
-				SDL_GetVideoSurface()->w, SDL_GetVideoSurface()->h,
-				SDL_GetVideoSurface()->format->BitsPerPixel);
+				SDL_Video->w, SDL_Video->h,
+				SDL_Video->format->BitsPerPixel);
 
 		log_add (log_Info, "OpenGL renderer: %s version: %s",
 				glGetString (GL_RENDERER), glGetString (GL_VERSION));

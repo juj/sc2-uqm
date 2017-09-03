@@ -253,8 +253,9 @@ TFB_InitInput (int driver, int flags)
 	(void)driver;
 	(void)flags;
 
-	SDL_EnableUNICODE(1);
-	(void)SDL_GetKeyState (&num_keys);
+	// TODO: Unicode input?
+//	SDL_EnableUNICODE(1);
+	(void)SDL_GetKeyboardState (&num_keys);
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
 	
 
@@ -343,8 +344,8 @@ is_numpad_char_event (const SDL_Event *Event)
 	return in_character_mode &&
 			(Event->type == SDL_KEYDOWN || Event->type == SDL_KEYUP) &&
 			(Event->key.keysym.mod & KMOD_NUM) &&  /* NumLock is ON */
-			Event->key.keysym.unicode > 0 &&       /* Printable char */
-			Event->key.keysym.sym >= SDLK_KP0 &&   /* Keypad key */
+			Event->type == SDL_TEXTINPUT && Event->text.text[0] > 0 &&       /* Printable char */
+			Event->key.keysym.sym >= SDLK_KP_0 &&   /* Keypad key */
 			Event->key.keysym.sym <= SDLK_KP_PLUS;
 }
 
@@ -358,15 +359,16 @@ ProcessInputEvent (const SDL_Event *Event)
 
 	// In character mode with NumLock on, numpad chars bypass VControl
 	// so that menu arrow events are not produced
-	if (!is_numpad_char_event (Event))
+	if (!is_numpad_char_event (Event) && !Event->key.repeat)
 		VControl_HandleEvent (Event);
 
-	if (Event->type == SDL_KEYDOWN || Event->type == SDL_KEYUP)
+	if (Event->type == SDL_KEYDOWN || Event->type == SDL_TEXTINPUT || Event->type == SDL_KEYUP)
 	{	// process character input event, if any
 		// keysym.sym is an SDLKey type which is an enum and can be signed
 		// or unsigned on different platforms; we'll use a guaranteed type
-		int k = Event->key.keysym.sym;
-		UniChar map_key = Event->key.keysym.unicode;
+		int k = Event->key.keysym.scancode;
+		UniChar map_key = 0;
+		if (Event->type == SDL_TEXTINPUT) map_key = Event->text.text[0];
 
 		if (k < 0 || k > num_keys)
 			k = num_keys; // for unknown keys

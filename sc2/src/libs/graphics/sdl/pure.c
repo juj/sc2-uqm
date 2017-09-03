@@ -128,16 +128,12 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 					"under pure SDL, using 640x480", width, height);
 	}
 
-	videomode_flags |= SDL_ANYFORMAT;
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)
-		videomode_flags |= SDL_FULLSCREEN;
+		videomode_flags |= SDL_WINDOW_FULLSCREEN;
 
-	/* We'll ask for a 32bpp frame, but it doesn't really matter, because we've set
-	   SDL_ANYFORMAT */
-	SDL_Video = SDL_SetVideoMode (ScreenWidthActual, ScreenHeightActual, 
-		32, videomode_flags);
+	SDL_MainWindow = SDL_CreateWindow("The Ur-Quan Masters", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, ScreenWidthActual, ScreenHeightActual, videomode_flags);
 
-	if (SDL_Video == NULL)
+	if (SDL_MainWindow == NULL)
 	{
 		log_add (log_Error, "Couldn't set %ix%i video mode: %s",
 			ScreenWidthActual, ScreenHeightActual,
@@ -146,7 +142,9 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	}
 	else
 	{
-		const SDL_Surface *video = SDL_GetVideoSurface ();
+		SDL_MainRenderer = SDL_CreateRenderer(SDL_MainWindow, -1, SDL_RENDERER_SOFTWARE);
+		SDL_Video = SDL_GetWindowSurface(SDL_MainWindow);
+		const SDL_Surface *video = SDL_Video;
 		const SDL_PixelFormat* fmt = video->format;
 
 		ScreenColorDepth = fmt->BitsPerPixel;
@@ -237,7 +235,7 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
 
 	log_add (log_Info, "Initializing Pure-SDL graphics.");
 
-	SDL_VideoDriverName (VideoName, sizeof (VideoName));
+	strcpy(VideoName, "pure"); // TODO: Is there an equivalent to SDL_VideoDriverName (VideoName, sizeof (VideoName)); in SDL 2?
 	log_add (log_Info, "SDL driver used: %s", VideoName);
 			// Set the environment variable SDL_VIDEODRIVER to override
 			// For Linux: x11 (default), dga, fbcon, directfb, svgalib,
@@ -376,14 +374,13 @@ TFB_Pure_Scaled_Postprocess (void)
 	if (scalebuffer != SDL_Video)
 		SDL_BlitSurface (scalebuffer, &updated, SDL_Video, &updated);
 
-	SDL_UpdateRects (SDL_Video, 1, &updated);
+	SDL_RenderPresent(SDL_MainRenderer);
 }
 
 static void
 TFB_Pure_Unscaled_Postprocess (void)
 {
-	SDL_UpdateRect (SDL_Video, updated.x, updated.y,
-			updated.w, updated.h);
+	SDL_RenderPresent(SDL_MainRenderer);
 }
 
 static void
@@ -391,7 +388,7 @@ TFB_Pure_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	if (SDL_Screens[screen] == backbuffer)
 		return;
-	SDL_SetAlpha (SDL_Screens[screen], SDL_SRCALPHA, a);
+	SDL_SetSurfaceAlphaMod(SDL_Screens[screen], a);
 	SDL_BlitSurface (SDL_Screens[screen], rect, backbuffer, rect);
 }	
 
@@ -404,7 +401,7 @@ TFB_Pure_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 		fade_color = col;
 		SDL_FillRect (fade_color_surface, NULL, fade_color);
 	}
-	SDL_SetAlpha (fade_color_surface, SDL_SRCALPHA, a);
+	SDL_SetSurfaceAlphaMod(fade_color_surface, a);
 	SDL_BlitSurface (fade_color_surface, rect, backbuffer, rect);
 }
 

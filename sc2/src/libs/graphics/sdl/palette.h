@@ -46,7 +46,7 @@ ColorToNative (Color color)
 	native.r = color.r;
 	native.g = color.g;
 	native.b = color.b;
-	native.unused = 0;
+	native.a = 0xFF;
 	return native;
 }
 
