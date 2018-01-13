@@ -19,7 +19,7 @@
  */
 
 #ifndef _DEBUG_H
-#define DEBUG_H
+#define _DEBUG_H
 
 void uio_debugInteractive(FILE *in, FILE *out, FILE *err);
 
