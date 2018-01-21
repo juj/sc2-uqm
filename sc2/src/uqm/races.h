@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _RACES_H
-#define _RACES_H
+#ifndef UQM_RACES_H_
+#define UQM_RACES_H_
 
 #include "types.h"
 #include "libs/compiler.h"
@@ -664,5 +664,5 @@ enum
 		BUILD_COLOR (MAKE_RGB15_INIT (0x06, 0x06, 0x06), 0x20),  /* BLACK_URQUAN_SHIP */ \
 		BUILD_COLOR (MAKE_RGB15_INIT (0x14, 0x07, 0x1F), 0x39),  /* YEHAT_REBEL_SHIP */
 
-#endif /* _RACES_H */
+#endif /* UQM_RACES_H_ */
 

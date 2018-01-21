@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _VIDLIB_H
-#define _VIDLIB_H
+#ifndef LIBS_VIDLIB_H_
+#define LIBS_VIDLIB_H_
 
 #include "libs/compiler.h"
 #include "libs/sndlib.h"
@@ -57,4 +57,4 @@ extern LEGACY_VIDEO_REF PlayLegacyVideo (LEGACY_VIDEO vid);
 extern void StopLegacyVideo (LEGACY_VIDEO_REF ref);
 extern BOOLEAN PlayingLegacyVideo (LEGACY_VIDEO_REF ref);
 
-#endif /* _VIDLIB_H */
+#endif /* LIBS_VIDLIB_H_ */

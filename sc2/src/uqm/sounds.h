@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SOUNDS_H
-#define _SOUNDS_H
+#ifndef UQM_SOUNDS_H_
+#define UQM_SOUNDS_H_
 
 #include "element.h"
 #include "libs/compiler.h"
@@ -74,6 +74,6 @@ extern void UpdateSoundPositions (void);
 extern void FlushSounds (void);
 extern void RemoveSoundsForObject (ELEMENT *PosObj);
 
-#endif /* _SOUNDS_H */
+#endif /* UQM_SOUNDS_H_ */
 
 

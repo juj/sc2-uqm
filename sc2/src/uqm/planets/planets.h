@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _PLANETS_H
-#define _PLANETS_H
+#ifndef UQM_PLANETS_PLANETS_H_
+#define UQM_PLANETS_PLANETS_H_
 
 #define END_INTERPLANETARY START_INTERPLANETARY
 
@@ -286,5 +286,5 @@ extern void GetPlanetOrMoonName (UNICODE *buf, COUNT bufsize);
 extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
 
-#endif /* _PLANETS_H */
+#endif /* UQM_PLANETS_PLANETS_H_ */
 

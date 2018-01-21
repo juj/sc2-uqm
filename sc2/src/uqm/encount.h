@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _ENCOUNT_H
-#define _ENCOUNT_H
+#ifndef UQM_ENCOUNT_H_
+#define UQM_ENCOUNT_H_
 
 typedef struct brief_ship_info BRIEF_SHIP_INFO;
 typedef struct encounter ENCOUNTER;
@@ -190,5 +190,5 @@ extern void GenerateIlwrath (BYTE control);
 extern SIZE EncounterRace;
 extern BYTE EncounterGroup;
 
-#endif /* _ENCOUNT_H */
+#endif /* UQM_ENCOUNT_H_ */
 

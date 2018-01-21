@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _RESLIB_H
-#define _RESLIB_H
+#ifndef LIBS_RESLIB_H_
+#define LIBS_RESLIB_H_
 
 //#include <stdio.h>
 #include "libs/compiler.h"
@@ -120,4 +120,4 @@ void res_PutColor (const char *key, Color value);
 
 BOOLEAN res_Remove (const char *key);
 
-#endif /* _RESLIB_H */
+#endif /* LIBS_RESLIB_H_ */

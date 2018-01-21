@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _RESET_H
-#define _RESET_H
+#ifndef UQM_SUPERMELEE_NETPLAY_PROTO_RESET_H_
+#define UQM_SUPERMELEE_NETPLAY_PROTO_RESET_H_
 
 #include "../netconnection.h"
 #include "../packet.h"
@@ -30,5 +30,5 @@ bool Netplay_isLocalReset(const NetConnection *conn);
 bool Netplay_isRemoteReset(const NetConnection *conn);
 
 
-#endif  /* _RESET_H */
+#endif  /* UQM_SUPERMELEE_NETPLAY_PROTO_RESET_H_ */
 

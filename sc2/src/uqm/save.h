@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SAVE_H
-#define _SAVE_H
+#ifndef UQM_SAVE_H_
+#define UQM_SAVE_H_
 
 #include "sis.h"
 		// for SUMMARY_DESC
@@ -24,5 +24,5 @@
 extern void SaveProblem (void);
 extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc);
 
-#endif  /* _SAVE_H */
+#endif  /* UQM_SAVE_H_ */
 

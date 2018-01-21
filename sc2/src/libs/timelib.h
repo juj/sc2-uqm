@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _TIMLIB_H
-#define _TIMLIB_H
+#ifndef LIBS_TIMELIB_H_
+#define LIBS_TIMELIB_H_
 
 #define TIMELIB SDL
 
@@ -38,5 +38,5 @@ extern void InitTimeSystem (void);
 extern void UnInitTimeSystem (void);
 extern TimeCount GetTimeCounter (void);
 
-#endif  /* _TIMLIB_H */
+#endif  /* LIBS_TIMELIB_H_ */
 

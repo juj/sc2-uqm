@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _TACTRANS_H
-#define _TACTRANS_H
+#ifndef UQM_TACTRANS_H_
+#define UQM_TACTRANS_H_
 
 #include "libs/compiler.h"
 #include "races.h"
@@ -40,6 +40,6 @@ extern void flee_preprocess (ELEMENT *ElementPtr);
 extern void StopDitty (void);
 extern void ResetWinnerStarShip (void);
 
-#endif  /* _TACTRANS_H */
+#endif  /* UQM_TACTRANS_H_ */
 
 

@@ -19,8 +19,8 @@
  * Compiled from various sources
  */
 
-#ifndef _TYPES_H
-#define _TYPES_H
+#ifndef TYPES_H_
+#define TYPES_H_
 
 #include "config.h"
 
@@ -177,4 +177,4 @@ UQM_COMPILE_TIME_ASSERT(uint64, sizeof(uint64) == 8);
 #define UINT16_MAX 0xffff /* 65535U */
 #define UINT32_MAX 0xffffffff /* 4294967295U */
 
-#endif /* _TYPES_H */
+#endif /* TYPES_H_ */

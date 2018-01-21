@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _INIT_H
-#define _INIT_H
+#ifndef UQM_INIT_H_
+#define UQM_INIT_H_
 
 #include "libs/gfxlib.h"
 #include "libs/reslib.h"
@@ -35,5 +35,5 @@ extern BOOLEAN load_animation (FRAME *pixarray, RESOURCE big_res,
 		RESOURCE med_res, RESOURCE sml_res);
 extern BOOLEAN free_image (FRAME *pixarray);
 
-#endif  /* _INIT_H */
+#endif  /* UQM_INIT_H_ */
 

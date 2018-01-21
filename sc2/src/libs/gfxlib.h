@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _GFXLIB_H
-#define _GFXLIB_H
+#ifndef LIBS_GFXLIB_H_
+#define LIBS_GFXLIB_H_
 
 #include "port.h"
 #include "libs/compiler.h"
@@ -454,4 +454,4 @@ extern COLORMAPPTR GetColorMapAddress (COLORMAP);
 void SetSystemRect (const RECT *pRect);
 void ClearSystemRect (void);
 
-#endif /* _GFXLIB_H */
+#endif /* LIBS_GFXLIB_H_ */

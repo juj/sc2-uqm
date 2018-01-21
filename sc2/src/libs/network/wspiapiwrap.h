@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _WSPIAPIWRAP_H
-#define _WSPIAPIWRAP_H
+#ifndef LIBS_NETWORK_WSPIAPIWRAP_H_
+#define LIBS_NETWORK_WSPIAPIWRAP_H_
 
 // HACK. See wspiapiwrap.c
 #	define getaddrinfo WspiapiGetAddrInfo
@@ -29,5 +29,5 @@ int WINAPI WspiapiGetAddrInfo(const char *nodename, const char *servname,
 int WINAPI WspiapiGetNameInfo (const struct sockaddr *sa, socklen_t salen,
 		char *host, size_t hostlen, char *serv, size_t servlen, int flags);
 
-#endif  /* _WSPIAPIWRAP_H */
+#endif  /* LIBS_NETWORK_WSPIAPIWRAP_H_ */
 

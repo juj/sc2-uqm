@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SETUPMENU_H
-#define _SETUPMENU_H
+#ifndef UQM_SETUPMENU_H_
+#define UQM_SETUPMENU_H_
 
 #include "controls.h"
 
@@ -85,4 +85,4 @@ void SetupMenu (void);
 void GetGlobalOptions (GLOBALOPTS *opts);
 void SetGlobalOptions (GLOBALOPTS *opts);
 
-#endif // _SETUPMENU_H
+#endif // UQM_SETUPMENU_H_

@@ -17,8 +17,8 @@
 /* By Serge van den Boom, 2002-09-12
  */
 
-#ifndef _THREADLIB_H
-#define _THREADLIB_H
+#ifndef LIBS_THREADLIB_H_
+#define LIBS_THREADLIB_H_
 
 #define NAMED_SYNCHRO           /* Should synchronizable objects have names? */
 #define TRACK_CONTENTION       /* Should we report when a thread sleeps on synchronize? */
@@ -173,5 +173,5 @@ void WaitCondVar (CondVar);
 void SignalCondVar (CondVar);
 void BroadcastCondVar (CondVar);
 
-#endif  /* _THREADLIB_H */
+#endif  /* LIBS_THREADLIB_H_ */
 

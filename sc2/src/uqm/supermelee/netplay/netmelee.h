@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#if !defined(_NETMELEE_H) && defined(NETPLAY)
-#define _NETMELEE_H
+#if !defined(UQM_SUPERMELEE_NETPLAY_NETMELEE_H_) && defined(NETPLAY)
+#define UQM_SUPERMELEE_NETPLAY_NETMELEE_H_
 
 #include "netplay.h"
 #include "netinput.h"
@@ -80,6 +80,6 @@ bool waitReady(NetConnection *conn);
 bool waitReset(NetConnection *conn, NetState nextState);
 bool waitResetConnections(NetState nextState);
 
-#endif  /* _NETMELEE_H */
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETMELEE_H_ */
 
 

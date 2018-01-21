@@ -14,8 +14,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _OSCILL_H
-#define _OSCILL_H
+#ifndef UQM_OSCILL_H_
+#define UQM_OSCILL_H_
 
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
@@ -32,5 +32,5 @@ extern void InitSlider (int x, int y, int width, FRAME sliderFrame,
 extern void SetSliderImage (FRAME f);
 void DrawSlider (void);
 
-#endif  /* _OSCILL_H */
+#endif  /* UQM_OSCILL_H_ */
 

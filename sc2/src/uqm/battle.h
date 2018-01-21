@@ -13,8 +13,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _BATTLE_H
-#define _BATTLE_H
+#ifndef UQM_BATTLE_H_
+#define UQM_BATTLE_H_
 
 #include "options.h"
 #include "libs/compiler.h"
@@ -56,4 +56,4 @@ BOOLEAN Battle (BattleFrameCallback *);
 extern void BattleSong (BOOLEAN DoPlay);
 extern void FreeBattleSong (void);
 
-#endif  /* _BATTLE_H */
+#endif  /* UQM_BATTLE_H_ */

@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _NET_H
-#define _NET_H
+#ifndef LIBS_NET_H_
+#define LIBS_NET_H_
 
 #include "network/network.h"
 #include "network/netmanager/netmanager.h"
@@ -25,5 +25,5 @@
 #include "network/connect/listen.h"
 #include "network/connect/resolve.h"
 
-#endif  /* _NET_H */
+#endif  /* LIBS_NET_H_ */
 

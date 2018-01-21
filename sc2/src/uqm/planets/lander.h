@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _LANDER_H
-#define _LANDER_H
+#ifndef UQM_PLANETS_LANDER_H_
+#define UQM_PLANETS_LANDER_H_
 
 #include "elemdata.h"
 #include "libs/compiler.h"
@@ -76,5 +76,5 @@ enum
 	PS_NON_PLAYER,
 };
 
-#endif /* _LANDER_H */
+#endif /* UQM_PLANETS_LANDER_H_ */
 

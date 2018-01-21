@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SHIPCONT_H
-#define _SHIPCONT_H
+#ifndef UQM_SHIPCONT_H_
+#define UQM_SHIPCONT_H_
 
 #include "menustat.h"
 
@@ -33,5 +33,5 @@ extern void ShowRemainingCapacity (void);
 
 extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
 
-#endif /* _SHIPCONT_H */
+#endif /* UQM_SHIPCONT_H_ */
 

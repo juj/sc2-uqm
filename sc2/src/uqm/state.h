@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _STATE_H
-#define _STATE_H
+#ifndef UQM_STATE_H_
+#define UQM_STATE_H_
 
 #include "port.h"
 #include "libs/compiler.h"
@@ -155,5 +155,5 @@ swrite_a32 (void *fp, const DWORD *ar, COUNT count)
 	return 1;
 }
 
-#endif /* _STATE_H */
+#endif /* UQM_STATE_H_ */
 
