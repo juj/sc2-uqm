@@ -20,6 +20,7 @@
 #include "scalers.h"
 #include "libs/log.h"
 
+static SDL_Surface *SDL_Video = NULL;
 static SDL_Surface *fade_color_surface = NULL;
 static SDL_Surface *fade_temp = NULL;
 static SDL_Surface *scaled_display = NULL;
@@ -32,18 +33,21 @@ static void TFB_Pure_Scaled_Preprocess (int force_full_redraw, int transition_am
 static void TFB_Pure_Scaled_Postprocess (void);
 static void TFB_Pure_Unscaled_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
 static void TFB_Pure_Unscaled_Postprocess (void);
+static void TFB_Pure_UploadTransitionScreen (void);
 static void TFB_Pure_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_Pure_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
 
 static TFB_GRAPHICS_BACKEND pure_scaled_backend = {
 	TFB_Pure_Scaled_Preprocess,
 	TFB_Pure_Scaled_Postprocess,
+	TFB_Pure_UploadTransitionScreen,
 	TFB_Pure_ScreenLayer,
 	TFB_Pure_ColorLayer };
 
 static TFB_GRAPHICS_BACKEND pure_unscaled_backend = {
 	TFB_Pure_Unscaled_Preprocess,
 	TFB_Pure_Unscaled_Postprocess,
+	TFB_Pure_UploadTransitionScreen,
 	TFB_Pure_ScreenLayer,
 	TFB_Pure_ColorLayer };
 
@@ -400,6 +404,12 @@ TFB_Pure_Unscaled_Postprocess (void)
 {
 	SDL_UpdateRect (SDL_Video, updated.x, updated.y,
 			updated.w, updated.h);
+}
+
+static void
+TFB_Pure_UploadTransitionScreen (void)
+{
+	/* This is a no-op in SDL1 Pure mode */
 }
 
 static void

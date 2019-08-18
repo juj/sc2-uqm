@@ -23,7 +23,6 @@
 
 int TFB_GL_InitGraphics (int driver, int flags, int width, int height);
 int TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglefullscreen);
-void TFB_GL_UploadTransitionScreen (void);
 
 #ifdef HAVE_OPENGL
 #ifdef WIN32

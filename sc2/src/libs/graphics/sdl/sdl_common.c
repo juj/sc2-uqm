@@ -35,7 +35,6 @@
 #include "libs/vidlib.h"
 #include SDL_INCLUDE(SDL_thread.h)
 
-SDL_Surface *SDL_Video;
 SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
 
@@ -584,12 +583,7 @@ TFB_BlitSurface (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
 void
 TFB_UploadTransitionScreen (void)
 {
-#ifdef HAVE_OPENGL
-	if (GraphicsDriver == TFB_GFXDRIVER_SDL_OPENGL)
-	{
-		TFB_GL_UploadTransitionScreen ();
-	}
-#endif
+	graphics_backend->uploadTransitionScreen ();
 }
 
 void
