@@ -20,6 +20,8 @@
 #include "scalers.h"
 #include "libs/log.h"
 
+#if SDL_MAJOR_VERSION == 1
+
 static SDL_Surface *SDL_Video = NULL;
 static SDL_Surface *fade_color_surface = NULL;
 static SDL_Surface *fade_temp = NULL;
@@ -483,3 +485,4 @@ Scale_PerfTest (void)
 	SDL_UnlockSurface (SDL_Screen);
 }
 
+#endif

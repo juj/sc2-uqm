@@ -24,6 +24,8 @@
 #include "options.h"
 #include "libs/log.h"
 
+#if SDL_MAJOR_VERSION == 1
+
 typedef struct _gl_screeninfo {
 	SDL_Surface *scaled;
 	GLuint texture;
@@ -583,4 +585,5 @@ TFB_GL_Postprocess (void)
 	SDL_GL_SwapBuffers ();
 }	
 
+#endif
 #endif
