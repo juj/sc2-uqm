@@ -45,5 +45,11 @@ extern SDL_Surface *SDL_Screens[TFB_GFX_NUMSCREENS];
 extern SDL_Surface *format_conv_surf;
 
 SDL_Surface* TFB_DisplayFormatAlpha (SDL_Surface *surface);
+int TFB_GetSurfaceAlphaMod (SDL_Surface *surface, Uint8 *alpha);
+int TFB_SetSurfaceAlphaMod (SDL_Surface *surface, Uint8 alpha);
+int TFB_DisableSurfaceAlphaMod (SDL_Surface *surface);
+int TFB_GetColorKey (SDL_Surface *surface, Uint32 *key);
+int TFB_SetColorKey (SDL_Surface *surface, Uint32 key);
+int TFB_DisableColorKey (SDL_Surface *surface);
 
 #endif
