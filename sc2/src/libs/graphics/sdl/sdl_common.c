@@ -243,3 +243,10 @@ TFB_UploadTransitionScreen (void)
 {
 	graphics_backend->uploadTransitionScreen ();
 }
+
+int
+TFB_HasColorKey (SDL_Surface *surface)
+{
+	Uint32 key;
+	return TFB_GetColorKey (surface, &key) != 0;
+}
