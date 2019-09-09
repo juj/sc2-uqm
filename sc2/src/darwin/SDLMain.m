@@ -10,6 +10,9 @@
 
 #import "port.h"
 #import SDL_INCLUDE(SDL.h)
+
+#if SDL_MAJOR_VERSION == 1
+
 #import "SDLMain.h"
 #import <sys/param.h>
 		/* for PATH_MAX */
@@ -282,4 +285,4 @@ main (int argc, char **argv)
 	return 0;
 }
 
-
+#endif
