@@ -66,12 +66,6 @@ static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#ifdef HAVE_OPENGL
-#define RES_OPTS 4
-#else
-#define RES_OPTS 2
-#endif
-
 #define MENU_COUNT          8
 #define CHOICE_COUNT       22
 #define SLIDER_COUNT        3
@@ -189,6 +183,19 @@ static WIDGET *incomplete_widgets[] = {
 static WIDGET **menu_widgets[MENU_COUNT] = {
 	main_widgets, graphics_widgets, audio_widgets, engine_widgets, 
 	incomplete_widgets, keyconfig_widgets, advanced_widgets, editkeys_widgets };
+
+static int
+number_res_options (void)
+{
+	if (TFB_SupportsHardwareScaling ())
+	{
+		return 4;
+	}
+	else
+	{
+		return 2;
+	}
+}
 
 static int
 quit_main_menu (WIDGET *self, int event)
@@ -359,11 +366,11 @@ SetDefaults (void)
 	GetGlobalOptions (&opts);
 	if (opts.res == OPTVAL_CUSTOM)
 	{
-		choices[0].numopts = RES_OPTS + 1;
+		choices[0].numopts = number_res_options () + 1;
 	}
 	else
 	{
-		choices[0].numopts = RES_OPTS;
+		choices[0].numopts = number_res_options ();
 	}
 	choices[0].selected = opts.res;
 	choices[1].selected = opts.driver;
@@ -728,7 +735,7 @@ init_widgets (void)
 	}
 
 	/* The first choice is resolution, and is handled specially */
-	choices[0].numopts = RES_OPTS;
+	choices[0].numopts = number_res_options ();
 
 	/* Choices 18-20 are also special, being the names of the key configurations */
 	for (i = 0; i < 6; i++)
