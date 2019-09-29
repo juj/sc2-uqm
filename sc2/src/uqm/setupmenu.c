@@ -189,7 +189,7 @@ number_res_options (void)
 {
 	if (TFB_SupportsHardwareScaling ())
 	{
-		return 4;
+		return 5;
 	}
 	else
 	{
@@ -1185,6 +1185,16 @@ GetGlobalOptions (GLOBALOPTS *opts)
 			opts->res = OPTVAL_1024_768;
 		}		
 		break;
+	case 1280:
+		if (ScreenHeightActual != 960)
+		{
+			opts->res = OPTVAL_CUSTOM;
+		}
+		else
+		{
+			opts->res = OPTVAL_1280_960;
+		}
+		break;
 	default:
 		opts->res = OPTVAL_CUSTOM;
 		break;
@@ -1248,6 +1258,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	case OPTVAL_1024_768:
 		NewWidth = 1024;
 		NewHeight = 768;
+		NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+		break;
+	case OPTVAL_1280_960:
+		NewWidth = 1280;
+		NewHeight = 960;
 		NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 		break;
 	default:
