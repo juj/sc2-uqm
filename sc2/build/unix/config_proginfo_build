@@ -143,7 +143,6 @@ case "$HOST_SYSTEM" in
 		BUILDTOOL_LINK_DEPEND='gcce'
 		;;
 	*)
-		EXTRA_PLATFORM_GCC_FLAGS_LINK='-lm'
 		useGccBuildTools
 		;;
 esac
