@@ -16,6 +16,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#define PORT_WANT_ERRNO
+#include "port.h"
 #include "netmelee.h"
 #include "libs/alarm.h"
 #include "libs/callback.h"
@@ -197,7 +199,7 @@ flushPacketQueues(void) {
 			continue;
 
 		flushStatus = flushPacketQueue(conn);
-		if (flushStatus == -1 && errno != EAGAIN)
+		if (flushStatus == -1 && errno != EAGAIN && errno != EWOULDBLOCK)
 			closePlayerNetworkConnection(player);
 	}
 }
