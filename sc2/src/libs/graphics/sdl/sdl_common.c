@@ -529,5 +529,5 @@ int
 TFB_HasColorKey (SDL_Surface *surface)
 {
 	Uint32 key;
-	return TFB_GetColorKey (surface, &key) != 0;
+	return TFB_GetColorKey (surface, &key) == 0;
 }
