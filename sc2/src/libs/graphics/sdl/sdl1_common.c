@@ -36,6 +36,8 @@
 
 #if SDL_MAJOR_VERSION == 1
 
+static void TFB_PreQuit (void);
+
 void
 TFB_PreInit (void)
 {
@@ -60,6 +62,12 @@ TFB_PreInit (void)
 		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
 		exit (EXIT_FAILURE);
 	}
+}
+
+static void
+TFB_PreQuit (void)
+{
+	SDL_Quit ();
 }
 
 int
@@ -229,9 +237,7 @@ Create_Screen (SDL_Surface *templat, int w, int h)
 int
 SDL1_ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
 {
-	if (*screen) {
-		SDL_FreeSurface (*screen);
-	}
+	UnInit_Screen (screen);
 	*screen = Create_Screen (templat, w, h);
 
 	return *screen == 0 ? -1 : 0;

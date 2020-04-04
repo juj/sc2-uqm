@@ -36,6 +36,8 @@
 
 #if SDL_MAJOR_VERSION > 1
 
+static void TFB_PreQuit (void);
+
 void
 TFB_PreInit (void)
 {
@@ -62,6 +64,14 @@ TFB_PreInit (void)
 		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
 		exit (EXIT_FAILURE);
 	}
+
+	atexit (TFB_PreQuit);
+}
+
+static void
+TFB_PreQuit (void)
+{
+	SDL_Quit ();
 }
 
 int
@@ -90,7 +100,7 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height)
 	return result;
 }
 
-void
+bool
 TFB_SetGamma (float gamma)
 {
 	log_add (log_Warning, "Custom gamma correction is not available in the SDL2 engine.");
