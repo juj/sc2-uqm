@@ -195,6 +195,7 @@ static void
 key_init (void)
 {
 	unsigned int i;
+	int num_keys; // Temp to match type of param for SDL_GetKeyState().
 	pool = allocate_key_chunk ();
 	for (i = 0; i < KEYBOARD_INPUT_BUCKETS; i++)
 		bindings[i] = NULL;
@@ -1265,7 +1266,7 @@ VControl_ParseGesture (VCONTROL_GESTURE *g, const char *spec)
 	parse_state ps;
 
 	strncpy (ps.line, spec, LINE_SIZE);
-	ps.line[LINE_SIZE] = '\0';
+	ps.line[LINE_SIZE - 1] = '\0';
 	ps.index = ps.error = 0;
 	ps.linenum = -1;
 

@@ -26,5 +26,10 @@
 #	define strcasecmp stricmp
 #endif
 
+#ifdef _MSC_VER
+// Defined in port.c
+int snprintf(char *str, size_t size, const char *format, ...);
+#endif /* _MSC_VER */
+
 #endif /* _PORT_H */
 

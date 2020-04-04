@@ -1,6 +1,6 @@
 THE UR-QUAN MASTERS v0.7 -- homepage: http://sc2.sf.net/
 
-Welcome to the sixth release of the Ur-Quan Masters port.  This
+Welcome to this beta release of the Ur-Quan Masters port.  This
 document will tell you everything you need to play, even if you've
 never played the original.
 
@@ -791,7 +791,7 @@ inside the directory content/addons/<addon> will be included
 in the game. '--addon' may be specified more than once to enable multiple
 add-ons.
 
-Formerly standard packages, 3domusic and 3dovoice are now standard add-ons,
+Unlike previous releases, 3domusic and 3dovoice are now standard add-ons,
 and can be turned on and off from the in-game setup menu.
 The Precursors UQM Remix project is intended to be used as an add-on.
 If you install UQM 0.7 from the Windows installer, the remix packs

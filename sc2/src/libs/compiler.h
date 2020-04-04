@@ -21,6 +21,10 @@
 
 #include "types.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef uint8             BYTE;
 typedef uint8             UBYTE;
 typedef sint8             SBYTE;
@@ -85,5 +89,8 @@ typedef DWORD    (*PDWORDFUNC) (void);
 #	define _ALIGNED_ON(bytes)
 #endif
 
-#endif /* LIBS_COMPILER_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* LIBS_COMPILER_H_ */

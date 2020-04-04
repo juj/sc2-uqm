@@ -22,6 +22,10 @@
 #include "libs/tasklib.h"
 #include "displist.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 
 #define START_YEAR 2155
 
@@ -100,5 +104,8 @@ extern void UnlockGameClock (void);
 // but not much else
 extern BOOLEAN GameClockRunning (void);
 
-#endif /* UQM_CLOCK_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_CLOCK_H_ */

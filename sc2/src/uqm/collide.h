@@ -21,6 +21,10 @@
 
 #include "element.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define COLLISION_TURN_WAIT 1
 #define COLLISION_THRUST_WAIT 3
 
@@ -59,5 +63,8 @@
 
 extern void collide (ELEMENT *ElementPtr0, ELEMENT *ElementPtr1);
 
-#endif /* UQM_COLLIDE_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_COLLIDE_H_ */

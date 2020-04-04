@@ -28,6 +28,10 @@ typedef struct BattleStateData BattleStateData;
 #include "../../battle.h"
 		// for BattleFrameCounter, BATTLE_FRAME_RATE
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 struct BattleStateData {
 	NETCONNECTION_STATE_DATA_COMMON
 
@@ -66,6 +70,8 @@ readyFlagsMeaningful(NetState state) {
 }
 
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif  /* UQM_SUPERMELEE_NETPLAY_NETMISC_H_ */
-
-

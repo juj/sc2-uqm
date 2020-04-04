@@ -61,13 +61,18 @@ MUSIC REMIXERS
 #(Music remixers)
 13 C
 Jouni Airaksinen
+András Barják
+Matt Bentley
 Tore Aune Fjellstad
 Espen Gätzschmann
 Aaron J. Grier
+A. Keren
+Casey Monroe
 Dan Nicholson
 George Nowik
 Riku Nuottajärvi
 Erol Otus
+Greg Szymanski
  
 #(Other contrib caption)
 13 C

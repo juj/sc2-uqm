@@ -19,7 +19,14 @@
 
 #include "libs/compiler.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 extern void Credits (BOOLEAN WithOuttakes);
 
-#endif  /* UQM_CREDITS_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_CREDITS_H_ */

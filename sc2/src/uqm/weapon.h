@@ -22,6 +22,10 @@
 #include "element.h"
 #include "libs/gfxlib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct
 {
 	COORD cx, cy, ex, ey;
@@ -57,5 +61,8 @@ extern void Untarget (ELEMENT *ElementPtr);
 extern FRAME ModifySilhouette (ELEMENT *ElementPtr, STAMP *modify_stamp,
 		BYTE modify_flags);
 
-#endif /* UQM_WEAPON_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_WEAPON_H_ */

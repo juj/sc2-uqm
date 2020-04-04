@@ -20,6 +20,10 @@
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 extern void DrawStarConBox (RECT *pRect, SIZE BorderWidth,
 		Color TopLeftColor, Color BottomRightColor, BOOLEAN FillInterior,
 		Color InteriorColor);
@@ -28,5 +32,8 @@ extern DWORD SeedRandomNumbers (void);
 // saveRect can be NULL to save the entire context frame
 extern STAMP SaveContextFrame (const RECT *saveRect);
 
-#endif  /* UQM_UTIL_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_UTIL_H_ */

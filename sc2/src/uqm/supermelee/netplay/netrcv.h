@@ -21,7 +21,14 @@
 
 #include "libs/net.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 void dataReadyCallback(NetDescriptor *nd);
 
-#endif  /* UQM_SUPERMELEE_NETPLAY_NETRCV_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETRCV_H_ */

@@ -20,6 +20,10 @@
 #include "races.h"
 #include "libs/compiler.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef HLINK HMASTERSHIP;
 
 typedef struct
@@ -58,5 +62,8 @@ COUNT GetShipCostFromIndex (unsigned Index);
 FRAME GetShipIconsFromIndex (unsigned Index);
 FRAME GetShipMeleeIconsFromIndex (unsigned Index);
 
-#endif  /* UQM_MASTER_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_MASTER_H_ */

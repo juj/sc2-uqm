@@ -21,6 +21,9 @@
 
 #include "libs/compiler.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /*------------------------------ Type Defines ----------------------------- */
 enum
@@ -205,5 +208,8 @@ enum
 
 extern const BYTE *Elements;
 
-#endif /* UQM_PLANETS_ELEMDATA_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_PLANETS_ELEMDATA_H_ */

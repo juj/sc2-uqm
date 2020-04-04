@@ -19,6 +19,10 @@
 #ifndef UQM_DEMO_H_
 #define UQM_DEMO_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #ifndef DEMO_MODE
 #define DEMO_MODE 0
 #endif /* DEMO_MODE */
@@ -44,5 +48,8 @@ extern void JournalInput (INPUT_STATE InputState);
 
 #endif
 
-#endif /* UQM_DEMO_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_DEMO_H_ */

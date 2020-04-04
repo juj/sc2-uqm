@@ -19,8 +19,15 @@
 
 #include "libs/compiler.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 
 extern BOOLEAN StartGame (void);
 
-#endif  /* UQM_RESTART_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_RESTART_H_ */

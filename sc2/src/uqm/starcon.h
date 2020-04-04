@@ -17,6 +17,10 @@
 #ifndef UQM_STARCON_H_
 #define UQM_STARCON_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 extern volatile int MainExited;
 extern void SignalStopMainThread (void);
 extern void ProcessUtilityKeys (void);
@@ -24,5 +28,8 @@ extern void ProcessUtilityKeys (void);
 extern int Starcon2Main (void *threadArg);
 extern void FreeGameData (void);
 
-#endif  /* UQM_STARCON_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_STARCON_H_ */

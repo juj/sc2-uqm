@@ -24,6 +24,10 @@
 #include "element.h"
 #include "races.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define MANEUVERABILITY(pi) ((pi)->ManeuverabilityIndex)
 #define WEAPON_RANGE(pi) ((pi)->WeaponRange)
 
@@ -74,6 +78,8 @@ extern BOOLEAN ThrustShip (ELEMENT *ShipPtr, COUNT angle);
 #define AWESOME_RATING (BYTE)(1 << 6)
 
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif /* UQM_INTEL_H_ */
-
-

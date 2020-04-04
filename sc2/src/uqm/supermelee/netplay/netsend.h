@@ -21,8 +21,15 @@
 
 #include "packet.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 int sendPacket(NetConnection *conn, Packet *packet);
 
 
-#endif  /* UQM_SUPERMELEE_NETPLAY_NETSEND_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETSEND_H_ */

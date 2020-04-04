@@ -36,6 +36,10 @@ typedef char *STRINGPTR;
 /* This has to go here because reslib requires the above typedefs. */
 #include "libs/reslib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 extern BOOLEAN InstallStringTableResType (void);
 extern STRING_TABLE LoadStringTableInstance (RESOURCE res);
 extern STRING_TABLE LoadStringTableFile (uio_DirHandle *dir,
@@ -53,8 +57,10 @@ extern STRING SetRelStringTableIndex (STRING String, SIZE
 extern COUNT GetStringLength (STRING String);
 extern COUNT GetStringLengthBin (STRING String);
 extern STRINGPTR GetStringAddress (STRING String);
+extern STRINGPTR GetStringName (STRING String);
 extern STRINGPTR GetStringSoundClip (STRING String);
 extern STRINGPTR GetStringTimeStamp (STRING String);
+extern STRING GetStringByName (STRING_TABLE StringTable, const char *index);
 
 #define UNICHAR_DEGREE_SIGN   0x00b0
 #define STR_DEGREE_SIGN     "\xC2\xB0"
@@ -67,5 +73,8 @@ extern STRINGPTR GetStringTimeStamp (STRING String);
 #define UNICHAR_BULLET        0x2022
 #define STR_BULLET          "\xE2\x80\xA2"
 
-#endif /* LIBS_STRLIB_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* LIBS_STRLIB_H_ */

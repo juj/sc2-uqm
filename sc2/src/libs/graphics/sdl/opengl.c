@@ -74,30 +74,6 @@ static TFB_GRAPHICS_BACKEND opengl_unscaled_backend = {
 	TFB_GL_ColorLayer };
 
 
-static SDL_Surface *
-Create_Screen (SDL_Surface *template, int w, int h)
-{
-	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
-			template->format->BitsPerPixel,
-			template->format->Rmask, template->format->Gmask,
-			template->format->Bmask, 0);
-	if (newsurf == 0) {
-		log_add (log_Error, "Couldn't create screen buffers: %s",
-				SDL_GetError());
-	}
-	return newsurf;
-}
-
-static int
-ReInit_Screen (SDL_Surface **screen, SDL_Surface *template, int w, int h)
-{
-	if (*screen)
-		SDL_FreeSurface (*screen);
-	*screen = Create_Screen (template, w, h);
-	
-	return *screen == 0 ? -1 : 0;
-}
-
 static int
 AttemptColorDepth (int flags, int width, int height, int bpp)
 {

@@ -98,6 +98,8 @@ static const audio_Driver mixSDL_Driver =
 };
 
 
+static void audioCallback (void *userdata, Uint8 *stream, int len);
+
 /*
  * Initialization
  */
@@ -150,7 +152,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 
 	desired.format = AUDIO_S16SYS;
 	desired.channels = 2;
-	desired.callback = mixer_MixChannels;
+	desired.callback = audioCallback;
 	
 	log_add (log_Info, "Opening SDL audio device.");
 #if SDL_MAJOR_VERSION > 1
@@ -278,6 +280,7 @@ mixSDL_Uninit (void)
 			HFree (sbuffer);
 		}
 		DestroyMutex (soundSource[i].stream_mutex);
+		soundSource[i].stream_mutex = 0;
 
 		mixSDL_DeleteSources (1, &soundSource[i].handle);
 	}
@@ -288,6 +291,11 @@ mixSDL_Uninit (void)
 	SDL_QuitSubSystem (SDL_INIT_AUDIO);
 }
 
+static void
+audioCallback (void *userdata, Uint8 *stream, int len)
+{
+	mixer_MixChannels (userdata, stream, len);
+}
 
 /*
  * General

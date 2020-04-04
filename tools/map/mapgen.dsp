@@ -25,7 +25,7 @@ CFG=mapgen - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=xicl6.exe
+CPP=cl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "mapgen - Win32 Release"
@@ -42,13 +42,13 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\src\getopt" /I "." /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PNG_USE_DLL" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\sc2\src\getopt" /I "." /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PNG_USE_DLL" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 kernel32.lib user32.lib advapi32.lib shell32.lib libpng.lib SDLmain.lib SDL.lib SDL_image.lib SDL_ttf.lib /nologo /subsystem:console /machine:I386
 
@@ -66,13 +66,13 @@ LINK32=xilink6.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\..\src\getopt" /I "." /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PNG_USE_DLL" /YX /FD /GZ /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\..\sc2\src\getopt" /I "." /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "PNG_USE_DLL" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib advapi32.lib shell32.lib libpng.lib SDLmain.lib SDL.lib SDL_image.lib SDL_ttf.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 
@@ -99,11 +99,11 @@ SOURCE=.\config.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\getopt\getopt.c
+SOURCE=..\..\sc2\src\getopt\getopt.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\getopt\getopt.h
+SOURCE=..\..\sc2\src\getopt\getopt.h
 # End Source File
 # Begin Source File
 
@@ -140,6 +140,10 @@ SOURCE=.\SDL_gfxPrimitives.h
 # Begin Source File
 
 SOURCE=.\sdlpngdrv.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\sdlsvgdrv.c
 # End Source File
 # Begin Source File
 

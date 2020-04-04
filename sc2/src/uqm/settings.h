@@ -19,6 +19,10 @@
 
 #include "libs/sndlib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 extern void ToggleMusic (void);
 extern void StopMusic (void);
 extern void ResumeMusic (void);
@@ -30,5 +34,8 @@ extern void PlaySoundEffect (SOUND S, COUNT Channel, SoundPosition Pos,
 		void *PositionalObject, BYTE Priority);
 
 
-#endif  /* UQM_SETTINGS_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SETTINGS_H_ */

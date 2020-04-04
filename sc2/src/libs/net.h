@@ -19,11 +19,18 @@
 #ifndef LIBS_NET_H_
 #define LIBS_NET_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include "network/network.h"
 #include "network/netmanager/netmanager.h"
 #include "network/connect/connect.h"
 #include "network/connect/listen.h"
 #include "network/connect/resolve.h"
 
-#endif  /* LIBS_NET_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_NET_H_ */

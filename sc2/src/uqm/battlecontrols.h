@@ -30,6 +30,10 @@ typedef struct NetworkInputContext NetworkInputContext;
 #include "races.h"
 #include "libs/compiler.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef BATTLE_INPUT_STATE (*BattleFrameInputFunction) (
 		InputContext *context, STARSHIP *StarShipPtr);
 typedef BOOLEAN (*SelectShipFunction) (InputContext *context,
@@ -88,6 +92,8 @@ void InputContext_delete (InputContext *context);
 		// Call InputContext->handlers->freeContext() to release an
 		// InputContext.
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif  /* UQM_BATTLECONTROLS_H_ */
-
-

@@ -20,6 +20,10 @@
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 
 enum
 {
@@ -57,5 +61,8 @@ extern void SetRaceDest (BYTE which_race, COORD x, COORD y, BYTE days_left,
 		BYTE func_index);
 
 
-#endif  /* UQM_GAMEEV_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_GAMEEV_H_ */

@@ -20,6 +20,11 @@
 #define LIBS_DECLIB_H_
 
 #include "libs/compiler.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct _LZHCODE_DESC* DECODE_REF;
 
 enum
@@ -44,5 +49,9 @@ extern COUNT cread (void *pStr, COUNT size, COUNT count,
 		DECODE_REF DecodeRef);
 extern COUNT cwrite (const void *pStr, COUNT size, COUNT count,
 		DECODE_REF DecodeRef);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* LIBS_DECLIB_H_ */

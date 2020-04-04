@@ -21,6 +21,9 @@
 
 #include "libs/compiler.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define BEHAVIOR_HUNT (0 << 0)
 #define BEHAVIOR_FLEE (1 << 0)
@@ -65,5 +68,8 @@ typedef struct
 
 extern const LIFEFORM_DESC CreatureData[];
 
-#endif /* UQM_PLANETS_LIFEFORM_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_PLANETS_LIFEFORM_H */

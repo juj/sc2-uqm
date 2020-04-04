@@ -19,12 +19,24 @@
 #ifndef UQM_SUPERMELEE_NETPLAY_CHECKBUF_H_
 #define UQM_SUPERMELEE_NETPLAY_CHECKBUF_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct ChecksumEntry ChecksumEntry;
 typedef struct ChecksumBuffer ChecksumBuffer;
+
+#if defined(__cplusplus)
+}
+#endif
 
 #include "../../battle.h"
 		// for BattleFrameCounter
 #include "checksum.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 
 struct ChecksumEntry {
@@ -58,5 +70,8 @@ bool ChecksumBuffer_addChecksum(ChecksumBuffer *cb,
 bool ChecksumBuffer_getChecksum(ChecksumBuffer *cb,
 		BattleFrameCounter frameNr, Checksum *result);
 
-#endif  /* UQM_SUPERMELEE_NETPLAY_CHECKBUF_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_CHECKBUF_H_ */

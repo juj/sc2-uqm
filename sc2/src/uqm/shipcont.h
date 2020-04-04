@@ -21,6 +21,10 @@
 
 #include "menustat.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define FIELD_WIDTH (STATUS_WIDTH - 5)
 
 extern void CargoMenu (void);
@@ -33,5 +37,8 @@ extern void ShowRemainingCapacity (void);
 
 extern SIZE InventoryDevices (BYTE *pDeviceMap, COUNT Size);
 
-#endif /* UQM_SHIPCONT_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_SHIPCONT_H_ */

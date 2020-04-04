@@ -20,6 +20,11 @@
 #include "libs/compiler.h"
 #include "libs/sndlib.h"
 #include "libs/gfxlib.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define WANT_SHIP_SPINS
 
 extern void SplashScreen (void (* DoProcessing)(DWORD TimeOut));
@@ -29,5 +34,8 @@ extern void DoShipSpin (COUNT index, MUSIC_REF hMusic);
 
 extern BOOLEAN ShowPresentation (RESOURCE presentation);
 
-#endif  /* UQM_FMV_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_FMV_H_ */

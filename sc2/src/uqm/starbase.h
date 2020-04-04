@@ -21,6 +21,10 @@
 
 #include "menustat.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 enum
 {
 	TALK_COMMANDER = 0,
@@ -44,5 +48,8 @@ extern COUNT WrapText (const UNICODE *pStr, COUNT len, TEXT *tarray, SIZE
 		field_width);
 		// XXX: Doesn't really belong in this file.
 
-#endif /* UQM_STARBASE_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_STARBASE_H_ */

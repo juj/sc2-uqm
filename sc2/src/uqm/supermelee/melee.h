@@ -28,6 +28,10 @@
 #include "netplay/packet.h"
 		// for NetplayAbortReason and NetplayResetReason.
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct melee_state MELEE_STATE;
 
 #define NUM_MELEE_ROWS 2
@@ -50,9 +54,17 @@ extern FRAME PickMeleeFrame;
 
 typedef BYTE MELEE_OPTIONS;
 
+#if defined(__cplusplus)
+}
+#endif
+
 #include "loadmele.h"
 #include "meleesetup.h"
 #include "meleeship.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct melee_state
 {
@@ -125,5 +137,8 @@ void Melee_RemoteChange_ship (MELEE_STATE *pMS, NetConnection *conn,
 void Melee_RemoteChange_teamName (MELEE_STATE *pMS, NetConnection *conn,
 		COUNT side, const char *name);
 
-#endif /* UQM_SUPERMELEE_MELEE_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif /* UQM_MELEE_H_ */

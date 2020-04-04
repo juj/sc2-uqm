@@ -19,15 +19,25 @@
 #ifndef LIBS_MEMLIB_H_
 #define LIBS_MEMLIB_H_
 
+#include <stddef.h>
+
 #include "types.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 extern bool mem_init (void);
 extern bool mem_uninit (void);
 
-extern void *HMalloc (int size);
+extern void *HMalloc (size_t size);
 extern void HFree (void *p);
-extern void *HCalloc (int size);
-extern void *HRealloc (void *p, int size);
+extern void *HCalloc (size_t size);
+extern void *HRealloc (void *p, size_t size);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* LIBS_MEMLIB_H_ */
 

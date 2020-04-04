@@ -22,6 +22,10 @@
 #include "../../controls.h"
 		// for BATTLE_INPUT_STATE
 #include "../../init.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 		// for NUM_PLAYERS
 
 typedef struct BattleInputBuffer {
@@ -46,5 +50,8 @@ bool BattleInputBuffer_pop(BattleInputBuffer *bib,
 
 BattleInputBuffer *getBattleInputBuffer(size_t player);
 
-#endif  /* UQM_SUPERMELEE_NETPLAY_NETINPUT_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* UQM_SUPERMELEE_NETPLAY_NETINPUT_H_ */

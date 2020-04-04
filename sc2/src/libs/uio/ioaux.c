@@ -260,7 +260,7 @@ uio_copyFilePhysical(uio_PDirHandle *fromDir, const char *fromName,
  * Closes fromHandle if it's not -1.
  * Removes 'toName' from 'toDir' if it's not NULL.
  * Frees 'buf' if not NULL.
- * Always returns -1.
+ * Always returns -1, setting errno to 'error'.
  */
 static int
 copyError(int error,
@@ -605,15 +605,26 @@ uio_getPhysicalAccess(uio_DirHandle *dirHandle, const char *path,
 	return 0;
 }
 
-// Get handles to the (existing) physical dirs that are effective in a
-// path 'path' relative from 'dirHandle'
-// returns the PDirHandles through '*pDirHandles'. It is NULL if none
-// were found.
-// If resItems != NULL, it returns the MountTreeItems belonging to those
-// PDIrHandles through *resItems. It is NULL if none were found.
-// numPDirHandles will contain the number of PDirHandles found.
-// returns 0 if everything went ok.
-// returns -1 in case of an error; errno is set.
+
+/**
+ * Get handles to the (existing) physical dirs that are effective in a
+ * path 'path' relative from 'dirHandle'
+ *
+ * @param[in]  pDirHandle The physical directory to which 'path' is
+ * 		relative.
+ * @param[in]  path       The path to get the physical dirs for, relative to
+ * 		'pDirHandle'
+ * @param[in]  pathLen    The string length of 'path'.
+ * @param[out] resPDirHandles *resPDirHandles is set to the handles to the
+ * 		(existing) physical dirs that are effective in 'path' (relative to
+ * 		pDirHandle), or NULL if there are none.
+ * @param[out] resNumPDirHandles The number of PDirHandles found.
+ * @param[out] resItems If 'resItems' != NULL, *resItems is set to the
+ * 		MountTreeItems belonging to $pDirHandles, or NULL if none were found.
+ *
+ * @retval 0   if everything went ok.
+ * @retval -1  if an error occurred; #errno is set.
+ */
 int
 uio_getPathPhysicalDirs(uio_DirHandle *dirHandle, const char *path,
 		size_t pathLen, uio_PDirHandle ***resPDirHandles,

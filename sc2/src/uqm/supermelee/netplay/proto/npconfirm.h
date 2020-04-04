@@ -22,9 +22,15 @@
 #include "../netplay.h"
 #include "../netconnection.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 int Netplay_confirm(NetConnection *conn);
 int Netplay_cancelConfirmation(NetConnection *conn);
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif  /* UQM_SUPERMELEE_NETPLAY_PROTO_NPCONFIRM_H_ */
-
-

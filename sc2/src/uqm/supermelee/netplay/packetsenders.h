@@ -31,6 +31,10 @@
 #include "../meleesetup.h"
 		// for FleetShipIndex
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 void sendInit(NetConnection *conn);
 void sendPing(NetConnection *conn, uint32 id);
 void sendAck(NetConnection *conn, uint32 id);
@@ -56,6 +60,8 @@ void sendAbort(NetConnection *conn, NetplayAbortReason reason);
 void sendReset(NetConnection *conn, NetplayResetReason reason);
 
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif  /* UQM_SUPERMELEE_NETPLAY_PACKETSENDERS_H_ */
-
-

@@ -1,19 +1,16 @@
-/*	SDLMain.m - main entry point for our Cocoa-ized SDL app
-	Initial Version: Darrell Walisser <dwaliss1@purdue.edu>
-	Non-NIB-Code & other changes: Max Horn <max@quendi.de>
+/*   SDLMain.m - main entry point for our Cocoa-ized SDL app
+       Initial Version: Darrell Walisser <dwaliss1@purdue.edu>
+       Non-NIB-Code & other changes: Max Horn <max@quendi.de>
 
-	Feel free to customize this file to suit your needs
+    Feel free to customize this file to suit your needs
 */
 
-#import <Cocoa/Cocoa.h>
+#ifndef _SDLMain_h_
+#define _SDLMain_h_
 
-/* An internal Apple class used to setup Apple menus */
-@interface NSAppleMenuController:NSObject {}
-- (void)controlMenu:(NSMenu *)aMenu;
-@end
+#import <Cocoa/Cocoa.h>
 
 @interface SDLMain : NSObject
 @end
 
-@interface SDLApplication : NSApplication
-@end
+#endif /* _SDLMain_h_ */

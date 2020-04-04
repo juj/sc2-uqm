@@ -45,6 +45,10 @@
 #include <sys/types.h>
 #include "libs/timelib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if defined (PROFILE_THREADS) || defined (DEBUG_THREADS)
 #define THREAD_NAMES
 #endif
@@ -141,6 +145,8 @@ ThreadLocal *CreateThreadLocal (void);
 void DestroyThreadLocal (ThreadLocal *tl);
 ThreadLocal *GetMyThreadLocal (void);
 
+void HibernateThread (TimePeriod timePeriod);
+void HibernateThreadUntil (TimeCount wakeTime);
 void SleepThread (TimePeriod timePeriod);
 void SleepThreadUntil (TimeCount wakeTime);
 void DestroyThread (Thread);
@@ -173,5 +179,8 @@ void WaitCondVar (CondVar);
 void SignalCondVar (CondVar);
 void BroadcastCondVar (CondVar);
 
-#endif  /* LIBS_THREADLIB_H_ */
+#if defined(__cplusplus)
+}
+#endif
 
+#endif  /* LIBS_THREADLIB_H_ */

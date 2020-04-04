@@ -20,6 +20,10 @@
 #include "libs/compiler.h"
 #include "libs/gfxlib.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 // Some background: every animation has a neutral frame which returns
 // the image to the state it was in before the animation began. Which
 // frame is neutral depends on the animation type.
@@ -130,6 +134,8 @@ extern BOOLEAN DrawAlienFrame (SEQUENCE *pSeq, COUNT Num, BOOLEAN fullRedraw);
 extern void InitCommAnimations (void);
 extern BOOLEAN ProcessCommAnimations (BOOLEAN fullRedraw, BOOLEAN paused);
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif  /* UQM_COMMANIM_H_ */
-
-
