@@ -202,7 +202,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	
 	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 	{
-		if (0 != ReInit_Screen (&SDL_Screens[i], format_conv_surf,
+		if (0 != SDL1_ReInit_Screen (&SDL_Screens[i], format_conv_surf,
 				ScreenWidth, ScreenHeight))
 			return -1;
 	}
@@ -210,19 +210,19 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 	SDL_Screen = SDL_Screens[0];
 	TransitionScreen = SDL_Screens[2];
 
-	if (0 != ReInit_Screen (&fade_color_surface, format_conv_surf,
+	if (0 != SDL1_ReInit_Screen (&fade_color_surface, format_conv_surf,
 			ScreenWidth, ScreenHeight))
 		return -1;
 	fade_color = SDL_MapRGB (fade_color_surface->format, 0, 0, 0);
 	SDL_FillRect (fade_color_surface, NULL, fade_color);
 	
-	if (0 != ReInit_Screen (&fade_temp, format_conv_surf,
+	if (0 != SDL1_ReInit_Screen (&fade_temp, format_conv_surf,
 			ScreenWidth, ScreenHeight))
 		return -1;
 
 	if (ScreenWidthActual > ScreenWidth || ScreenHeightActual > ScreenHeight)
 	{
-		if (0 != ReInit_Screen (&scaled_display, format_conv_surf,
+		if (0 != SDL1_ReInit_Screen (&scaled_display, format_conv_surf,
 				ScreenWidthActual, ScreenHeightActual))
 			return -1;
 

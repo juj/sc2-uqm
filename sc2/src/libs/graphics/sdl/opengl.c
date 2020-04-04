@@ -172,7 +172,7 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		{
-			if (0 != ReInit_Screen (&SDL_Screens[i], format_conv_surf,
+			if (0 != SDL1_ReInit_Screen (&SDL_Screens[i], format_conv_surf,
 					ScreenWidth, ScreenHeight))
 				return -1;
 		}
@@ -201,7 +201,7 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 			{
 				if (!GL_Screens[i].active)
 					continue;
-				if (0 != ReInit_Screen (&GL_Screens[i].scaled, format_conv_surf,
+				if (0 != SDL1_ReInit_Screen (&GL_Screens[i].scaled, format_conv_surf,
 						ScreenWidth * 2, ScreenHeight * 2))
 				return -1;
 			}

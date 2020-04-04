@@ -55,8 +55,9 @@ int TFB_SetColorKey (SDL_Surface *surface, Uint32 key, int rleaccel);
 int TFB_DisableColorKey (SDL_Surface *surface);
 int TFB_SetColors (SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 
-SDL_Surface* Create_Screen (SDL_Surface *templat, int w, int h);
-int ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h);
+#if SDL_MAJOR_VERSION == 1
+int SDL1_ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h);
+#endif
 void UnInit_Screen (SDL_Surface **screen);
 
 #endif
