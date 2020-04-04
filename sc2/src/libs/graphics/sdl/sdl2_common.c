@@ -94,6 +94,7 @@ void
 TFB_SetGamma (float gamma)
 {
 	log_add (log_Warning, "Custom gamma correction is not available in the SDL2 engine.");
+	return 0;
 }
 
 int
