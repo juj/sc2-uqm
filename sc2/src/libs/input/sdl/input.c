@@ -220,8 +220,6 @@ TFB_SetInputVectors (volatile int menu[], int num_menu_, volatile int flight[],
 	num_flight = num_flight_;
 }
 
-#ifdef HAVE_JOYSTICK
-
 static void
 initJoystick (void)
 {

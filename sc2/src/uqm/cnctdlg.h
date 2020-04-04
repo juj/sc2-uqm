@@ -21,8 +21,6 @@
 #ifndef UQM_CNCTDLG_H_
 #define UQM_CNCTDLG_H_
 
-#ifdef NETPLAY
-
 #include "libs/compiler.h"
 
 #if defined(__cplusplus)
