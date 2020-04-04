@@ -62,6 +62,8 @@ TFB_PreInit (void)
 		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
 		exit (EXIT_FAILURE);
 	}
+
+	atexit (TFB_PreQuit);
 }
 
 static void
@@ -223,9 +225,9 @@ TFB_SupportsHardwareScaling (void)
 static SDL_Surface *
 Create_Screen (SDL_Surface *templat, int w, int h)
 {
-	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h
+	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
 			templat->format->BitsPerPixel,
-			templat->format->Rmask, templat->format->GMask,
+			templat->format->Rmask, templat->format->Gmask,
 			templat->format->Bmask, 0);
 	if (newsurf == 0) {
 		log_add (log_Error, "Couldn't create screen buffes: %s",
