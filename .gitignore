@@ -3,7 +3,7 @@
 build.vars
 config.state
 config_unix.h
-obj
-uqm-debug
-uqm-wrapper
-uqm
+sc2/obj
+sc2/uqm-debug
+sc2/uqm-wrapper
+sc2/uqm
