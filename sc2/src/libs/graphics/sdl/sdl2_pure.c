@@ -260,6 +260,17 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
 	return 0;
 }
 
+void
+TFB_Pure_UninitGraphics (void)
+{
+	if (renderer) {
+		SDL_DestroyRenderer (renderer);
+	}
+	if (window) {
+		SDL_DestroyWindow (window);
+	}
+}
+
 static void
 TFB_SDL2_UploadTransitionScreen (void)
 {

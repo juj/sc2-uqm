@@ -51,60 +51,12 @@ volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
 int
-TFB_ReInitGraphics (int driver, int flags, int width, int height)
-{
-	int result;
-	int togglefullscreen = 0;
-	char caption[200];
-
-	if (GfxFlags == (flags ^ TFB_GFXFLAGS_FULLSCREEN) &&
-			driver == GraphicsDriver &&
-			width == ScreenWidthActual && height == ScreenHeightActual)
-	{
-		togglefullscreen = 1;
-	}
-
-	GfxFlags = flags;
-
-	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
-	{
-#ifdef HAVE_OPENGL
-		result = TFB_GL_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-#else
-		driver = TFB_GFXDRIVER_SDL_PURE;
-		log_add (log_Warning, "OpenGL support not compiled in,"
-				" so using pure SDL driver");
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-#endif
-	}
-	else
-	{
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-	}
-
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-	SDL_WM_SetCaption (caption, NULL);
-
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
-		SDL_ShowCursor (SDL_DISABLE);
-	else
-		SDL_ShowCursor (SDL_ENABLE);
-
-	return result;
-}
-
-int
 TFB_InitGraphics (int driver, int flags, int width, int height)
 {
-	int i, result;
+	int result, i;
 	char caption[200];
 
-	/* Null out screen pointers for the first time */
+	/* Null out screen pointers the first time */
 	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 	{
 		SDL_Screens[i] = NULL;

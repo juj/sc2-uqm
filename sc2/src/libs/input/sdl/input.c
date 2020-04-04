@@ -220,19 +220,13 @@ TFB_SetInputVectors (volatile int menu[], int num_menu_, volatile int flight[],
 	num_flight = num_flight_;
 }
 
+#ifdef HAVE_JOYSTICK
+
 static void
 initJoystick (void)
 {
 	int nJoysticks;
 
-#if SDL_MAJOR_VERSION == 1
-	SDL_EnableUNICODE(1);
-	(void)SDL_GetKeyState (&num_keys);
-	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
-#endif
-	
-
-#ifdef HAVE_JOYSTICK
 	if ((SDL_InitSubSystem(SDL_INIT_JOYSTICK)) == -1)
 	{
 		log_add (log_Fatal, "Couldn't initialize joystick subsystem: %s",
@@ -269,14 +263,15 @@ TFB_InitInput (int driver, int flags)
 	(void)driver;
 	(void)flags;
 
+#if SDL_MAJOR_VERSION == 1
 	SDL_EnableUNICODE(1);
 	(void)SDL_GetKeyState (&num_keys);
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
-	
+#endif
 
-#ifdef HAVE_JOYSTICK
+#ifdef HAVE_JOYSTICK	
 	initJoystick ();
-#endif /* HAVE_JOYSTICK */
+#endif
 
 	in_character_mode = FALSE;
 	resetKeyboardState ();
