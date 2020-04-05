@@ -24,24 +24,42 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 16
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST (MAX_ENERGY / 3)
-#define SPECIAL_ENERGY_COST 0
 #define ENERGY_WAIT 6
 #define MAX_THRUST 35
 #define THRUST_INCREMENT 5
-#define TURN_WAIT 1
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 4
-#define SPECIAL_WAIT 12
-
+#define TURN_WAIT 1
 #define SHIP_MASS 4
+
+// Howitzer
+#define WEAPON_ENERGY_COST (MAX_ENERGY / 3)
+#define WEAPON_WAIT 4
 #define ORZ_OFFSET 9
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 12
+#define MISSILE_HITS 2
+#define MISSILE_DAMAGE 3
+#define MISSILE_OFFSET 1
+
+// Marine
+#define SPECIAL_ENERGY_COST 0
+#define SPECIAL_WAIT 12
+#define MARINE_MAX_THRUST 32
+#define MARINE_THRUST_INCREMENT 8
+#define MARINE_HIT_POINTS 3
+#define MARINE_MASS_POINTS 1
+#define MAX_MARINES 8
+#define MARINE_WAIT 12
+#define ION_LIFE 1
+#define START_ION_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
+
+// Rotating Turret
+#define TURRET_OFFSET 14
+#define TURRET_WAIT 3
 
 static RACE_DESC orz_desc =
 {
@@ -122,15 +140,9 @@ howitzer_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		weapon_collision (ElementPtr0, pPt0, ElementPtr1, pPt1);
 }
 
-#define TURRET_OFFSET 14
-#define TURRET_WAIT 3
-
 static COUNT
 initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 {
-#define MISSILE_HITS 2
-#define MISSILE_DAMAGE 3
-#define MISSILE_OFFSET 1
 	ELEMENT *TurretPtr;
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
@@ -179,8 +191,6 @@ initialize_turret_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 
 	return (1);
 }
-
-#define MAX_MARINES 8
 
 static BYTE
 count_marines (STARSHIP *StarShipPtr, BOOLEAN FindSpot)
@@ -310,8 +320,6 @@ orz_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	UnlockElement (GetSuccElement (ShipPtr));
 }
 
-#define START_ION_COLOR BUILD_COLOR (MAKE_RGB15 (0x1F, 0x15, 0x00), 0x7A)
-
 static void
 ion_preprocess (ELEMENT *ElementPtr)
 {
@@ -351,8 +359,6 @@ ion_preprocess (ELEMENT *ElementPtr)
 }
 
 static void marine_preprocess (ELEMENT *ElementPtr);
-
-#define MARINE_WAIT 12
 
 void
 intruder_preprocess (ELEMENT *ElementPtr)
@@ -475,7 +481,6 @@ spawn_marine_ion_trail (ELEMENT *ElementPtr, STARSHIP *StarShipPtr,
 	hIonElement = AllocElement ();
 	if (hIonElement)
 	{
-#define ION_LIFE 1
 		COUNT angle;
 		ELEMENT *IonElementPtr;
 
@@ -698,8 +703,10 @@ marine_preprocess (ELEMENT *ElementPtr)
 			// XXX: thrust_wait is abused to store marine speed and
 			//   gravity well flags
 			StarShipPtr->cur_status_flags = ElementPtr->thrust_wait << 6;
-			StarShipPtr->RaceDescPtr->characteristics.thrust_increment = 8;
-			StarShipPtr->RaceDescPtr->characteristics.max_thrust = 32;
+			StarShipPtr->RaceDescPtr->characteristics.thrust_increment =
+					MARINE_THRUST_INCREMENT;
+			StarShipPtr->RaceDescPtr->characteristics.max_thrust =
+					MARINE_MAX_THRUST;
 
 			thrust_status = inertial_thrust (ElementPtr);
 
@@ -965,8 +972,8 @@ turret_postprocess (ELEMENT *ElementPtr)
 				SpaceMarinePtr->state_flags = IGNORE_SIMILAR | APPEARING
 						| CREW_OBJECT;
 				SpaceMarinePtr->life_span = NORMAL_LIFE;
-				SpaceMarinePtr->hit_points = 3;
-				SpaceMarinePtr->mass_points = 1;
+				SpaceMarinePtr->hit_points = MARINE_HIT_POINTS;
+				SpaceMarinePtr->mass_points = MARINE_MASS_POINTS;
 
 				facing = FACING_TO_ANGLE (StarShipPtr->ShipFacing);
 				SpaceMarinePtr->current.location.x =

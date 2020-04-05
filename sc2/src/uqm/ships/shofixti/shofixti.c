@@ -24,12 +24,10 @@
 #include "uqm/tactrans.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 6
 #define MAX_ENERGY 4
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 0
 #define ENERGY_WAIT 9
 #define MAX_THRUST 35
 #define THRUST_INCREMENT 5
@@ -37,10 +35,24 @@
 #define THRUST_WAIT 0
 #define WEAPON_WAIT 3
 #define SPECIAL_WAIT 0
-
 #define SHIP_MASS 1
+
+// Dart Gun
+#define WEAPON_ENERGY_COST 1
+#define SHOFIXTI_OFFSET 15
+#define MISSILE_OFFSET 1
 #define MISSILE_SPEED DISPLAY_TO_WORLD (24)
 #define MISSILE_LIFE 10
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+
+// Glory Device
+#define SPECIAL_ENERGY_COST 0
+#define DESTRUCT_RANGE 180
+#define MAX_DESTRUCTION (DESTRUCT_RANGE / 10)
+
+// Full game: Tanaka/Katana's damaged ships
+#define NUM_LIMPETS 3
 
 static RACE_DESC shofixti_desc =
 {
@@ -116,10 +128,7 @@ static RACE_DESC shofixti_desc =
 static COUNT
 initialize_standard_missile (ELEMENT *ShipPtr, HELEMENT MissileArray[])
 {
-#define SHOFIXTI_OFFSET 15
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 1
+
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -266,7 +275,6 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 			continue;
 		}
 
-#define DESTRUCT_RANGE 180
 		delta_x = ObjPtr->next.location.x - ElementPtr->next.location.x;
 		if (delta_x < 0)
 			delta_x = -delta_x;
@@ -279,7 +287,6 @@ self_destruct_kill_objects (ELEMENT *ElementPtr)
 		if (delta_x <= DESTRUCT_RANGE && delta_y <= DESTRUCT_RANGE
 				&& dist <= DESTRUCT_RANGE * DESTRUCT_RANGE)
 		{
-#define MAX_DESTRUCTION (DESTRUCT_RANGE / 10)
 			int destruction = 1 + MAX_DESTRUCTION *
 					(DESTRUCT_RANGE - square_root (dist)) / DESTRUCT_RANGE;
 
@@ -462,7 +469,6 @@ init_shofixti (void)
 			&& !GET_GAME_STATE (SHOFIXTI_RECRUITED))
 	{
 		// Tanaka/Katana flies in a damaged ship.
-#define NUM_LIMPETS 3
 		COUNT i;
 
 		new_shofixti_desc.ship_data.ship_rsc[0] = OLDSHOF_BIG_MASK_PMAP_ANIM;
@@ -484,7 +490,10 @@ init_shofixti (void)
 				--new_shofixti_desc.characteristics.turn_wait;
 			if (++new_shofixti_desc.characteristics.thrust_wait == 0)
 				--new_shofixti_desc.characteristics.thrust_wait;
+
+/* This should be the same as MIN_THRUST_INCREMENT in vux.c */
 #define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (1)
+
 			if (new_shofixti_desc.characteristics.thrust_increment <=
 					MIN_THRUST_INCREMENT)
 			{

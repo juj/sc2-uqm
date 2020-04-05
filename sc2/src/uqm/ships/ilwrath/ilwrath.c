@@ -24,21 +24,33 @@
 #include "uqm/globdata.h"
 
 
+// Core characteristics
 #define MAX_CREW 22
 #define MAX_ENERGY 16
 #define ENERGY_REGENERATION 4
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 3
 #define ENERGY_WAIT 4
 #define MAX_THRUST 25
 #define THRUST_INCREMENT 5
-#define TURN_WAIT 2
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 13
-
+#define TURN_WAIT 2
 #define SHIP_MASS 7
+#define LOOK_AHEAD 4
+		/* Controls how much the auto-turn will attempt to "lead"
+		 * its target. */
+
+// Hellfire Spout
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 0
 #define MISSILE_LIFE 8
+#define ILWRATH_OFFSET 29
+#define MISSILE_SPEED MAX_THRUST
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+#define MISSILE_OFFSET 0
+
+// Cloaking Device
+#define SPECIAL_ENERGY_COST 3
+#define SPECIAL_WAIT 13
 
 static RACE_DESC ilwrath_desc =
 {
@@ -178,11 +190,6 @@ ilwrath_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static COUNT
 initialize_flame (ELEMENT *ShipPtr, HELEMENT FlameArray[])
 {
-#define ILWRATH_OFFSET 29
-#define MISSILE_SPEED MAX_THRUST
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 0
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -278,7 +285,6 @@ ilwrath_preprocess (ELEMENT *ElementPtr)
 					facing = StarShipPtr->ShipFacing;
 					if (TrackShip (ElementPtr, &facing) >= 0)
 					{
-#define LOOK_AHEAD 4
 						ELEMENT *eptr;
 						SIZE dx0, dy0, dx1, dy1;
 						VELOCITY_DESC v;

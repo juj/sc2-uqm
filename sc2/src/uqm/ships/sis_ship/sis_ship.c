@@ -26,27 +26,73 @@
 #include "uqm/hyper.h"
 #include "libs/mathlib.h"
 
-
-#define MAX_TRACKING 3
-#define MAX_DEFENSE 8
+/* Core characteristics.
+ * All of these are changed at init time by some module, except for
+ * MAX_ENERGY, THRUST_INCREMENT, and SHIP_MASS. */
 
 #define MAX_CREW MAX_CREW_SIZE
+		/* This value gets thrown out - actual max crew is determined by the
+		 * number of crew pods. The minimum value is 1 (just the Captain). */
+
 #define MAX_ENERGY MAX_ENERGY_SIZE
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST 0
-#define ENERGY_WAIT 10
-#define MAX_THRUST 10
-#define THRUST_INCREMENT 4
-#define TURN_WAIT 17
-#define THRUST_WAIT 6
-#define WEAPON_WAIT 6
-#define SPECIAL_WAIT 9
+		/* Shiva furnaces increase this by 1 each. */
+#define SHIVA_ENERGY_REGEN_INC 1
 
+#define ENERGY_WAIT 10
+		/* Dynamos decrease this by 2 each, to a minimum of 4. */
+#define MIN_ENERGY_WAIT 4
+#define DYNAMO_UNIT_ENERGY_WAIT_DEC 2
+
+#define MAX_THRUST 10
+		/* Thrusters increase this and decrease THRUST_WAIT based on
+		 * THRUST_INCREMENT, see InitDriveSlots near the bottom of this file
+		 * for details. */
+#define THRUST_INCREMENT 4
+#define THRUST_WAIT 6
+#define TURN_WAIT 17
+		/* Turning jets decrease by 2 each */
 #define SHIP_MASS MAX_SHIP_MASS
 
+
+/* Primary weapon - energy cost and damage change at init time based on
+ * the number and type of weapon modules installed. */
+
+#define BLASTER_DAMAGE 2
+		/* This is the damage value for the basic ion bolt guns. Fusion
+		 * blasters and hellbore cannons end up doing (BLASTER_DAMAGE * 2)
+		 * and (BLASTER_DAMAGE * 3) damage, respectively, but this depends
+		 * on enum values. */
+
+#define BLASTER_HITS 2 /* Hitpoints for ion bolt guns, see BLASTER_DAMAGE */
+
+#define WEAPON_ENERGY_COST 1
+		/* This value gets thrown out and reset in an ugly manner based on
+		 * the enum that is used for module IDs. Bigger gun = higher value.
+		 */
+#define WEAPON_WAIT 6
 #define BLASTER_SPEED DISPLAY_TO_WORLD (24)
 #define BLASTER_LIFE 12
+		/* This value is greatly increased, based in part on the enum used
+		 * for module IDs (bigger gun == longer life). See the first half of
+		 * InitWeaponSlots */
+#define MAX_TRACKING 3
+#define TRACKER_ENERGY_COST 3
+#define BLASTER_OFFSET 8
+#define SIS_VERT_OFFSET 28
+		/* Used for foward, spread, and rear slots */
+#define SIS_HORZ_OFFSET 20
+		/* Used for side slot */
+
+
+/* Secondary weapon */
+#define SPECIAL_ENERGY_COST 0
+		/* Increased by 1 for each point defense module */
+#define ANTIMISSILE_ENERGY_INC 1
+#define SPECIAL_WAIT 9
+#define LASER_RANGE (UWORD)100
+#define MAX_DEFENSE 8
+
 
 static RACE_DESC sis_desc =
 {
@@ -404,7 +450,6 @@ spawn_point_defense (ELEMENT *ElementPtr)
 			if (ObjectPtr != ShipPtr && CollidingElement (ObjectPtr) &&
 					!OBJECT_CLOAKED (ObjectPtr))
 			{
-#define LASER_RANGE (UWORD)100
 				SIZE delta_x, delta_y;
 
 				delta_x = ObjectPtr->next.location.x -
@@ -507,8 +552,6 @@ sis_battle_postprocess (ELEMENT *ElementPtr)
 	}
 }
 
-#define BLASTER_DAMAGE 2
-
 static void
 blaster_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
@@ -588,10 +631,6 @@ blaster_preprocess (ELEMENT *ElementPtr)
 static COUNT
 initialize_blasters (ELEMENT *ShipPtr, HELEMENT BlasterArray[])
 {
-#define SIS_VERT_OFFSET 28
-#define SIS_HORZ_OFFSET 20
-#define BLASTER_HITS 2
-#define BLASTER_OFFSET 8
 	BYTE nt;
 	COUNT i;
 	STARSHIP *StarShipPtr;
@@ -707,10 +746,6 @@ sis_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static void
 InitWeaponSlots (RACE_DESC *RaceDescPtr, const BYTE *ModuleSlots)
 {
-#define SIS_VERT_OFFSET 28
-#define SIS_HORZ_OFFSET 20
-#define BLASTER_HITS 2
-#define BLASTER_OFFSET 8
 	COUNT i;
 	SIS_DATA *SisData = GetCustomShipData (RaceDescPtr);
 	MISSILE_BLOCK *lpMB = SisData->MissileBlock;
@@ -810,22 +845,26 @@ InitModuleSlots (RACE_DESC *RaceDescPtr, const BYTE *ModuleSlots)
 				++num_trackers;
 				break;
 			case ANTIMISSILE_DEFENSE:
-				++RaceDescPtr->characteristics.special_energy_cost;
+				RaceDescPtr->characteristics.special_energy_cost +=
+						ANTIMISSILE_ENERGY_INC;
 				break;
 			case SHIVA_FURNACE:
-				++RaceDescPtr->characteristics.energy_regeneration;
+				RaceDescPtr->characteristics.energy_regeneration +=
+						SHIVA_ENERGY_REGEN_INC;
 				break;
 			case DYNAMO_UNIT:
-				RaceDescPtr->characteristics.energy_wait -= 2;
-				if (RaceDescPtr->characteristics.energy_wait < 4)
-					RaceDescPtr->characteristics.energy_wait = 4;
+				RaceDescPtr->characteristics.energy_wait -=
+						DYNAMO_UNIT_ENERGY_WAIT_DEC;
+				if (RaceDescPtr->characteristics.energy_wait < MIN_ENERGY_WAIT)
+					RaceDescPtr->characteristics.energy_wait = MIN_ENERGY_WAIT;
 				break;
 		}
 	}
 
 	if (num_trackers > MAX_TRACKING)
 		num_trackers = MAX_TRACKING;
-	RaceDescPtr->characteristics.weapon_energy_cost += num_trackers * 3;
+	RaceDescPtr->characteristics.weapon_energy_cost +=
+			num_trackers * TRACKER_ENERGY_COST;
 	SisData->num_trackers = num_trackers;
 	if (RaceDescPtr->characteristics.special_energy_cost)
 	{

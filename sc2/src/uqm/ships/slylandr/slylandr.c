@@ -23,22 +23,30 @@
 #include "uqm/globdata.h"
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 12
 #define MAX_ENERGY 20
 #define ENERGY_REGENERATION 0
-#define WEAPON_ENERGY_COST 2
-#define SPECIAL_ENERGY_COST 0
 #define ENERGY_WAIT 10
 #define MAX_THRUST 60
 #define THRUST_INCREMENT MAX_THRUST
-#define TURN_WAIT 0
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 17
-#define SPECIAL_WAIT 20
-
+#define TURN_WAIT 0
 #define SHIP_MASS 1
+
+// Lightning weapon
+#define WEAPON_ENERGY_COST 2
+#define WEAPON_WAIT 17
 #define SLYLANDRO_OFFSET 9
+#define LASER_LENGTH 32
+		/* Total length of lighting bolts. Actual range is usually less than
+		 * this, since the lightning rarely is straight. */
+
+// Harvester
+#define SPECIAL_ENERGY_COST 0
+#define SPECIAL_WAIT 20
+#define HARVEST_RANGE (208 * 3 / 8)
+		/* Was originally (SPACE_HEIGHT * 3 / 8) */
 
 static RACE_DESC slylandro_desc =
 {
@@ -238,9 +246,8 @@ initialize_lightning (ELEMENT *ElementPtr, HELEMENT LaserArray[])
 			angle += LOWORD (rand_val) & (QUADRANT - 1);
 		else
 			angle -= LOWORD (rand_val) & (QUADRANT - 1);
-#define LASER_RANGE 32
 		delta = WORLD_TO_VELOCITY (
-				DISPLAY_TO_WORLD ((HIWORD (rand_val) & (LASER_RANGE - 1)) + 4)
+				DISPLAY_TO_WORLD ((HIWORD (rand_val) & (LASER_LENGTH - 1)) + 4)
 				);
 		SetVelocityComponents (&LaserPtr->velocity,
 				COSINE (angle, delta), SINE (angle, delta));
@@ -313,8 +320,6 @@ harvest_space_junk (ELEMENT *ElementPtr)
 				&& !GRAVITY_MASS (ObjPtr->mass_points)
 				&& CollisionPossible (ObjPtr, ElementPtr))
 		{
-//HARVEST_RANGE was originally (SPACE_HEIGHT * 3 / 8)
-#define HARVEST_RANGE (208 * 3 / 8)
 			SIZE dx, dy;
 
 			if ((dx = ObjPtr->next.location.x

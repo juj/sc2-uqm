@@ -20,23 +20,33 @@
 #include "druuge.h"
 #include "resinst.h"
 
+// Core characteristics
 #define MAX_CREW 14
 #define MAX_ENERGY 32
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 4
-#define SPECIAL_ENERGY_COST 16
 #define ENERGY_WAIT 50
 #define MAX_THRUST 20
 #define THRUST_INCREMENT 2
-#define TURN_WAIT 4
 #define THRUST_WAIT 1
-#define WEAPON_WAIT 10
-#define SPECIAL_WAIT 30
-
+#define TURN_WAIT 4
 #define SHIP_MASS 5
+
+// Mass Driver
+#define WEAPON_ENERGY_COST 4
+#define WEAPON_WAIT 10
+#define DRUUGE_OFFSET 24
+#define MISSILE_OFFSET 6
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 20
 #define MISSILE_RANGE (MISSILE_SPEED * MISSILE_LIFE)
+#define MISSILE_HITS 4
+#define MISSILE_DAMAGE 6
+#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (6))
+#define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
+
+// Furnace
+#define SPECIAL_ENERGY_COST 16
+#define SPECIAL_WAIT 30
 
 static RACE_DESC druuge_desc =
 {
@@ -109,9 +119,6 @@ static RACE_DESC druuge_desc =
 	0, /* CodeRef */
 };
 
-#define RECOIL_VELOCITY WORLD_TO_VELOCITY (DISPLAY_TO_WORLD (6))
-#define MAX_RECOIL_VELOCITY (RECOIL_VELOCITY * 4)
-
 static void
 cannon_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1)
@@ -153,10 +160,6 @@ cannon_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 static COUNT
 initialize_cannon (ELEMENT *ShipPtr, HELEMENT CannonArray[])
 {
-#define DRUUGE_OFFSET 24
-#define MISSILE_OFFSET 6
-#define MISSILE_HITS 4
-#define MISSILE_DAMAGE 6
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 

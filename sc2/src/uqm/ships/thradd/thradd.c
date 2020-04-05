@@ -22,24 +22,42 @@
 
 #include "uqm/globdata.h"
 
-
+// Core characteristics
 #define MAX_CREW 8
 #define MAX_ENERGY 24
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 2
-#define SPECIAL_ENERGY_COST 1
 #define ENERGY_WAIT 6
 #define MAX_THRUST 28
 #define THRUST_INCREMENT 7
-#define TURN_WAIT 1
 #define THRUST_WAIT 0
-#define WEAPON_WAIT 12
-#define SPECIAL_WAIT 0
-
+#define TURN_WAIT 1
 #define SHIP_MASS 7
-#define THRADDASH_OFFSET 9
+
+// Ion Blasters
+#define WEAPON_ENERGY_COST 2
+#define WEAPON_WAIT 12
 #define MISSILE_SPEED DISPLAY_TO_WORLD (30)
 #define MISSILE_LIFE 15
+#define MISSILE_OFFSET 3
+#define THRADDASH_OFFSET 9
+#define MISSILE_HITS 2
+#define MISSILE_DAMAGE 1
+
+// Afterburner
+#define SPECIAL_ENERGY_COST 1
+#define SPECIAL_WAIT 0
+#define SPECIAL_THRUST_INCREMENT 12
+#define SPECIAL_MAX_THRUST 72
+#define NAPALM_LIFE 48
+#define NAPALM_OFFSET 0
+#define NAPALM_HITS 1
+#define NAPALM_DAMAGE 2
+#define NAPALM_DECAY_RATE 5
+		/* Controls the speed of the afterburner "decay" animation; it will
+		 * decay one step (one animation frame) per NAPALM_DECAY_RATE
+		 * frames. */
+#define NUM_NAPALM_FADES 6
+
 
 static RACE_DESC thraddash_desc =
 {
@@ -202,8 +220,6 @@ thraddash_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 	}
 }
 
-#define NAPALM_WAIT 1
-
 static void
 flame_napalm_preprocess (ELEMENT *ElementPtr)
 {
@@ -220,24 +236,26 @@ flame_napalm_preprocess (ELEMENT *ElementPtr)
 		InitIntersectEndPoint (ElementPtr);
 		InitIntersectFrame (ElementPtr);
 	}
+	/* turn_wait is abused here to store the speed of the decay animation */
 	else if (ElementPtr->turn_wait > 0)
 		--ElementPtr->turn_wait;
 	else
 	{
-#define NUM_NAPALM_FADES 6
-		if (ElementPtr->life_span <= NUM_NAPALM_FADES * (NAPALM_WAIT + 1)
+		if (ElementPtr->life_span <= NUM_NAPALM_FADES * (NAPALM_DECAY_RATE + 1)
 				|| GetFrameIndex (
 				ElementPtr->current.image.frame
 				) != NUM_NAPALM_FADES)
 			ElementPtr->next.image.frame =
 					DecFrameIndex (ElementPtr->current.image.frame);
-		else if (ElementPtr->life_span > NUM_NAPALM_FADES * (NAPALM_WAIT + 1))
+		else if (ElementPtr->life_span > NUM_NAPALM_FADES * (NAPALM_DECAY_RATE + 1))
 			ElementPtr->next.image.frame = SetAbsFrameIndex (
 					ElementPtr->current.image.frame,
 					GetFrameCount (ElementPtr->current.image.frame) - 1
 					);
 
-		ElementPtr->turn_wait = NAPALM_WAIT;
+		/* turn_wait is abused here to store the speed of the decay
+		 * animation. */
+		ElementPtr->turn_wait = NAPALM_DECAY_RATE;
 		ElementPtr->state_flags |= CHANGING;
 	}
 }
@@ -245,9 +263,6 @@ flame_napalm_preprocess (ELEMENT *ElementPtr)
 static COUNT
 initialize_horn (ELEMENT *ShipPtr, HELEMENT HornArray[])
 {
-#define MISSILE_HITS 2
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 3
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -284,8 +299,6 @@ thraddash_preprocess (ELEMENT *ElementPtr)
 	}
 	else if (DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST))
 	{
-#define SPECIAL_THRUST_INCREMENT 12
-#define SPECIAL_MAX_THRUST 72
 		COUNT max_thrust, thrust_increment;
 		STATUS_FLAGS thrust_status;
 		HELEMENT hTrailElement;
@@ -317,10 +330,6 @@ thraddash_preprocess (ELEMENT *ElementPtr)
 		StarShipPtr->RaceDescPtr->characteristics.max_thrust = max_thrust;
 
 		{
-#define NAPALM_HITS 1
-#define NAPALM_DAMAGE 2
-#define NAPALM_LIFE 48
-#define NAPALM_OFFSET 0
 			MISSILE_BLOCK MissileBlock;
 
 			MissileBlock.cx = ElementPtr->next.location.x;
@@ -348,7 +357,10 @@ thraddash_preprocess (ELEMENT *ElementPtr)
 				LockElement (hTrailElement, &TrailElementPtr);
 				SetElementStarShip (TrailElementPtr, StarShipPtr);
 				TrailElementPtr->hTarget = 0;
-				TrailElementPtr->turn_wait = NAPALM_WAIT;
+
+				/* turn_wait is abused here to store the speed of the decay
+				 * animation */
+				TrailElementPtr->turn_wait = NAPALM_DECAY_RATE;
 
 				TrailElementPtr->state_flags |= NONSOLID;
 				SetPrimType (

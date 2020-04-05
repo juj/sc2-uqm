@@ -20,35 +20,51 @@
 #include "mmrnmhrm.h"
 #include "resinst.h"
 
-
+// Core characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 10
+#define SHIP_MASS 3
+
+// X-Wing characteristics
 #define ENERGY_REGENERATION 2
-#define WEAPON_ENERGY_COST 1
-#define SPECIAL_ENERGY_COST MAX_ENERGY
 #define ENERGY_WAIT 6
 #define MAX_THRUST 20
 #define THRUST_INCREMENT 5
-#define TURN_WAIT 2
 #define THRUST_WAIT 1
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 0
+#define TURN_WAIT 2
 
+// Y-Wing characteristics
 #define YWING_ENERGY_REGENERATION 1
-#define YWING_WEAPON_ENERGY_COST 1
 #define YWING_SPECIAL_ENERGY_COST MAX_ENERGY
 #define YWING_ENERGY_WAIT 6
 #define YWING_MAX_THRUST 50
 #define YWING_THRUST_INCREMENT 10
-#define YWING_TURN_WAIT 14
 #define YWING_THRUST_WAIT 0
-#define YWING_WEAPON_WAIT 20
-#define YWING_SPECIAL_WAIT 0
+#define YWING_TURN_WAIT 14
 
-#define SHIP_MASS 3
+// X-Wing Lasers
 #define MMRNMHRM_OFFSET 16
+#define WEAPON_ENERGY_COST 1
+#define WEAPON_WAIT 0
+#define CENTER_OFFS DISPLAY_TO_WORLD (4)
+#define WING_OFFS DISPLAY_TO_WORLD (10)
 #define LASER_RANGE DISPLAY_TO_WORLD (125 + MMRNMHRM_OFFSET)
 
+// Y-Wing Missiles
+#define YWING_WEAPON_ENERGY_COST 1
+#define YWING_WEAPON_WAIT 20
+#define LAUNCH_OFFS DISPLAY_TO_WORLD (4)
+#define MISSILE_OFFSET 0
+#define MISSILE_SPEED DISPLAY_TO_WORLD (20)
+#define MISSILE_LIFE 40
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 1
+#define TRACK_WAIT 5
+
+// Transform
+#define SPECIAL_ENERGY_COST MAX_ENERGY
+#define SPECIAL_WAIT 0
+#define YWING_SPECIAL_WAIT 0
 
 static RACE_DESC mmrnmhrm_desc =
 {
@@ -120,9 +136,6 @@ static RACE_DESC mmrnmhrm_desc =
 	0,
 	0, /* CodeRef */
 };
-
-#define MISSILE_SPEED DISPLAY_TO_WORLD (20)
-#define TRACK_WAIT 5
 
 // Private per-instance ship data
 typedef CHARACTERISTIC_STUFF MMRNMHRM_DATA;
@@ -288,7 +301,6 @@ twin_laser_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 static COUNT
 initialize_dual_weapons (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 {
-#define CENTER_OFFS DISPLAY_TO_WORLD (4)
 	COORD cx, cy;
 	COUNT facing, angle;
 	SIZE offs_x, offs_y;
@@ -302,7 +314,6 @@ initialize_dual_weapons (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 
 	if (ShipPtr->next.image.farray == StarShipPtr->RaceDescPtr->ship_data.ship)
 	{
-#define WING_OFFS DISPLAY_TO_WORLD (10)
 		COORD ex, ey;
 		LASER_BLOCK LaserBlock;
 		ELEMENT *LaserPtr;
@@ -342,11 +353,6 @@ initialize_dual_weapons (ELEMENT *ShipPtr, HELEMENT WeaponArray[])
 	}
 	else
 	{
-#define MISSILE_HITS 1
-#define MISSILE_DAMAGE 1
-#define MISSILE_OFFSET 0
-#define MISSILE_LIFE 40
-#define LAUNCH_OFFS DISPLAY_TO_WORLD (4)
 		MISSILE_BLOCK TorpBlock;
 		ELEMENT *TorpPtr;
 

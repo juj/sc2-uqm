@@ -22,22 +22,31 @@
 
 #include "libs/mathlib.h"
 
-
+// Core characteristics
 #define MAX_CREW 10
 #define MAX_ENERGY 30
 #define ENERGY_REGENERATION MAX_ENERGY
-#define WEAPON_ENERGY_COST 0
-#define SPECIAL_ENERGY_COST 1
 #define ENERGY_WAIT 150
 #define MAX_THRUST /* DISPLAY_TO_WORLD (5) */ 18
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 6
-#define TURN_WAIT 4
 #define THRUST_WAIT 3
-#define WEAPON_WAIT 0
-#define SPECIAL_WAIT 2
-
+#define TURN_WAIT 4
 #define SHIP_MASS 1
 
+// Antimatter cone
+#define WEAPON_ENERGY_COST 0
+#define WEAPON_WAIT 0
+#define UMGAH_OFFSET 0
+#define CONE_OFFSET 0
+#define CONE_SPEED 0
+#define CONE_HITS 100
+#define CONE_DAMAGE 1
+#define CONE_LIFE 1
+
+// Retropropulsion
+#define SPECIAL_ENERGY_COST 1
+#define SPECIAL_WAIT 2
+#define JUMP_DIST DISPLAY_TO_WORLD (40)
 
 static RACE_DESC umgah_desc =
 {
@@ -179,8 +188,6 @@ cone_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 	}
 }
 
-#define JUMP_DIST DISPLAY_TO_WORLD (40)
-
 static void
 umgah_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 		COUNT ConcernCounter)
@@ -299,12 +306,6 @@ umgah_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static COUNT
 initialize_cone (ELEMENT *ShipPtr, HELEMENT ConeArray[])
 {
-#define UMGAH_OFFSET 0
-#define MISSILE_SPEED 0
-#define MISSILE_HITS 100
-#define MISSILE_DAMAGE 1
-#define MISSILE_LIFE 1
-#define MISSILE_OFFSET 0
 	STARSHIP *StarShipPtr;
 	UMGAH_DATA* UmgahData;
 	MISSILE_BLOCK MissileBlock;
@@ -317,12 +318,12 @@ initialize_cone (ELEMENT *ShipPtr, HELEMENT ConeArray[])
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = UMGAH_OFFSET;
-	MissileBlock.speed = MISSILE_SPEED;
-	MissileBlock.hit_points = MISSILE_HITS;
-	MissileBlock.damage = MISSILE_DAMAGE;
-	MissileBlock.life = MISSILE_LIFE;
+	MissileBlock.speed = CONE_SPEED;
+	MissileBlock.hit_points = CONE_HITS;
+	MissileBlock.damage = CONE_DAMAGE;
+	MissileBlock.life = CONE_LIFE;
 	MissileBlock.preprocess_func = cone_preprocess;
-	MissileBlock.blast_offs = MISSILE_OFFSET;
+	MissileBlock.blast_offs = CONE_OFFSET;
 
 	// This func is called every frame while the player is holding down WEAPON
 	// Don't reset the cone FRAME to the first image every time

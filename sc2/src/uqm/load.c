@@ -18,19 +18,16 @@
 
 #include <assert.h>
 
-#include "load.h"
-
 #include "build.h"
-#include "libs/declib.h"
 #include "encount.h"
 #include "starmap.h"
 #include "libs/file.h"
 #include "globdata.h"
-#include "load.h"
 #include "options.h"
+#include "save.h"
 #include "setup.h"
 #include "state.h"
-#include "grpinfo.h"
+#include "grpintrn.h"
 
 #include "libs/tasklib.h"
 #include "libs/log.h"
@@ -39,74 +36,6 @@
 //#define DEBUG_LOAD
 
 ACTIVITY NextActivity;
-
-// XXX: these should handle endian conversions later
-static inline COUNT
-cread_8 (DECODE_REF fh, BYTE *v)
-{
-	BYTE t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return cread (v, 1, 1, fh);
-}
-
-static inline COUNT
-cread_16 (DECODE_REF fh, UWORD *v)
-{
-	UWORD t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return cread (v, 2, 1, fh);
-}
-
-static inline COUNT
-cread_16s (DECODE_REF fh, SWORD *v)
-{
-	UWORD t;
-	COUNT ret;
-	// value was converted to unsigned when saved
-	ret = cread_16 (fh, &t);
-	// unsigned to signed conversion
-	if (v)
-		*v = t;
-	return ret;
-}
-
-static inline COUNT
-cread_32 (DECODE_REF fh, DWORD *v)
-{
-	DWORD t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return cread (v, 4, 1, fh);
-}
-
-static inline COUNT
-cread_32s (DECODE_REF fh, SDWORD *v)
-{
-	DWORD t;
-	COUNT ret;
-	// value was converted to unsigned when saved
-	ret = cread_32 (fh, &t);
-	// unsigned to signed conversion
-	if (v)
-		*v = t;
-	return ret;
-}
-
-static inline COUNT
-cread_ptr (DECODE_REF fh)
-{
-	DWORD t;
-	return cread_32 (fh, &t); /* ptrs are useless in saves */
-}
-
-static inline COUNT
-cread_a8 (DECODE_REF fh, BYTE *ar, COUNT count)
-{
-	assert (ar != NULL);
-	return cread (ar, 1, count, fh) == count;
-}
 
 static inline size_t
 read_8 (void *fp, BYTE *v)
@@ -120,39 +49,51 @@ read_8 (void *fp, BYTE *v)
 static inline size_t
 read_16 (void *fp, UWORD *v)
 {
-	UWORD t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return ReadResFile (v, 2, 1, fp);
+	UWORD t = 0;
+	int shift, i;
+	for (i = 0, shift = 0; i < 2; ++i, shift += 8)
+	{
+		BYTE b;
+		if (read_8 (fp, &b) != 1)
+			return 0;
+		t |= ((UWORD)b) << shift;
+	}
+
+	if (v)
+		*v = t;
+
+	return 1;
+}
+
+static inline size_t
+read_16s (void *fp, SWORD *v)
+{
+	return read_16 (fp, v);
 }
 
 static inline size_t
 read_32 (void *fp, DWORD *v)
 {
-	DWORD t;
-	if (!v) /* read value ignored */
-		v = &t;
-	return ReadResFile (v, 4, 1, fp);
+	DWORD t = 0;
+	int shift, i;
+	for (i = 0, shift = 0; i < 4; ++i, shift += 8)
+	{
+		BYTE b;
+		if (read_8 (fp, &b) != 1)
+			return 0;
+		t |= ((DWORD)b) << shift;
+	}
+
+	if (v)
+		*v = t;
+
+	return 1;
 }
 
 static inline size_t
 read_32s (void *fp, SDWORD *v)
 {
-	DWORD t;
-	COUNT ret;
-	// value was converted to unsigned when saved
-	ret = read_32 (fp, &t);
-	// unsigned to signed conversion
-	if (v)
-		*v = t;
-	return ret;
-}
-
-static inline size_t
-read_ptr (void *fp)
-{
-	DWORD t;
-	return read_32 (fp, &t); /* ptrs are useless in saves */
+	return read_32 (fp, v);
 }
 
 static inline size_t
@@ -160,6 +101,18 @@ read_a8 (void *fp, BYTE *ar, COUNT count)
 {
 	assert (ar != NULL);
 	return ReadResFile (ar, 1, count, fp) == count;
+}
+
+static inline size_t
+skip_8 (void *fp, COUNT count)
+{
+	int i;
+	for (i = 0; i < count; ++i)
+	{
+		if (read_8(fp, NULL) != 1)
+			return 0;
+	}
+	return 1;
 }
 
 static inline size_t
@@ -183,300 +136,221 @@ read_a16 (void *fp, UWORD *ar, COUNT count)
 }
 
 static void
-LoadEmptyQueue (DECODE_REF fh)
+LoadShipQueue (void *fh, QUEUE *pQueue, DWORD size)
 {
-	COUNT num_links;
-
-	cread_16 (fh, &num_links);
-	if (num_links)
-	{
-		log_add (log_Error, "LoadEmptyQueue(): BUG: the queue is not empty!");
-#ifdef DEBUG
-		explode ();
-#endif
-	}
-}
-
-static void
-LoadShipQueue (DECODE_REF fh, QUEUE *pQueue)
-{
-	COUNT num_links;
-
-	cread_16 (fh, &num_links);
+	COUNT num_links = size / 11;
 
 	while (num_links--)
 	{
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
 		COUNT Index;
-		BYTE tmpb;
 
-		cread_16 (fh, &Index);
+		read_16 (fh, &Index);
 
 		hStarShip = CloneShipFragment (Index, pQueue, 0);
 		FragPtr = LockShipFrag (pQueue, hStarShip);
 
 		// Read SHIP_FRAGMENT elements
-		cread_16 (fh, NULL); /* unused: was which_side */
-		cread_8  (fh, &FragPtr->captains_name_index);
-		cread_8  (fh, NULL); /* padding */
-		cread_16 (fh, NULL); /* unused: was ship_flags */
-		cread_8  (fh, &FragPtr->race_id);
-		cread_8  (fh, &FragPtr->index);
-		// XXX: reading crew as BYTE to maintain savegame compatibility
-		cread_8  (fh, &tmpb);
-		FragPtr->crew_level = tmpb;
-		cread_8  (fh, &tmpb);
-		FragPtr->max_crew = tmpb;
-		cread_8  (fh, &FragPtr->energy_level);
-		cread_8  (fh, &FragPtr->max_energy);
-		cread_16 (fh, NULL); /* unused; was loc.x */
-		cread_16 (fh, NULL); /* unused; was loc.y */
+		read_8  (fh, &FragPtr->captains_name_index);
+		read_8  (fh, &FragPtr->race_id);
+		read_8  (fh, &FragPtr->index);
+		read_16 (fh, &FragPtr->crew_level);
+		read_16 (fh, &FragPtr->max_crew);
+		read_8  (fh, &FragPtr->energy_level);
+		read_8  (fh, &FragPtr->max_energy);
 
 		UnlockShipFrag (pQueue, hStarShip);
 	}
 }
 
 static void
-LoadRaceQueue (DECODE_REF fh, QUEUE *pQueue)
+LoadRaceQueue (void *fh, QUEUE *pQueue, DWORD size)
 {
-	COUNT num_links;
-
-	cread_16 (fh, &num_links);
+	COUNT num_links = size / 30;
 
 	while (num_links--)
 	{
 		HFLEETINFO hStarShip;
 		FLEET_INFO *FleetPtr;
 		COUNT Index;
-		BYTE tmpb;
 
-		cread_16 (fh, &Index);
+		read_16 (fh, &Index);
 
 		hStarShip = GetStarShipFromIndex (pQueue, Index);
 		FleetPtr = LockFleetInfo (pQueue, hStarShip);
 
 		// Read FLEET_INFO elements
-		cread_16 (fh, &FleetPtr->allied_state);
-		cread_8  (fh, &FleetPtr->days_left);
-		cread_8  (fh, &FleetPtr->growth_fract);
-		cread_8  (fh, &tmpb);
-		FleetPtr->crew_level = tmpb;
-		cread_8  (fh, &tmpb);
-		FleetPtr->max_crew = tmpb;
-		cread_8  (fh, &FleetPtr->growth);
-		cread_8  (fh, &FleetPtr->max_energy);
-		cread_16s(fh, &FleetPtr->loc.x);
-		cread_16s(fh, &FleetPtr->loc.y);
+		read_16 (fh, &FleetPtr->allied_state);
+		read_8  (fh, &FleetPtr->days_left);
+		read_8  (fh, &FleetPtr->growth_fract);
+		read_16 (fh, &FleetPtr->crew_level);
+		read_16 (fh, &FleetPtr->max_crew);
+		read_8  (fh, &FleetPtr->growth);
+		read_8  (fh, &FleetPtr->max_energy);
+		read_16s(fh, &FleetPtr->loc.x);
+		read_16s(fh, &FleetPtr->loc.y);
 
-		cread_16 (fh, &FleetPtr->actual_strength);
-		cread_16 (fh, &FleetPtr->known_strength);
-		cread_16s(fh, &FleetPtr->known_loc.x);
-		cread_16s(fh, &FleetPtr->known_loc.y);
-		cread_8  (fh, &FleetPtr->growth_err_term);
-		cread_8  (fh, &FleetPtr->func_index);
-		cread_16s(fh, &FleetPtr->dest_loc.x);
-		cread_16s(fh, &FleetPtr->dest_loc.y);
-		cread_16 (fh, NULL); /* alignment padding */
+		read_16 (fh, &FleetPtr->actual_strength);
+		read_16 (fh, &FleetPtr->known_strength);
+		read_16s(fh, &FleetPtr->known_loc.x);
+		read_16s(fh, &FleetPtr->known_loc.y);
+		read_8  (fh, &FleetPtr->growth_err_term);
+		read_8  (fh, &FleetPtr->func_index);
+		read_16s(fh, &FleetPtr->dest_loc.x);
+		read_16s(fh, &FleetPtr->dest_loc.y);
 
 		UnlockFleetInfo (pQueue, hStarShip);
 	}
 }
 
 static void
-LoadGroupQueue (DECODE_REF fh, QUEUE *pQueue)
+LoadGroupQueue (void *fh, QUEUE *pQueue, DWORD size)
 {
-	COUNT num_links;
-
-	cread_16 (fh, &num_links);
+	COUNT num_links = size / 13;
 
 	while (num_links--)
 	{
 		HIPGROUP hGroup;
 		IP_GROUP *GroupPtr;
-		BYTE tmpb;
-
-		cread_16 (fh, NULL); /* unused; was race_id */
 
 		hGroup = BuildGroup (pQueue, 0);
 		GroupPtr = LockIpGroup (pQueue, hGroup);
 
-		cread_16 (fh, NULL); /* unused; was which_side */
-		cread_8  (fh, NULL); /* unused; was captains_name_index */
-		cread_8  (fh, NULL); /* padding; for savegame compat */
-		cread_16 (fh, &GroupPtr->group_counter);
-		cread_8  (fh, &GroupPtr->race_id);
-		cread_8  (fh, &tmpb); /* was var2 */
-		GroupPtr->sys_loc = LONIBBLE (tmpb);
-		GroupPtr->task = HINIBBLE (tmpb);
-		cread_8  (fh, &GroupPtr->in_system); /* was crew_level */
-		cread_8  (fh, NULL); /* unused; was max_crew */
-		cread_8  (fh, &tmpb); /* was energy_level */
-		GroupPtr->dest_loc = LONIBBLE (tmpb);
-		GroupPtr->orbit_pos = HINIBBLE (tmpb);
-		cread_8  (fh, &GroupPtr->group_id); /* was max_energy */
-		cread_16s(fh, &GroupPtr->loc.x);
-		cread_16s(fh, &GroupPtr->loc.y);
+		read_16 (fh, &GroupPtr->group_counter);
+		read_8  (fh, &GroupPtr->race_id);
+		read_8  (fh, &GroupPtr->sys_loc);
+		read_8  (fh, &GroupPtr->task);
+		read_8  (fh, &GroupPtr->in_system); /* was crew_level */
+		read_8  (fh, &GroupPtr->dest_loc);
+		read_8  (fh, &GroupPtr->orbit_pos);
+		read_8  (fh, &GroupPtr->group_id); /* was max_energy */
+		read_16s(fh, &GroupPtr->loc.x);
+		read_16s(fh, &GroupPtr->loc.y);
 
 		UnlockIpGroup (pQueue, hGroup);
 	}
 }
 
 static void
-LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh)
+LoadEncounter (ENCOUNTER *EncounterPtr, void *fh)
 {
 	COUNT i;
-	BYTE tmpb;
 
-	cread_ptr (fh); /* useless ptr; HENCOUNTER pred */
 	EncounterPtr->pred = 0;
-	cread_ptr (fh); /* useless ptr; HENCOUNTER succ */
 	EncounterPtr->succ = 0;
-	cread_ptr (fh); /* useless ptr; HELEMENT hElement */
 	EncounterPtr->hElement = 0;
-	cread_16s (fh, &EncounterPtr->transition_state);
-	cread_16s (fh, &EncounterPtr->origin.x);
-	cread_16s (fh, &EncounterPtr->origin.y);
-	cread_16  (fh, &EncounterPtr->radius);
+	read_16s (fh, &EncounterPtr->transition_state);
+	read_16s (fh, &EncounterPtr->origin.x);
+	read_16s (fh, &EncounterPtr->origin.y);
+	read_16  (fh, &EncounterPtr->radius);
 	// former STAR_DESC fields
-	cread_16s (fh, &EncounterPtr->loc_pt.x);
-	cread_16s (fh, &EncounterPtr->loc_pt.y);
-	cread_8   (fh, &EncounterPtr->race_id);
-	cread_8   (fh, &tmpb);
-	EncounterPtr->num_ships = tmpb & ENCOUNTER_SHIPS_MASK;
-	EncounterPtr->flags = tmpb & ENCOUNTER_FLAGS_MASK;
-	cread_16  (fh, NULL); /* alignment padding */
+	read_16s (fh, &EncounterPtr->loc_pt.x);
+	read_16s (fh, &EncounterPtr->loc_pt.y);
+	read_8   (fh, &EncounterPtr->race_id);
+	read_8   (fh, &EncounterPtr->num_ships);
+	read_8   (fh, &EncounterPtr->flags);
 
 	// Load each entry in the BRIEF_SHIP_INFO array
 	for (i = 0; i < MAX_HYPER_SHIPS; i++)
 	{
 		BRIEF_SHIP_INFO *ShipInfo = &EncounterPtr->ShipList[i];
 
-		cread_16  (fh, NULL); /* useless; was SHIP_INFO.ship_flags */
-		cread_8   (fh, &ShipInfo->race_id);
-		cread_8   (fh, NULL); /* useless; was SHIP_INFO.var2 */
-		// XXX: reading crew as BYTE to maintain savegame compatibility
-		cread_8   (fh, &tmpb);
-		ShipInfo->crew_level = tmpb;
-		cread_8   (fh, &tmpb);
-		ShipInfo->max_crew = tmpb;
-		cread_8   (fh, NULL); /* useless; was SHIP_INFO.energy_level */
-		cread_8   (fh, &ShipInfo->max_energy);
-		cread_16  (fh, NULL); /* useless; was SHIP_INFO.loc.x */
-		cread_16  (fh, NULL); /* useless; was SHIP_INFO.loc.y */
-		cread_32  (fh, NULL); /* useless val; STRING race_strings */
-		cread_ptr (fh); /* useless ptr; FRAME icons */
-		cread_ptr (fh); /* useless ptr; FRAME melee_icon */
+		read_8   (fh, &ShipInfo->race_id);
+		read_16  (fh, &ShipInfo->crew_level);
+		read_16  (fh, &ShipInfo->max_crew);
+		read_8   (fh, &ShipInfo->max_energy);
 	}
-	
+
 	// Load the stuff after the BRIEF_SHIP_INFO array
-	cread_32s (fh, &EncounterPtr->log_x);
-	cread_32s (fh, &EncounterPtr->log_y);
+	read_32s (fh, &EncounterPtr->log_x);
+	read_32s (fh, &EncounterPtr->log_y);
 }
 
 static void
-LoadEvent (EVENT *EventPtr, DECODE_REF fh)
+LoadEvent (EVENT *EventPtr, void *fh)
 {
-	cread_ptr (fh); /* useless ptr; HEVENT pred */
 	EventPtr->pred = 0;
-	cread_ptr (fh); /* useless ptr; HEVENT succ */
 	EventPtr->succ = 0;
-	cread_8   (fh, &EventPtr->day_index);
-	cread_8   (fh, &EventPtr->month_index);
-	cread_16  (fh, &EventPtr->year_index);
-	cread_8   (fh, &EventPtr->func_index);
-	cread_8   (fh, NULL); /* padding */
-	cread_16  (fh, NULL); /* padding */
+	read_8   (fh, &EventPtr->day_index);
+	read_8   (fh, &EventPtr->month_index);
+	read_16  (fh, &EventPtr->year_index);
+	read_8   (fh, &EventPtr->func_index);
 }
 
 static void
-DummyLoadQueue (QUEUE *QueuePtr, DECODE_REF fh)
+LoadClockState (CLOCK_STATE *ClockPtr, void *fh)
 {
-	/* QUEUE should never actually be loaded since it contains
-	 * purely internal representation and the lists
-	 * involved are actually loaded separately */
-	(void)QueuePtr; /* silence compiler */
-
-	/* QUEUE format with QUEUE_TABLE defined -- UQM default */
-	cread_ptr (fh); /* HLINK head */
-	cread_ptr (fh); /* HLINK tail */
-	cread_ptr (fh); /* BYTE* pq_tab */
-	cread_ptr (fh); /* HLINK free_list */
-	cread_16  (fh, NULL); /* MEM_HANDLE hq_tab */
-	cread_16  (fh, NULL); /* COUNT object_size */
-	cread_8   (fh, NULL); /* BYTE num_objects */
-	
-	cread_8   (fh, NULL); /* padding */
-	cread_16  (fh, NULL); /* padding */
+	read_8   (fh, &ClockPtr->day_index);
+	read_8   (fh, &ClockPtr->month_index);
+	read_16  (fh, &ClockPtr->year_index);
+	read_16s (fh, &ClockPtr->tick_count);
+	read_16s (fh, &ClockPtr->day_in_ticks);
 }
 
-static void
-LoadClockState (CLOCK_STATE *ClockPtr, DECODE_REF fh)
+static BOOLEAN
+LoadGameState (GAME_STATE *GSPtr, void *fh)
 {
-	cread_8   (fh, &ClockPtr->day_index);
-	cread_8   (fh, &ClockPtr->month_index);
-	cread_16  (fh, &ClockPtr->year_index);
-	cread_16s (fh, &ClockPtr->tick_count);
-	cread_16s (fh, &ClockPtr->day_in_ticks);
-	cread_ptr (fh); /* not loading ptr; Semaphore clock_sem */
-	cread_ptr (fh); /* not loading ptr; Task clock_task */
-	cread_32  (fh, NULL); /* not loading; DWORD TimeCounter */
+	DWORD magic;
+	read_32 (fh, &magic);
+	if (magic != GLOBAL_STATE_TAG)
+	{
+		return FALSE;
+	}
+	read_32 (fh, &magic);
+	if (magic != 75)
+	{
+		/* Chunk is the wrong size. */
+		return FALSE;
+	}
+	read_8   (fh, &GSPtr->glob_flags);
+	read_8   (fh, &GSPtr->CrewCost);
+	read_8   (fh, &GSPtr->FuelCost);
+	read_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
+	read_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
+	read_16  (fh, &GSPtr->CurrentActivity);
 
-	DummyLoadQueue (&ClockPtr->event_q, fh);
-}
-
-static void
-LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh)
-{
-	BYTE dummy8;
-
-	cread_8   (fh, &dummy8); /* obsolete */
-	cread_8   (fh, &GSPtr->glob_flags);
-	cread_8   (fh, &GSPtr->CrewCost);
-	cread_8   (fh, &GSPtr->FuelCost);
-	cread_a8  (fh, GSPtr->ModuleCost, NUM_MODULES);
-	cread_a8  (fh, GSPtr->ElementWorth, NUM_ELEMENT_CATEGORIES);
-	cread_ptr (fh); /* not loading ptr; PRIMITIVE *DisplayArray */
-	cread_16  (fh, &GSPtr->CurrentActivity);
-	
-	cread_16  (fh, NULL); /* CLOCK_STATE alignment padding */
 	LoadClockState (&GSPtr->GameClock, fh);
 
-	cread_16s (fh, &GSPtr->autopilot.x);
-	cread_16s (fh, &GSPtr->autopilot.y);
-	cread_16s (fh, &GSPtr->ip_location.x);
-	cread_16s (fh, &GSPtr->ip_location.y);
+	read_16s (fh, &GSPtr->autopilot.x);
+	read_16s (fh, &GSPtr->autopilot.y);
+	read_16s (fh, &GSPtr->ip_location.x);
+	read_16s (fh, &GSPtr->ip_location.y);
 	/* STAMP ShipStamp */
-	cread_16s (fh, &GSPtr->ShipStamp.origin.x);
-	cread_16s (fh, &GSPtr->ShipStamp.origin.y);
-	cread_16  (fh, &GSPtr->ShipFacing);
-	cread_8   (fh, &GSPtr->ip_planet);
-	cread_8   (fh, &GSPtr->in_orbit);
+	read_16s (fh, &GSPtr->ShipStamp.origin.x);
+	read_16s (fh, &GSPtr->ShipStamp.origin.y);
+	read_16  (fh, &GSPtr->ShipFacing);
+	read_8   (fh, &GSPtr->ip_planet);
+	read_8   (fh, &GSPtr->in_orbit);
 
 	/* VELOCITY_DESC velocity */
-	cread_16  (fh, &GSPtr->velocity.TravelAngle);
-	cread_16s (fh, &GSPtr->velocity.vector.width);
-	cread_16s (fh, &GSPtr->velocity.vector.height);
-	cread_16s (fh, &GSPtr->velocity.fract.width);
-	cread_16s (fh, &GSPtr->velocity.fract.height);
-	cread_16s (fh, &GSPtr->velocity.error.width);
-	cread_16s (fh, &GSPtr->velocity.error.height);
-	cread_16s (fh, &GSPtr->velocity.incr.width);
-	cread_16s (fh, &GSPtr->velocity.incr.height);
-	cread_16  (fh, NULL); /* VELOCITY_DESC padding */
+	read_16  (fh, &GSPtr->velocity.TravelAngle);
+	read_16s (fh, &GSPtr->velocity.vector.width);
+	read_16s (fh, &GSPtr->velocity.vector.height);
+	read_16s (fh, &GSPtr->velocity.fract.width);
+	read_16s (fh, &GSPtr->velocity.fract.height);
+	read_16s (fh, &GSPtr->velocity.error.width);
+	read_16s (fh, &GSPtr->velocity.error.height);
+	read_16s (fh, &GSPtr->velocity.incr.width);
+	read_16s (fh, &GSPtr->velocity.incr.height);
 
-	cread_32  (fh, &GSPtr->BattleGroupRef);
-	
-	DummyLoadQueue (&GSPtr->avail_race_q, fh);
-	DummyLoadQueue (&GSPtr->npc_built_ship_q, fh);
-	// Not loading ip_group_q, was not there originally
-	DummyLoadQueue (&GSPtr->encounter_q, fh);
-	DummyLoadQueue (&GSPtr->built_ship_q, fh);
-
-	cread_a8  (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
-
-	assert (sizeof (GSPtr->GameState) % 4 == 3);
-	cread_8  (fh, NULL); /* GAME_STATE alignment padding */
+	read_32 (fh, &magic);
+	if (magic != GAME_STATE_TAG)
+	{
+		return FALSE;
+	}
+	memset (GSPtr->GameState, 0, sizeof (GSPtr->GameState));
+	read_32 (fh, &magic);
+	if (magic > sizeof (GSPtr->GameState))
+	{
+		read_a8 (fh, GSPtr->GameState, sizeof (GSPtr->GameState));
+		skip_8  (fh, magic - sizeof (GSPtr->GameState));
+	}
+	else
+	{
+		read_a8 (fh, GSPtr->GameState, magic);
+	}
+	return TRUE;
 }
 
 static BOOLEAN
@@ -498,23 +372,36 @@ LoadSisState (SIS_STATE *SSPtr, void *fp)
 
 			read_str (fp, SSPtr->ShipName, SIS_NAME_SIZE) != 1 ||
 			read_str (fp, SSPtr->CommanderName, SIS_NAME_SIZE) != 1 ||
-			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1 ||
-
-			read_16  (fp, NULL) != 1 /* padding */
+			read_str (fp, SSPtr->PlanetName, SIS_NAME_SIZE) != 1
 		)
 		return FALSE;
-	else
-		return TRUE;
+	return TRUE;
 }
 
 static BOOLEAN
 LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 {
+	SDWORD magic;
+	DWORD nameSize = 0;
+	if (!read_32s (fp, &magic))
+		return FALSE;
+	if (magic == SAVEFILE_TAG)
+	{
+		if (read_32 (fp, &magic) != 1 || magic != SUMMARY_TAG)
+			return FALSE;
+		if (read_32 (fp, &magic) != 1 || magic < 160)
+			return FALSE;
+		nameSize = magic - 160;
+	}
+	else
+	{
+		return FALSE;
+	}
+
 	if (!LoadSisState (&SummPtr->SS, fp))
 		return FALSE;
 
-	if (
-			read_8  (fp, &SummPtr->Activity) != 1 ||
+	if (		read_8  (fp, &SummPtr->Activity) != 1 ||
 			read_8  (fp, &SummPtr->Flags) != 1 ||
 			read_8  (fp, &SummPtr->day_index) != 1 ||
 			read_8  (fp, &SummPtr->month_index) != 1 ||
@@ -524,24 +411,191 @@ LoadSummary (SUMMARY_DESC *SummPtr, void *fp)
 			read_8  (fp, &SummPtr->NumShips) != 1 ||
 			read_8  (fp, &SummPtr->NumDevices) != 1 ||
 			read_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS) != 1 ||
-			read_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1 ||
-
-			read_16  (fp, NULL) != 1 /* padding */
+			read_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES) != 1
 		)
 		return FALSE;
+	
+	if (nameSize < SAVE_NAME_SIZE)
+	{
+		if (read_a8 (fp, SummPtr->SaveName, nameSize) != 1)
+			return FALSE;
+		SummPtr->SaveName[nameSize] = 0;
+	}
 	else
-		return TRUE;
+	{
+		DWORD remaining = nameSize - SAVE_NAME_SIZE + 1;
+		if (read_a8 (fp, SummPtr->SaveName, SAVE_NAME_SIZE-1) != 1)
+			return FALSE;
+		SummPtr->SaveName[SAVE_NAME_SIZE-1] = 0;
+		if (skip_8 (fp, remaining) != 1)
+			return FALSE;
+	}
+	return TRUE;
 }
 
 static void
-LoadStarDesc (STAR_DESC *SDPtr, DECODE_REF fh)
+LoadStarDesc (STAR_DESC *SDPtr, void *fh)
 {
-	cread_16s(fh, &SDPtr->star_pt.x);
-	cread_16s(fh, &SDPtr->star_pt.y);
-	cread_8  (fh, &SDPtr->Type);
-	cread_8  (fh, &SDPtr->Index);
-	cread_8  (fh, &SDPtr->Prefix);
-	cread_8  (fh, &SDPtr->Postfix);
+	read_16s(fh, &SDPtr->star_pt.x);
+	read_16s(fh, &SDPtr->star_pt.y);
+	read_8  (fh, &SDPtr->Type);
+	read_8  (fh, &SDPtr->Index);
+	read_8  (fh, &SDPtr->Prefix);
+	read_8  (fh, &SDPtr->Postfix);
+}
+
+static void
+LoadScanInfo (uio_Stream *fh, DWORD flen)
+{
+	GAME_STATE_FILE *fp = OpenStateFile (STARINFO_FILE, "wb");
+	if (fp)
+	{
+		while (flen)
+		{
+			DWORD val;
+			read_32 (fh, &val);
+			swrite_32 (fp, val);
+			flen -= 4;
+		}
+		CloseStateFile (fp);
+	}
+}
+
+static void
+LoadGroupList (uio_Stream *fh, DWORD chunksize)
+{
+	GAME_STATE_FILE *fp = OpenStateFile (RANDGRPINFO_FILE, "rb");
+	if (fp)
+	{
+		GROUP_HEADER h;
+		BYTE LastEnc, NumGroups;
+		int i;
+		ReadGroupHeader (fp, &h);
+		/* There's only supposed to be one of these, so group 0 should be
+		 * zero here whenever we're here. We add the group list to the
+		 * end here. */
+		h.GroupOffset[0] = LengthStateFile (fp);
+		SeekStateFile (fp, 0, SEEK_SET);
+		WriteGroupHeader (fp, &h);
+		SeekStateFile (fp, h.GroupOffset[0], SEEK_SET);
+		read_8 (fh, &LastEnc);
+		NumGroups = (chunksize - 1) / 14;
+		swrite_8 (fp, LastEnc);
+		swrite_8 (fp, NumGroups);
+		for (i = 0; i < NumGroups; ++i)
+		{
+			BYTE race_outer;
+			IP_GROUP ip;
+			read_8  (fh, &race_outer);
+			read_16 (fh, &ip.group_counter);
+			read_8  (fh, &ip.race_id);
+                        read_8  (fh, &ip.sys_loc);
+                        read_8  (fh, &ip.task);
+                        read_8  (fh, &ip.in_system);
+                        read_8  (fh, &ip.dest_loc);
+                        read_8  (fh, &ip.orbit_pos);
+                        read_8  (fh, &ip.group_id);
+                        read_16 (fh, &ip.loc.x);
+                        read_16 (fh, &ip.loc.y);
+
+			swrite_8 (fp, race_outer);
+			WriteIpGroup (fp, &ip);
+		}
+		CloseStateFile (fp);
+	}
+}
+
+static void
+LoadBattleGroup (uio_Stream *fh, DWORD chunksize)
+{
+	GAME_STATE_FILE *fp;
+	GROUP_HEADER h;
+	DWORD encounter, offset;
+	BYTE current;
+	int i;
+
+	read_32 (fh, &encounter);
+	read_8 (fh, &current);
+	chunksize -= 5;
+	if (encounter)
+	{
+		/* This is a defined group, so it's new */
+		fp = OpenStateFile (DEFGRPINFO_FILE, "rb");
+		offset = LengthStateFile (fp);
+		memset (&h, 0, sizeof (GROUP_HEADER));
+	}
+	else
+	{
+		/* This is the random group. Load in what was there,
+		 * as we might have already seen the Group List. */
+		fp = OpenStateFile (RANDGRPINFO_FILE, "rb");
+		current = FALSE;
+		offset = 0;
+		ReadGroupHeader (fp, &h);
+	}
+	if (!fp)
+	{
+		skip_8 (fh, chunksize);
+		return;
+	}
+	read_16 (fh, &h.star_index);
+	read_8  (fh, &h.day_index);
+	read_8  (fh, &h.month_index);
+	read_16 (fh, &h.year_index);
+	read_8  (fh, &h.NumGroups);
+	chunksize -= 7;
+	/* Write out the half-finished state file so that we can use
+	 * the file size to compute group offsets */
+	SeekStateFile (fp, offset, SEEK_SET);
+	WriteGroupHeader (fp, &h);
+	for (i = 1; i <= h.NumGroups; ++i)
+	{
+		int j;
+		BYTE icon, NumShips;
+		read_8 (fh, &icon);
+		read_8 (fh, &NumShips);
+		chunksize -= 2;
+		h.GroupOffset[i] = LengthStateFile (fp);
+		SeekStateFile (fp, h.GroupOffset[i], SEEK_SET);
+		swrite_8 (fp, icon);
+		swrite_8 (fp, NumShips);
+		for (j = 0; j < NumShips; ++j)
+		{
+			BYTE race_outer;
+			SHIP_FRAGMENT sf;
+			read_8  (fh, &race_outer);
+                        read_8  (fh, &sf.captains_name_index);
+                        read_8  (fh, &sf.race_id);
+                        read_8  (fh, &sf.index);
+                        read_16 (fh, &sf.crew_level);
+                        read_16 (fh, &sf.max_crew);
+                        read_8  (fh, &sf.energy_level);
+                        read_8  (fh, &sf.max_energy);
+			chunksize -= 10;
+
+			swrite_8 (fp, race_outer);
+			WriteShipFragment (fp, &sf);
+		}
+	}
+	/* Now that the GroupOffset array is properly initialized,
+	 * write the header back out. */
+	SeekStateFile (fp, offset, SEEK_SET);
+	WriteGroupHeader (fp, &h);
+	CloseStateFile (fp);
+	/* And update the gamestate accordingly, if we're a defined group. */
+	if (encounter)
+	{
+		SET_GAME_STATE_32 (SHOFIXTI_GRPOFFS0 + (encounter - 1) * 32, offset);
+		if (current)
+		{
+			GLOBAL (BattleGroupRef) = offset;
+		}
+	}
+	/* Consistency check. */
+	if (chunksize)
+	{
+		log_add (log_Warning, "BattleGroup chunk mis-sized!");
+	}
 }
 
 BOOLEAN
@@ -549,24 +603,22 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 {
 	uio_Stream *in_fp;
 	char file[PATH_MAX];
-	char buf[256];
 	SUMMARY_DESC loc_sd;
-	GAME_STATE_FILE *fp;
-	DECODE_REF fh;
 	COUNT num_links;
 	STAR_DESC SD;
 	ACTIVITY Activity;
+	DWORD chunk, chunkSize;
+	BOOLEAN first_group_spec = TRUE;
 
-	sprintf (file, "starcon2.%02u", which_game);
+	sprintf (file, "uqmsave.%02u", which_game);
 	in_fp = res_OpenResFile (saveDir, file, "rb");
 	if (!in_fp)
-		return FALSE;
+		return LoadLegacyGame (which_game, SummPtr);
 
 	if (!LoadSummary (&loc_sd, in_fp))
 	{
-		log_add (log_Error, "Warning: Savegame is corrupt");
 		res_CloseResFile (in_fp);
-		return FALSE;
+		return LoadLegacyGame (which_game, SummPtr);
 	}
 
 	if (!SummPtr)
@@ -580,28 +632,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 		return TRUE;
 	}
 
-	// Crude check for big-endian/little-endian incompatibilities.
-	// year_index is suitable as it's a multi-byte value within
-	// a specific recognisable range.
-	if (SummPtr->year_index < START_YEAR ||
-			SummPtr->year_index >= START_YEAR +
-			YEARS_TO_KOHRAH_VICTORY + 1 /* Utwig intervention */ +
-			1 /* time to destroy all races, plenty */ +
-			25 /* for cheaters */)
-	{
-		log_add (log_Error, "Warning: Savegame corrupt or from "
-				"an incompatible platform.");
-		res_CloseResFile (in_fp);
-		return FALSE;
-	}
-
 	GlobData.SIS_state = SummPtr->SS;
-
-	if ((fh = copen (in_fp, FILE_STREAM, STREAM_READ)) == 0)
-	{
-		res_CloseResFile (in_fp);
-		return FALSE;
-	}
 
 	ReinitQueue (&GLOBAL (GameClock.event_q));
 	ReinitQueue (&GLOBAL (encounter_q));
@@ -611,141 +642,116 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 
 	memset (&GLOBAL (GameState[0]), 0, sizeof (GLOBAL (GameState)));
 	Activity = GLOBAL (CurrentActivity);
-	LoadGameState (&GlobData.Game_state, fh);
+	if (!LoadGameState (&GlobData.Game_state, in_fp))
+	{
+		res_CloseResFile (in_fp);
+		return FALSE;
+	}
 	NextActivity = GLOBAL (CurrentActivity);
 	GLOBAL (CurrentActivity) = Activity;
 
-	LoadRaceQueue (fh, &GLOBAL (avail_race_q));
-	// START_INTERPLANETARY is only set when saving from Homeworld
-	//   encounter screen. When the game is loaded, the
-	//   GenerateOrbitalFunction for the current star system will
-	//   create the encounter anew and populate the npc queue.
-	if (!(NextActivity & START_INTERPLANETARY))
+	chunk = 0;
+	while (TRUE)
 	{
-		if (NextActivity & START_ENCOUNTER)
-			LoadShipQueue (fh, &GLOBAL (npc_built_ship_q));
-		else if (LOBYTE (NextActivity) == IN_INTERPLANETARY)
-			// XXX: Technically, this queue does not need to be
-			//   saved/loaded at all. IP groups will be reloaded
-			//   from group state files. But the original code did,
-			//   and so will we until we can prove we do not need to.
-			LoadGroupQueue (fh, &GLOBAL (ip_group_q));
-		else
-			// XXX: The empty queue read is only needed to maintain
-			//   the savegame compatibility
-			LoadEmptyQueue (fh);
-	}
-	LoadShipQueue (fh, &GLOBAL (built_ship_q));
+		if (read_32(in_fp, &chunk) != 1)
+		{
+			break;
+		}
+		if (read_32(in_fp, &chunkSize) != 1)
+		{
+			res_CloseResFile (in_fp);
+			return FALSE;
+		}
+		switch (chunk)
+		{
+		case RACE_Q_TAG:
+			LoadRaceQueue (in_fp, &GLOBAL (avail_race_q), chunkSize);
+			break;
+		case IP_GRP_Q_TAG:
+			LoadGroupQueue (in_fp, &GLOBAL (ip_group_q), chunkSize);
+			break;
+		case ENCOUNTERS_TAG:
+			num_links = chunkSize / 65;
+			while (num_links--)
+			{
+				HENCOUNTER hEncounter;
+				ENCOUNTER *EncounterPtr;
 
-	// Load the game events (compressed)
-	cread_16 (fh, &num_links);
-	{
+				hEncounter = AllocEncounter ();
+				LockEncounter (hEncounter, &EncounterPtr);
+
+				LoadEncounter (EncounterPtr, in_fp);
+
+				UnlockEncounter (hEncounter);
+				PutEncounter (hEncounter);
+			}
+			break;
+		case EVENTS_TAG:
+			num_links = chunkSize / 5;
 #ifdef DEBUG_LOAD
-		log_add (log_Debug, "EVENTS:");
+			log_add (log_Debug, "EVENTS:");
 #endif /* DEBUG_LOAD */
-		while (num_links--)
-		{
-			HEVENT hEvent;
-			EVENT *EventPtr;
+			while (num_links--)
+			{
+				HEVENT hEvent;
+				EVENT *EventPtr;
 
-			hEvent = AllocEvent ();
-			LockEvent (hEvent, &EventPtr);
+				hEvent = AllocEvent ();
+				LockEvent (hEvent, &EventPtr);
 
-			LoadEvent (EventPtr, fh);
+				LoadEvent (EventPtr, in_fp);
 
 #ifdef DEBUG_LOAD
-		log_add (log_Debug, "\t%u/%u/%u -- %u",
-				EventPtr->month_index,
-				EventPtr->day_index,
-				EventPtr->year_index,
-				EventPtr->func_index);
+				log_add (log_Debug, "\t%u/%u/%u -- %u",
+						 EventPtr->month_index,
+						 EventPtr->day_index,
+						 EventPtr->year_index,
+						 EventPtr->func_index);
 #endif /* DEBUG_LOAD */
-			UnlockEvent (hEvent);
-			PutEvent (hEvent);
+				UnlockEvent (hEvent);
+				PutEvent (hEvent);
+			}
+			break;
+		case STAR_TAG:
+			LoadStarDesc (&SD, in_fp);
+			break;
+		case NPC_SHIP_Q_TAG:
+			LoadShipQueue (in_fp, &GLOBAL (npc_built_ship_q), chunkSize);
+			break;
+		case SHIP_Q_TAG:
+			LoadShipQueue (in_fp, &GLOBAL (built_ship_q), chunkSize);
+			break;
+		case SCAN_TAG:
+			LoadScanInfo (in_fp, chunkSize);
+			break;
+		case GROUP_LIST_TAG:
+			if (first_group_spec)
+			{
+				InitGroupInfo (TRUE);
+				GLOBAL (BattleGroupRef) = 0;
+				first_group_spec = FALSE;
+			}
+			LoadGroupList (in_fp, chunkSize);
+			break;
+		case BATTLE_GROUP_TAG:
+			if (first_group_spec)
+			{
+				InitGroupInfo (TRUE);
+				GLOBAL (BattleGroupRef) = 0;
+				first_group_spec = FALSE;
+			}
+			LoadBattleGroup (in_fp, chunkSize);
+			break;
+		default:
+			log_add (log_Debug, "Skipping chunk of tag %08X (size %u)", chunk, chunkSize);
+			if (skip_8(in_fp, chunkSize) != 1)
+			{
+				res_CloseResFile (in_fp);
+				return FALSE;
+			}
+			break;
 		}
 	}
-
-	// Load the encounters (black globes in HS/QS (compressed))
-	cread_16 (fh, &num_links);
-	{
-		while (num_links--)
-		{
-			HENCOUNTER hEncounter;
-			ENCOUNTER *EncounterPtr;
-
-			hEncounter = AllocEncounter ();
-			LockEncounter (hEncounter, &EncounterPtr);
-
-			LoadEncounter (EncounterPtr, fh);
-
-			UnlockEncounter (hEncounter);
-			PutEncounter (hEncounter);
-		}
-	}
-
-	// Copy the star info file from the compressed stream
-	fp = OpenStateFile (STARINFO_FILE, "wb");
-	if (fp)
-	{
-		DWORD flen;
-
-		cread_32 (fh, &flen);
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			cread (buf, num_bytes, 1, fh);
-			WriteStateFile (buf, num_bytes, 1, fp);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
-
-	// Copy the defined groupinfo file from the compressed stream
-	fp = OpenStateFile (DEFGRPINFO_FILE, "wb");
-	if (fp)
-	{
-		DWORD flen;
-
-		cread_32 (fh, &flen);
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			cread (buf, num_bytes, 1, fh);
-			WriteStateFile (buf, num_bytes, 1, fp);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
-
-	// Copy the random groupinfo file from the compressed stream
-	fp = OpenStateFile (RANDGRPINFO_FILE, "wb");
-	if (fp)
-	{
-		DWORD flen;
-
-		cread_32 (fh, &flen);
-		while (flen)
-		{
-			COUNT num_bytes;
-
-			num_bytes = flen >= sizeof (buf) ? sizeof (buf) : (COUNT)flen;
-			cread (buf, num_bytes, 1, fh);
-			WriteStateFile (buf, num_bytes, 1, fp);
-
-			flen -= num_bytes;
-		}
-		CloseStateFile (fp);
-	}
-
-	LoadStarDesc (&SD, fh);
-
-	cclose (fh);
 	res_CloseResFile (in_fp);
 
 	EncounterGroup = 0;
@@ -760,5 +766,3 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr)
 
 	return TRUE;
 }
-
-

@@ -23,24 +23,36 @@
 #include "uqm/colors.h"
 #include "uqm/globdata.h"
 
-
+// Core characteristics
 #define MAX_CREW 18
 #define MAX_ENERGY 18
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 9
-#define SPECIAL_ENERGY_COST 4
 #define ENERGY_WAIT 8
 #define MAX_THRUST /* DISPLAY_TO_WORLD (6) */ 24
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 3
-#define TURN_WAIT 1
 #define THRUST_WAIT 4
-#define WEAPON_WAIT 10
-#define SPECIAL_WAIT 9
-
+#define TURN_WAIT 1
 #define SHIP_MASS 6
-#define MISSILE_LIFE 60
+
+// Nuke
+#define WEAPON_ENERGY_COST 9
+#define WEAPON_WAIT 10
+#define HUMAN_OFFSET 42
+#define NUKE_OFFSET 8
 #define MIN_MISSILE_SPEED DISPLAY_TO_WORLD (10)
 #define MAX_MISSILE_SPEED DISPLAY_TO_WORLD (20)
+#define MISSILE_SPEED (MAX_THRUST >= MIN_MISSILE_SPEED ? \
+		MAX_THRUST : MIN_MISSILE_SPEED)
+#define THRUST_SCALE DISPLAY_TO_WORLD (1)
+#define MISSILE_LIFE 60
+#define MISSILE_HITS 1
+#define MISSILE_DAMAGE 4
+#define TRACK_WAIT 3
+
+// Point-Defense Laser
+#define SPECIAL_ENERGY_COST 4
+#define SPECIAL_WAIT 9
+#define LASER_RANGE (UWORD)100
 
 static RACE_DESC human_desc =
 {
@@ -113,10 +125,6 @@ static RACE_DESC human_desc =
 	0, /* CodeRef */
 };
 
-#define MISSILE_SPEED (MAX_THRUST >= MIN_MISSILE_SPEED ? \
-										MAX_THRUST : MIN_MISSILE_SPEED)
-#define TRACK_WAIT 3
-
 static void
 nuke_preprocess (ELEMENT *ElementPtr)
 {
@@ -141,7 +149,6 @@ nuke_preprocess (ELEMENT *ElementPtr)
 	{
 		SIZE speed;
 
-#define THRUST_SCALE DISPLAY_TO_WORLD (1)
 		if ((speed = MISSILE_SPEED +
 				((MISSILE_LIFE - ElementPtr->life_span) *
 				THRUST_SCALE)) > MAX_MISSILE_SPEED)
@@ -196,7 +203,6 @@ spawn_point_defense (ELEMENT *ElementPtr)
 			if (ObjectPtr != ShipPtr && CollidingElement (ObjectPtr) &&
 					!OBJECT_CLOAKED (ObjectPtr))
 			{
-#define LASER_RANGE (UWORD)100
 				SIZE delta_x, delta_y;
 
 				delta_x = ObjectPtr->next.location.x -
@@ -265,10 +271,6 @@ spawn_point_defense (ELEMENT *ElementPtr)
 static COUNT
 initialize_nuke (ELEMENT *ShipPtr, HELEMENT NukeArray[])
 {
-#define HUMAN_OFFSET 42
-#define MISSILE_DAMAGE 4
-#define MISSILE_HITS 1
-#define NUKE_OFFSET 8
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 

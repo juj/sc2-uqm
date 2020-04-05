@@ -20,26 +20,34 @@
 #include "mycon.h"
 #include "resinst.h"
 
+// Core characteristics
 #define MAX_CREW 20
 #define MAX_ENERGY 40
 #define ENERGY_REGENERATION 1
-#define WEAPON_ENERGY_COST 20
-#define SPECIAL_ENERGY_COST MAX_ENERGY
 #define ENERGY_WAIT 4
 #define MAX_THRUST /* DISPLAY_TO_WORLD (7) */ 27
 #define THRUST_INCREMENT /* DISPLAY_TO_WORLD (2) */ 9
-#define TURN_WAIT 6
 #define THRUST_WAIT 6
-#define WEAPON_WAIT 5
-#define SPECIAL_WAIT 0
-
+#define TURN_WAIT 6
 #define SHIP_MASS 7
 
+// Plasmoid
+#define WEAPON_ENERGY_COST 20
+#define WEAPON_WAIT 5
+#define MYCON_OFFSET 24
+#define MISSILE_OFFSET 0
 #define NUM_PLASMAS 11
 #define NUM_GLOBALLS 8
 #define PLASMA_DURATION 13
 #define MISSILE_LIFE (NUM_PLASMAS * PLASMA_DURATION)
 #define MISSILE_SPEED DISPLAY_TO_WORLD (8)
+#define MISSILE_DAMAGE 10
+#define TRACK_WAIT 1
+
+// Regenerate
+#define SPECIAL_ENERGY_COST MAX_ENERGY
+#define SPECIAL_WAIT 0
+#define REGENERATION_AMOUNT 4
 
 static RACE_DESC mycon_desc =
 {
@@ -111,10 +119,6 @@ static RACE_DESC mycon_desc =
 	0,
 	0, /* CodeRef */
 };
-
-#define MISSILE_DAMAGE 10
-
-#define TRACK_WAIT 1
 
 static void
 plasma_preprocess (ELEMENT *ElementPtr)
@@ -297,8 +301,6 @@ mycon_intelligence (ELEMENT *ShipPtr, EVALUATE_DESC *ObjectsOfConcern,
 static COUNT
 initialize_plasma (ELEMENT *ShipPtr, HELEMENT PlasmaArray[])
 {
-#define MYCON_OFFSET 24
-#define MISSILE_OFFSET 0
 	STARSHIP *StarShipPtr;
 	MISSILE_BLOCK MissileBlock;
 
@@ -343,7 +345,6 @@ mycon_postprocess (ELEMENT *ElementPtr)
 			&& ElementPtr->crew_level != StarShipPtr->RaceDescPtr->ship_info.max_crew
 			&& DeltaEnergy (ElementPtr, -SPECIAL_ENERGY_COST))
 	{
-#define REGENERATION_AMOUNT 4
 		SIZE add_crew;
 
 		ProcessSound (SetAbsSoundIndex (

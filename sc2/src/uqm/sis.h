@@ -76,7 +76,7 @@ enum
 	CANNON_WEAPON,
 	TRACKING_SYSTEM,
 	ANTIMISSILE_DEFENSE,
-	
+
 	NUM_PURCHASE_MODULES,
 
 	BOMB_MODULE_0 = NUM_PURCHASE_MODULES,
@@ -153,26 +153,6 @@ typedef struct
 	UNICODE CommanderName[SIS_NAME_SIZE];
 	UNICODE PlanetName[SIS_NAME_SIZE];
 } SIS_STATE;
-
-// XXX: Theoretically, a player can have 17 devices on board without
-//   cheating. We only provide
-//   room for 16 below, which is not really a problem since this
-//   is only used for displaying savegame summaries. There is also
-//   room for only 16 devices on screen.
-#define MAX_EXCLUSIVE_DEVICES 16
-
-typedef struct
-{
-	SIS_STATE SS;
-	BYTE Activity;
-	BYTE Flags;
-	BYTE day_index, month_index;
-	COUNT year_index;
-	BYTE MCreditLo, MCreditHi;
-	BYTE NumShips, NumDevices;
-	BYTE ShipList[MAX_BUILT_SHIPS];
-	BYTE DeviceList[MAX_EXCLUSIVE_DEVICES];
-} SUMMARY_DESC;
 
 #define OVERRIDE_LANDER_FLAGS (1 << 7)
 #define AFTER_BOMB_INSTALLED (1 << 7)
