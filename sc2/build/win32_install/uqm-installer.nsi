@@ -117,89 +117,6 @@ NoProfile:
 GotAppData:
 FunctionEnd
 
-Function Random
-  Exch $0
-  Push $1
-  System::Call 'kernel32::QueryPerformanceCounter(*l.r1)'
-  System::Int64Op $1 % $0
-  Pop $0
-  Pop $1
-  Exch $0
-FunctionEnd
-
-Function RandomServer
-  Push $0
-  Push 17
-  Call Random
-  Pop  $0
-  IntCmp $0 0 0 +4 +4
-  StrCpy $0 "aarnet"
-  Exch $0
-  Return
-  IntCmp $0 1 0 +4 +4
-  StrCpy $0 "citylan"
-  Exch $0
-  Return
-  IntCmp $0 2 0 +4 +4
-  StrCpy $0 "freefr"
-  Exch $0
-  Return
-  IntCmp $0 3 0 +4 +4
-  StrCpy $0 "garr"
-  Exch $0
-  Return
-  IntCmp $0 4 0 +4 +4
-  StrCpy $0 "heanet"
-  Exch $0
-  Return
-  IntCmp $0 5 0 +4 +4
-  StrCpy $0 "hivelocity"
-  Exch $0
-  Return
-  IntCmp $0 6 0 +4 +4
-  StrCpy $0 "ignum"
-  Exch $0
-  Return
-  IntCmp $0 7 0 +4 +4
-  StrCpy $0 "internode"
-  Exch $0
-  Return
-  IntCmp $0 8 0 +4 +4
-  StrCpy $0 "iweb"
-  Exch $0
-  Return
-  IntCmp $0 9 0 +4 +4
-  StrCpy $0 "jaist"
-  Exch $0
-  Return
-  IntCmp $0 10 0 +4 +4
-  StrCpy $0 "nchc"
-  Exch $0
-  Return
-  IntCmp $0 11 0 +4 +4
-  StrCpy $0 "netcologne"
-  Exch $0
-  Return
-  IntCmp $0 12 0 +4 +4
-  StrCpy $0 "switch"
-  Exch $0
-  Return
-  IntCmp $0 13 0 +4 +4
-  StrCpy $0 "tenet"
-  Exch $0
-  Return
-  IntCmp $0 14 0 +4 +4
-  StrCpy $0 "ufpr"
-  Exch $0
-  Return
-  IntCmp $0 15 0 +4 +4
-  StrCpy $0 "voxel"
-  Exch $0
-  Return
-  StrCpy $0 "waix"
-  Exch $0
-FunctionEnd
-
 # To use:
 # Push the file name.
 # Push the installation location.
@@ -244,22 +161,13 @@ ZipPackageOK:
       CopyFiles "$PACKAGEDIR\$1.zip" "$0\$1"
       Goto PackageDone
 AttemptDownload:
-  Call RandomServer
-  Pop $2
-  GetTempFileName $DOWNLOADTARGET
-  Delete $DOWNLOADTARGET
-  CreateDirectory $DOWNLOADTARGET
-  NSISdl::download "http://$2.dl.sourceforge.net/project/sc2/$DOWNLOADPATH$1" "$DOWNLOADTARGET\$1"
-  Pop $2
-  StrCmp $2 "success" DownloadSuccessful
-  StrCmp $2 "cancel" DownloadCanceled
+  # We'll run an InetC-based download here, which should automatically
+  # handle redirection, mirrors, https, and the rest for us.
+  # GetTempFileName $DOWNLOADTARGET
+  # Delete $DOWNLOADTARGET
+  # CreateDirectory $DOWNLOADTARGET
+  StrCpy $2 "Download functionality has been disabled in this build"
   StrCpy $2 "Could not install the package $1 due to the following error: $\"$2$\"."
-  # Only actually display the error every third try, unless it's a user cancellation. We can't
-  # really rely on SF.net to have everything at every mirror.
-  IntOp $R9 $R9 + 1
-  IntCmp $R9 3 0 AttemptDownload
-  # If we fell through, reset the count.
-  StrCpy $R9 0
   Goto CheckMandatory
 DownloadCanceled:
   StrCpy $2 "Download was canceled by user."
