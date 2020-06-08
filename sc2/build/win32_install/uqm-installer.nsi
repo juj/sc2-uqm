@@ -161,12 +161,13 @@ ZipPackageOK:
       CopyFiles "$PACKAGEDIR\$1.zip" "$0\$1"
       Goto PackageDone
 AttemptDownload:
-  # We'll run an InetC-based download here, which should automatically
-  # handle redirection, mirrors, https, and the rest for us.
-  # GetTempFileName $DOWNLOADTARGET
-  # Delete $DOWNLOADTARGET
-  # CreateDirectory $DOWNLOADTARGET
-  StrCpy $2 "Download functionality has been disabled in this build"
+  GetTempFileName $DOWNLOADTARGET
+  Delete $DOWNLOADTARGET
+  CreateDirectory $DOWNLOADTARGET
+  inetc::get "https://downloads.sourceforge.net/project/sc2/$DOWNLOADPATH$1" "$DOWNLOADTARGET/$1" /END
+  Pop $2
+  StrCmp $2 "OK" DownloadSuccessful
+  StrCmp $2 "Cancelled" DownloadCanceled
   StrCpy $2 "Could not install the package $1 due to the following error: $\"$2$\"."
   Goto CheckMandatory
 DownloadCanceled:
@@ -284,7 +285,7 @@ SectionGroup "!UQM" SECGRP01
     StrCpy $MANDATORY 1
     StrCpy $MD5SUM "${PKG_CONTENT_MD5SUM}"
     File "..\..\content\version"
-    StrCpy $DOWNLOADPATH "UQM/0.7/"
+    StrCpy $DOWNLOADPATH "UQM/0.8/"
     Push "${PKG_CONTENT_FILE}"
     Push "$INSTDIR\content\packages"
     Call HandlePackage
@@ -306,7 +307,7 @@ SectionGroup /e "3DO Content" SECGRP02
     AddSize ${PKG_3DOMUSIC_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_3DOMUSIC_MD5SUM}"
-    StrCpy $DOWNLOADPATH "UQM/0.7/"
+    StrCpy $DOWNLOADPATH "UQM/0.8/"
     Push "${PKG_3DOMUSIC_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
@@ -320,7 +321,7 @@ SectionGroup /e "3DO Content" SECGRP02
     AddSize ${PKG_VOICE_SIZE}
     StrCpy $MANDATORY 0
     StrCpy $MD5SUM "${PKG_VOICE_MD5SUM}"
-    StrCpy $DOWNLOADPATH "UQM/0.7/"
+    StrCpy $DOWNLOADPATH "UQM/0.8/"
     Push "${PKG_VOICE_FILE}"
     Push "$INSTDIR\content\addons"
     Call HandlePackage
