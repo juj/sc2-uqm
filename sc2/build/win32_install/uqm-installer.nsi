@@ -7,7 +7,7 @@ Var UQMUSERDATA
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "The Ur-Quan Masters"
-!define PRODUCT_VERSION "0.7.0"
+!define PRODUCT_VERSION "0.8.0"
 !define PRODUCT_WEB_SITE "http://sc2.sourceforge.net"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\uqm.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -16,7 +16,7 @@ Var UQMUSERDATA
 
 ; The INSTALLER_VERSION is a suffix to the version number for installer patches or to mark
 ; alpha/beta/release candidate status. In normal releases it is the empty string.
-!define INSTALLER_VERSION "-1"
+!define INSTALLER_VERSION "b"
 
 ; UQM Package definitions
 !include "packages.nsh"
@@ -272,10 +272,13 @@ SectionGroup "!UQM" SECGRP01
     Delete "$INSTDIR\content\packages\uqm-0.6.0-3domusic.uqm"
     Delete "$INSTDIR\content\packages\uqm-0.6.0-voice.uqm"
     Delete "$INSTDIR\content\packages\uqm-0.6.0-content.uqm"
+    Delete "$INSTDIR\content\packages\uqm-0.7.0-3domusic.uqm"
+    Delete "$INSTDIR\content\packages\uqm-0.7.0-voice.uqm"
+    Delete "$INSTDIR\content\packages\uqm-0.7.0-content.uqm"
     # and in a case of manual install and overly helpful browsers
-    Delete "$INSTDIR\content\packages\uqm-0.6.0-3domusic.uqm.zip"
-    Delete "$INSTDIR\content\packages\uqm-0.6.0-voice.uqm.zip"
-    Delete "$INSTDIR\content\packages\uqm-0.6.0-content.uqm.zip"
+    Delete "$INSTDIR\content\packages\uqm-0.7.0-3domusic.uqm.zip"
+    Delete "$INSTDIR\content\packages\uqm-0.7.0-voice.uqm.zip"
+    Delete "$INSTDIR\content\packages\uqm-0.7.0-content.uqm.zip"
 
   ; Shortcuts
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
