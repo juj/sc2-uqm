@@ -24,6 +24,10 @@ Var UQMUSERDATA
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
 
+; Start using macros for block structure
+!include "LogicLib.nsh"
+
+
 ; MUI Settings
 !define MUI_ABORTWARNING
 !define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\win-install.ico"
@@ -104,17 +108,16 @@ Function .onInit
   StrCpy $UQMARGS ""
   StrCpy $MAKEICON 0
   ReadEnvStr $0 APPDATA
-  StrCmp $0 "" NoAppData
-  ExpandEnvStrings $UQMUSERDATA "%APPDATA%\uqm"
-  Goto GotAppData
-NoAppData:
-  ReadEnvStr $0 USERPROFILE
-  StrCmp $0 "" NoProfile
-  ExpandEnvStrings $UQMUSERDATA "%USERPROFILE%\Application Data\uqm"
-  Goto GotAppData
-NoProfile:
-  StrCpy $UQMUSERDATA "$INSTDIR\userdata\uqm"
-GotAppData:
+  ${If} $0 == ""
+    ReadEnvStr $0 USERPROFILE
+    ${If} $0 == ""
+      StrCpy $UQMUSERDATA "$INSTDIR\userdata\uqm"
+    ${Else}
+      ExpandEnvStrings $UQMUSERDATA "%USERPROFILE%\Application Data\uqm"
+    ${EndIf}
+  ${Else}
+    ExpandEnvStrings $UQMUSERDATA "%APPDATA%\uqm"
+  ${EndIf}
 FunctionEnd
 
 # To use:
@@ -134,67 +137,73 @@ Function HandlePackage
   Push $3
   StrCpy $R9 0 # failure count
   # Check to make sure the file wasn't already installed
-  IfFileExists "$0\$1" 0 NotThere
-     md5dll::GetFileMD5 "$0\$1"
-     Pop $3
-     StrCmp $MD5SUM $3 0 NotThere
-     MessageBox MB_ICONINFORMATION|MB_OK "The package $1 has already been installed."
-     Goto PackageDone
-NotThere:
+  ${If} ${FileExists} "$0\$1"
+    md5dll::GetFileMD5 "$0\$1"
+    Pop $3
+    ${If} $MD5SUM == $3
+      MessageBox MB_ICONINFORMATION|MB_OK "The package $1 has already been installed."
+      Goto PackageDone
+    ${EndIf}
+  ${EndIf}
+  # It's not installed, so check if it's in the package dir.
   SetOutPath "$0"
   SetOverwrite ifdiff
-  IfFileExists "$PACKAGEDIR\$1" 0 CheckForZip
+  ${If} ${FileExists} "$PACKAGEDIR\$1"
     md5dll::GetFileMD5 "$PACKAGEDIR\$1"
     Pop $3
-    StrCmp $MD5SUM $3 PackageOK
-    MessageBox MB_ICONINFORMATION|MB_OKCANCEL "The file $PACKAGEDIR\$1 appears to be corrupt.  The expected MD5 sum was '$MD5SUM', but the actual MD5 sum was '$3'.  Press OK to attempt to download a fresh copy from the distribution site, or Cancel to skip the package." IDOK AttemptDownload IDCANCEL PackageDone
-PackageOK:
+    ${If} $MD5SUM != $3
+      MessageBox MB_ICONINFORMATION|MB_OKCANCEL "The file $PACKAGEDIR\$1 appears to be corrupt.  The expected MD5 sum was '$MD5SUM', but the actual MD5 sum was '$3'.  Press OK to attempt to download a fresh copy from the distribution site, or Cancel to skip the package." IDOK AttemptDownload IDCANCEL PackageDone
+    ${EndIf}
       CopyFiles "$PACKAGEDIR\$1" "$0\$1"
       Goto PackageDone
-CheckForZip:
-  IfFileExists "$PACKAGEDIR\$1.zip" 0 AttemptDownload
+  ${EndIf}
+  # It's not in the package dir, but check if it's there but an over-helpful
+  # browser stuck a .zip at the end
+  ${If} ${FileExists} "$PACKAGEDIR\$1.zip"
     md5dll::GetFileMD5 "$PACKAGEDIR\$1.zip"
     Pop $3
-    StrCmp $MD5SUM $3 ZipPackageOK
-    MessageBox MB_ICONINFORMATION|MB_OKCANCEL "The file $PACKAGEDIR\$1.zip appears to be corrupt.  The expected MD5 sum was '$MD5SUM', but the actual MD5 sum was '$3'.  Press OK to attempt to download a fresh copy from the distribution site, or Cancel to skip the package." IDOK AttemptDownload IDCANCEL PackageDone
-ZipPackageOK:
-      CopyFiles "$PACKAGEDIR\$1.zip" "$0\$1"
-      Goto PackageDone
+    ${If} $MD5SUM != $3
+      MessageBox MB_ICONINFORMATION|MB_OKCANCEL "The file $PACKAGEDIR\$1.zip appears to be corrupt.  The expected MD5 sum was '$MD5SUM', but the actual MD5 sum was '$3'.  Press OK to attempt to download a fresh copy from the distribution site, or Cancel to skip the package." IDOK AttemptDownload IDCANCEL PackageDone
+    ${EndIf}
+    CopyFiles "$PACKAGEDIR\$1.zip" "$0\$1"
+    Goto PackageDone
+  ${EndIf}
+
+  # We're now in a loop of trying to download the file until the user gives
+  # up. Since the only way to iterate through the loop more than once is to
+  # have the user reply to a message box, this loop is still marked by a
+  # label instead of being part of a Do/Loop macro.
 AttemptDownload:
   GetTempFileName $DOWNLOADTARGET
   Delete $DOWNLOADTARGET
   CreateDirectory $DOWNLOADTARGET
   inetc::get "https://downloads.sourceforge.net/project/sc2/$DOWNLOADPATH$1" "$DOWNLOADTARGET/$1" /END
   Pop $2
-  StrCmp $2 "OK" DownloadSuccessful
-  StrCmp $2 "Cancelled" DownloadCanceled
-  StrCpy $2 "Could not install the package $1 due to the following error: $\"$2$\"."
-  Goto CheckMandatory
-DownloadCanceled:
-  StrCpy $2 "Download was canceled by user."
-CheckMandatory:
-  IntCmp $MANDATORY 0 NotMandatory
-  StrCpy $3 "THIS IS A MANDATORY PACKAGE.  Without this package, $(^Name) will NOT run."
-  Goto DisplayError
-NotMandatory:
-  StrCpy $3 "This is an optional package.  $(^Name) will still run, but some content will not be available."
-DisplayError:
-  MessageBox MB_ICONEXCLAMATION|MB_YESNO "$2  $3  Do you want to retry from a different mirror?" IDYES AttemptDownload
-  Goto DoneWithTempFile
-DownloadSuccessful:
-  md5dll::GetFileMD5 "$DOWNLOADTARGET\$1"
-  Pop $3
-  StrCmp $MD5SUM $3 DownloadedPackageOK
-  IntCmp $MANDATORY 0 NotMandatory2
-  StrCpy $3 "THIS IS A MANDATORY PACKAGE.  Without this package, $(^Name) will NOT run."
-  Goto DisplayError2
-NotMandatory2:
-  StrCpy $3 "This is an optional package.  $(^Name) will still run, but some content will not be available."
-DisplayError2:
-  MessageBox MB_ICONEXCLAMATION|MB_YESNO "The downloaded file $1 doesn't match the internal MD5 sum.  This probably means the download was corrupt.  $3  Do you want to retry from a different mirror?  (Select NO to install the downloaded package anyway - for instance, if you know that the content pack was upgraded or modified since.)" IDYES AttemptDownload
-DownloadedPackageOK:
-  CopyFiles "$DOWNLOADTARGET\$1" "$0\$1"
-DoneWithTempFile:
+  ${If} $2 != "OK"
+    ${If} $2 == "Cancelled"
+      StrCpy $2 "Download was canceled by user."
+    ${Else}
+      StrCpy $2 "Could not install the package $1 due to the following error: $\"$2$\"."
+    ${EndIf}
+    ${If} $MANDATORY != 0
+      StrCpy $3 "THIS IS A MANDATORY PACKAGE.  Without this package, $(^Name) will NOT run."
+    ${Else}
+      StrCpy $3 "This is an optional package.  $(^Name) will still run, but some content will not be available."
+    ${EndIf}
+    MessageBox MB_ICONEXCLAMATION|MB_YESNO "$2  $3  Do you want to retry from a different mirror?" IDYES AttemptDownload
+  ${Else}
+    md5dll::GetFileMD5 "$DOWNLOADTARGET\$1"
+    Pop $3
+    ${If} $MD5SUM != $3
+      ${If} $MANDATORY != 0
+        StrCpy $3 "THIS IS A MANDATORY PACKAGE.  Without this package, $(^Name) will NOT run."
+      ${Else}
+        StrCpy $3 "This is an optional package.  $(^Name) will still run, but some content will not be available."
+      ${EndIf}
+      MessageBox MB_ICONEXCLAMATION|MB_YESNO "The downloaded file $1 doesn't match the internal MD5 sum.  This probably means the download was corrupt.  $3  Do you want to retry from a different mirror?  (Select NO to install the downloaded package anyway - for instance, if you know that the content pack was upgraded or modified since.)" IDYES AttemptDownload
+    ${EndIf}
+    CopyFiles "$DOWNLOADTARGET\$1" "$0\$1"
+  ${EndIf}
   RmDir /r $DOWNLOADTARGET
 PackageDone:
   Pop $3
@@ -213,11 +222,11 @@ Function AppendToFile
   Exch $1 # File name
   Push $2 # using $2 for file handle
   FileOpen $2 $1 a
-  IfErrors done
-  FileSeek $2 0 END  # seek to end
-  FileWrite $2 $0
-  FileClose $2
-done:
+  ${Unless} ${Errors}
+    FileSeek $2 0 END  # seek to end
+    FileWrite $2 $0
+    FileClose $2
+  ${EndUnless}
   Pop $2
   Pop $1
   Pop $0
@@ -249,7 +258,7 @@ SectionGroup "!UQM" SECGRP01
     SetOverwrite try
     File "uqm-pc.cfg"
     File "uqm-3do.cfg"
-    
+
     # Delete old content
     Delete "$INSTDIR\content\packages\uqm-0.3-3domusic.zip"
     Delete "$INSTDIR\content\packages\uqm-0.3-voice.zip"
@@ -294,7 +303,7 @@ SectionGroup "!UQM" SECGRP01
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     !insertmacro MUI_STARTMENU_WRITE_END
   SectionEnd
-  
+
   Section "Desktop Icon" SECICON
     SectionIn 1 2 3 4 5 6
     StrCpy $MAKEICON 1
@@ -408,9 +417,9 @@ Section -ShortcutsAndIcons
     CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Documentation\WhatsNew.lnk" "$INSTDIR\WhatsNew.txt"
     CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Keyboard Test.lnk" "$INSTDIR\keyjam.exe"
     CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Saved Games.lnk" "$UQMUSERDATA\save"
-    IntCmp $MAKEICON 1 0 NoIcon NoIcon
-    CreateShortCut "$DESKTOP\The Ur-Quan Masters.lnk" "$INSTDIR\uqm.exe" $UQMARGS
-NoIcon:
+    ${If} $MAKEICON = 1
+      CreateShortCut "$DESKTOP\The Ur-Quan Masters.lnk" "$INSTDIR\uqm.exe" $UQMARGS
+    ${EndIf}
     CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk" "$INSTDIR\uninst.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
@@ -529,7 +538,7 @@ Section Uninstall
   Delete "$SMPROGRAMS\$ICONS_GROUP\Documentation\Manual.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\Documentation\README.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\Documentation\WhatsNew.lnk"
-  
+
   RMDir "$SMPROGRAMS\$ICONS_GROUP\Documentation"
   RMDir "$SMPROGRAMS\$ICONS_GROUP"
   RMDir "$INSTDIR\content\addons"
