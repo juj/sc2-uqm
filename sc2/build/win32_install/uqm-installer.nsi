@@ -238,22 +238,12 @@ SectionGroup "!UQM" SECGRP01
     SetOverwrite try
     File "AUTHORS.txt"
     File "COPYING.txt"
-    File "libpng12-0.dll"
     File "Manual.txt"
-    File "ogg.dll"
-    File "OpenAL32.dll"
-    File "wrap_oal.dll"
     File "README.txt"
     File "README-SDL.txt"
-    File "SDL.dll"
-    File "SDL_image.dll"
-    File "SDL_gfx.dll"
-    File "uqm.exe"
-    File "keyjam.exe"
-    File "vorbis.dll"
-    File "vorbisfile.dll"
     File "WhatsNew.txt"
-    File "zlib1.dll"
+!include "dlls.nsi"
+
     SetOutPath $UQMUSERDATA
     SetOverwrite try
     File "uqm-pc.cfg"
@@ -521,6 +511,8 @@ Section Uninstall
   Delete "$INSTDIR\COPYING.txt"
   Delete "$INSTDIR\AUTHORS.txt"
   Delete "$INSTDIR\stderr.txt"
+
+!include "undlls.nsi"
 
   Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\Options Configuration.lnk"
