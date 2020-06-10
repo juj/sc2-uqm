@@ -412,7 +412,7 @@ SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 	write_8  (fp, SummPtr->NumDevices);
 	write_a8 (fp, SummPtr->ShipList, MAX_BUILT_SHIPS);
 	write_a8 (fp, SummPtr->DeviceList, MAX_EXCLUSIVE_DEVICES);
-	write_a8 (fp, SummPtr->SaveName, strlen(SummPtr->SaveName));
+	write_a8 (fp, (BYTE *) SummPtr->SaveName, strlen(SummPtr->SaveName));
 }
 
 /* Save the Star Description chunk. This is not to be confused with
