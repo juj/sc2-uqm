@@ -394,7 +394,7 @@ SaveSisState (const SIS_STATE *SSPtr, void *fp)
 
 /* Write out the Summary Chunk. This is variable length because of the
    savegame name */
-static BOOLEAN
+static void
 SaveSummary (const SUMMARY_DESC *SummPtr, void *fp)
 {
 	write_32 (fp, SUMMARY_TAG);
