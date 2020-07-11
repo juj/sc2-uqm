@@ -101,6 +101,8 @@ struct options_struct
 	const char *addonDir;
 	const char **addons;
 	int numAddons;
+
+	const char *graphicsBackend;
 	
 	// Commandline and user config options
 	DECL_CONFIG_OPTION(bool, opengl);
@@ -236,6 +238,7 @@ main (int argc, char *argv[])
 		/* .addonDir = */           NULL,
 		/* .addons = */             NULL,
 		/* .numAddons = */          0,
+		/* .graphicsBackend = */     NULL,
 
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
@@ -419,8 +422,8 @@ main (int argc, char *argv[])
 		gfxFlags |= TFB_GFXFLAGS_SCANLINES;
 	if (options.showFps.value)
 		gfxFlags |= TFB_GFXFLAGS_SHOWFPS;
-	TFB_InitGraphics (gfxDriver, gfxFlags, options.resolution.width,
-			options.resolution.height);
+	TFB_InitGraphics (gfxDriver, gfxFlags, options.graphicsBackend,
+			options.resolution.width, options.resolution.height);
 	if (options.gamma.set && setGammaCorrection (options.gamma.value))
 		optGamma = options.gamma.value;
 	else
@@ -709,6 +712,7 @@ enum
 	ADDONDIR_OPT,
 	ACCEL_OPT,
 	SAFEMODE_OPT,
+	RENDERER_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -756,6 +760,7 @@ static struct option longOptions[] =
 	{"addondir", 1, NULL, ADDONDIR_OPT},
 	{"accel", 1, NULL, ACCEL_OPT},
 	{"safe", 0, NULL, SAFEMODE_OPT},
+	{"renderer", 1, NULL, RENDERER_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1050,6 +1055,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case SAFEMODE_OPT:
 				setBoolOption (&options->safeMode, true);
 				break;
+			case RENDERER_OPT:
+				options->graphicsBackend = optarg;
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -1208,6 +1216,8 @@ usage (FILE *out, const struct options_struct *defaults)
 			"may be specified multiple times)");
 	log_add (log_User, "  --addondir=ADDONDIR (directory where addons "
 			"reside)");
+	log_add (log_User, "  --renderer=name (Select named rendering engine "
+			"if possible)");
 	log_add (log_User, "  --sound=DRIVER (openal, mixsdl, none; default "
 			"mixsdl)");
 	log_add (log_User, "  --stereosfx (enables positional sound effects, "

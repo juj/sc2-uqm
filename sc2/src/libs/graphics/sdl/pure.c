@@ -237,7 +237,7 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height, int toggl
 }
 
 int
-TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
+TFB_Pure_InitGraphics (int driver, int flags, const char *renderer, int width, int height)
 {
 	char VideoName[256];
 
@@ -245,10 +245,12 @@ TFB_Pure_InitGraphics (int driver, int flags, int width, int height)
 
 	SDL_VideoDriverName (VideoName, sizeof (VideoName));
 	log_add (log_Info, "SDL driver used: %s", VideoName);
-			// Set the environment variable SDL_VIDEODRIVER to override
-			// For Linux: x11 (default), dga, fbcon, directfb, svgalib,
-			//            ggi, aalib
-			// For Windows: directx (default), windib
+	(void) renderer;
+	// The "renderer" argument is ignored by SDL1. To control how SDL1
+	// gets its pixmap, set the environment variable SDL_VIDEODRIVER.
+	// For Linux:   x11 (default), dga, fbcon, directfb, svgalib,
+	//              ggi, aalib
+	// For Windows: directx (default), windib
 
 	log_add (log_Info, "SDL initialized.");
 	log_add (log_Info, "Initializing Screen.");

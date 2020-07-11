@@ -51,7 +51,7 @@ volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
 int
-TFB_InitGraphics (int driver, int flags, int width, int height)
+TFB_InitGraphics (int driver, int flags, const char *renderer, int width, int height)
 {
 	int result, i;
 	char caption[200];
@@ -72,12 +72,12 @@ TFB_InitGraphics (int driver, int flags, int width, int height)
 		driver = TFB_GFXDRIVER_SDL_PURE;
 		log_add (log_Warning, "OpenGL support not compiled in,"
 				" so using pure SDL driver");
-		result = TFB_Pure_InitGraphics (driver, flags, width, height);
+		result = TFB_Pure_InitGraphics (driver, flags, renderer, width, height);
 #endif
 	}
 	else
 	{
-		result = TFB_Pure_InitGraphics (driver, flags, width, height);
+		result = TFB_Pure_InitGraphics (driver, flags, renderer, width, height);
 	}
 
 #if SDL_MAJOR_VERSION == 1
