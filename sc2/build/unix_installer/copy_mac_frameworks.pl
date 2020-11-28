@@ -3,6 +3,9 @@
 use strict;
 use warnings;
 
+use File::Basename;
+use Cwd 'abs_path';
+
 my @frameworks = ( 'Ogg', 'Vorbis', 'libpng', 'SDL2' );
 my $target = 'The Ur-Quan Masters';
 
@@ -44,6 +47,21 @@ sub copy_frameworks {
     }
 }
 
+sub resolve_symlinks {
+    my $file = shift;
+    my $origFile = $file;
+    my $startWd = `pwd`;
+    chomp($startWd);
+
+    while (-l $file) {
+        my $nextPath = readlink($file);
+        my $origDir = dirname($file);
+        chdir($origDir);
+        $file = abs_path($nextPath);
+    }
+    chdir($startWd);
+    return $file;
+}
 
 sub relink_frameworks {
     my $target = shift;
@@ -51,7 +69,7 @@ sub relink_frameworks {
     my $execfile = "$target.app/Contents/MacOS/$target";
 
     foreach my $fw (@frameworks) {
-        my $src = "$target.app/Contents/Frameworks/$fw.framework/$fw";
+        my $src = resolve_symlinks("$target.app/Contents/Frameworks/$fw.framework/$fw");
         my $oldfwid = `otool -L '$src' | head -n 2 | tail -n 1`;
         $oldfwid =~ s/^\s+//;
         $oldfwid =~ s/\s.*$//g;
@@ -61,7 +79,7 @@ sub relink_frameworks {
         system("install_name_tool -id $newfwid \"$src\"");
         foreach my $fw2 (@frameworks) {
             next if $fw eq $fw2;
-            my $src2 = "$target.app/Contents/Frameworks/$fw2.framework/$fw2";
+            my $src2 = resolve_symlinks("$target.app/Contents/Frameworks/$fw2.framework/$fw2");
             system("install_name_tool -change $oldfwid $newfwid \"$src2\"");
         }
         system("install_name_tool -change $oldfwid $newfwid \"$execfile\"");
