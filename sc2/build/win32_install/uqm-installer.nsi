@@ -16,7 +16,7 @@ Var UQMUSERDATA
 
 ; The INSTALLER_VERSION is a suffix to the version number for installer patches or to mark
 ; alpha/beta/release candidate status. In normal releases it is the empty string.
-!define INSTALLER_VERSION "b"
+!define INSTALLER_VERSION ""
 
 ; UQM Package definitions
 !include "packages.nsh"
