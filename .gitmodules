@@ -10,3 +10,9 @@
 [submodule "SDL_image"]
 	path = SDL_image
 	url = https://github.com/juj/SDL_image.git
+[submodule "libpng"]
+	path = libpng
+	url = https://github.com/glennrp/libpng.git
+[submodule "zlib"]
+	path = zlib
+	url = https://github.com/madler/zlib.git
