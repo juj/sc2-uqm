@@ -602,6 +602,45 @@ use_library() {
 	return 0
 }
 
+# Description: check if a library are being provided by a framework outside
+#              of the normal system build process.
+#              If it is, mark it as found and add appropriate flags
+#              If not, do nothing. Do not even mark it as not found; it might
+#              be available by some other means.
+#              This function is currently specific to macOS builds.
+# Arguments:   $1        - The name of the library as used in config_proginfo
+#              $2        - (optional, default $1) the name of the framework
+#              DEPS_PATH - environment variable that if set specifies where to
+#                          check for the framework.
+# Pre:         LIB_${1}_NAME is expected to exist.
+have_framework() {
+	local TEMP_LIBNAME LIB LIBVAR FRAMEWORK_PATH
+	# If we aren't on a Mac, there is no framework
+	if [[ "x$HOST_SYSTEM" != "xDarwin" ]]; then
+		return 1
+	fi
+	# If DEPS_PATH was not configured, there is no framework
+	if [[ -z "$DEPS_PATH" ]]; then
+		return 1
+	fi
+	LIBVAR=$1
+	LIB=$2
+	if [[ -z "$2" ]]; then
+		LIB=$LIBVAR
+	fi
+	TEMP_LIBNAME=`evalVar "LIB_${LIBVAR}_NAME"`
+	FRAMEWORK_PATH="${DEPS_PATH}/${LIB}.framework"
+	if [[ -d "$FRAMEWORK_PATH" ]]; then
+		build_message "${TEMP_LIBNAME} found in ${DEPS_PATH}."
+		setVar "LIB_${LIBVAR}_PRESENT" 0
+		setVar "LIB_${LIBVAR}_CFLAGS" "-F${DEPS_PATH} -I${FRAMEWORK_PATH}/Headers"
+		setVar "LIB_${LIBVAR}_LDFLAGS" "-F${DEPS_PATH} -framework ${LIB}"
+		return 0
+	fi
+	build_message "${TEMP_LIBNAME} not found in ${DEPS_PATH}."
+	return 1
+}
+
 # Description: check if a symbol is defined
 # Arguments:   $1 - the name of the symbol
 #              $2 - the C code that does the actual checking

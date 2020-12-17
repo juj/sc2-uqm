@@ -19,8 +19,8 @@
 
 #define UQM_MAJOR_VERSION     0
 #define UQM_MAJOR_VERSION_S  "0"
-#define UQM_MINOR_VERSION     7
-#define UQM_MINOR_VERSION_S  "7"
+#define UQM_MINOR_VERSION     8
+#define UQM_MINOR_VERSION_S  "8"
 #define UQM_PATCH_VERSION     0
 #define UQM_PATCH_VERSION_S  "0"
 #define UQM_EXTRA_VERSION    ""

@@ -31,9 +31,7 @@ CREW
  
 
 #(Core team caption)
-13 C
-CORE TEAM
-(in alphabetical order)
+17 C CORE TEAM
 
 #(Core team members)
 13 C
@@ -43,20 +41,34 @@ Michael Chapman Martin
 Chris Nelson
 Alex Volkov
  
+
 #(AP caption)
-13 C
-ADDITIONAL PROGRAMMING
-(in alphabetical order)
+17 C ADDITIONAL PROGRAMMING
 
 #(AP crew)
 13 C
+Karl Bartel
+Scott A. Colcord
+Loius Delacroix
+jdorje
 Geoffrey Hausheer
+Sze Howe Koh
+Ala-lala
+Mudrony Laszlo
+Peter MacMillan
+Sanjay Madhav
+Robert McNamara
+Vlad-Ceru Opran
+Peter Piwowarski
+Brian Rogers
+Horatiu Romosan
 Nicolas Simonds
+Peter van Valderen
+Alexander Waseleski
  
+
 #(Music remixers caption)
-13 C
-MUSIC REMIXERS
-(in alphabetical order)
+17 C MUSIC REMIXERS
 
 #(Music remixers)
 13 C
@@ -64,8 +76,10 @@ Jouni Airaksinen
 András Barják
 Matt Bentley
 Tore Aune Fjellstad
+Travis Chase
 Espen Gätzschmann
 Aaron J. Grier
+Harri Hakala
 A. Keren
 Casey Monroe
 Dan Nicholson
@@ -74,64 +88,64 @@ Riku Nuottajärvi
 Erol Otus
 Greg Szymanski
  
-#(Other contrib caption)
+
+#(Additional Artwork caption)
+17 C ADDITIONAL ARTWORK
+
+#(AW crew)
 13 C
-OTHER CONTRIBUTIONS
-(in alphabetical order)
+Jouni Airaksinen
+Erol Otus
+Zarla Sheenaza
+Joffrey Smith
+Yukki
+ 
+
+#(Other contrib caption)
+17 C OTHER CONTRIBUTIONS
 
 #(Other contrib crew)
 13 C
-Jouni Airaksinen
-(Startup Menu)
- 
-Karl Bartel
- 
-Travis Chase
-(BeOS port)
- 
+Anthony J. Bentley
+(Text Editing)
+
 Felix Lazarev
 (3DO internals)
- 
-Parker MacMillan
- 
-Sanjay Madhav
-(code patches)
- 
-Robert McNamara
-(MacOS X stuff)
- 
+
 Mike Melanson
 (ADPCM basis from MPlayer
   used for DUK audio)
  
-Mudrony Laszlo
-(PC/DOS content unpacking)
- 
-Erol Otus
-(Splash screen)
- 
-Brian Rogers
- 
-Horatiu Romosan
-(v0.1 Win32 installer)
- 
-Zarla Sheenaza
-(0.6 Win32 installer graphics)
- 
-Joffrey Smith
-(setup graphics)
- 
-Peter van Valderen
- 
 Alex Volkov
 (additional slides)
  
-Alexander Waseleski
-(code patches)
  
-Yukki
-(v0.1 Win32 installer graphics)
+#(Third Party Libraries)
+17 C EXTERNAL LIBRARIES
+
+#(Third Party Details)
+13 C
+Simple Directmedia Layer (SDL)
+Sam Lantinga et al.
+https://www.libsdl.org/
+
+libpng
+Guy Schalnat, Andreas Dilger, et al.
+https://libpng.org/pub/png/libpng.html
+
+Ogg Vorbis
+Xiph.Org Foundation
+https://xiph.org/
+
+Mikmod Sound System
+Jean-Paul Mikkers et al.
+http://mikmod.sourceforge.net
+
+zlib
+Jean-loup Gailly and Mark Adler
+https://www.zlib.net
  
+
 #(Original Game caption)
 13 C
 Original Game

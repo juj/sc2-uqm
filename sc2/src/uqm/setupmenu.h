@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _SETUPMENU_H
-#define _SETUPMENU_H
+#ifndef UQM_SETUPMENU_H_
+#define UQM_SETUPMENU_H_
 
 #include "controls.h"
 
@@ -49,6 +49,7 @@ typedef enum {
 	OPTVAL_640_480,
 	OPTVAL_800_600,
 	OPTVAL_1024_768,
+	OPTVAL_1280_960,
 	OPTVAL_CUSTOM
 } OPT_RESTYPE;
 
@@ -96,4 +97,4 @@ void SetGlobalOptions (GLOBALOPTS *opts);
 }
 #endif
 
-#endif // _SETUPMENU_H
+#endif // UQM_SETUPMENU_H_

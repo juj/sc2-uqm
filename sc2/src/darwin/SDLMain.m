@@ -5,10 +5,32 @@
     Feel free to customize this file to suit your needs
 */
 
-#include "SDL.h"
-#include "SDLMain.h"
-#include <sys/param.h> /* for MAXPATHLEN */
-#include <unistd.h>
+#import "port.h"
+#import SDL_INCLUDE(SDL.h)
+
+#if SDL_MAJOR_VERSION == 1
+
+#import "SDLMain.h"
+#import <sys/param.h>
+		/* for PATH_MAX */
+#import <string.h>
+		/* for strrchr() */
+#import <unistd.h>
+
+static int gArgc;
+static char **gArgv;
+static BOOL gFinderLaunch;
+
+@implementation SDLApplication
+/* Invoked from the Quit menu item */
+- (void)terminate:(id)sender
+{
+	/* Post a SDL_QUIT event */
+	SDL_Event event;
+	event.type = SDL_QUIT;
+	SDL_PushEvent (&event);
+	(void) sender;  /* Get rid of unused variable warning */
+}
 
 /* For some reaon, Apple removed setAppleMenu from the headers in 10.4,
  but the method still is there and works. To avoid warnings, we declare
@@ -379,3 +401,4 @@ int main (int argc, char **argv)
     return 0;
 }
 
+#endif

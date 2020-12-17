@@ -1,29 +1,79 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SDL.h"
-#include "SDL_gfxPrimitives.h"
+#include <SDL.h>
+#include <SDL2_gfxPrimitives.h>
 
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 #define BUFFERSIZE 1024
+#define MAX_KEYS 32
 
-static int keystate[SDLK_LAST];
+static SDL_Keycode keystate[MAX_KEYS];
 static char held_keys[BUFFERSIZE];
 static char videoname[BUFFERSIZE];
 
 
-void
-DrawCenteredText (SDL_Surface *s, int y, const char *c)
+static void
+InitHeldKeys (void)
+{
+	int i;
+	for (i = 0; i < MAX_KEYS; ++i)
+	{
+		keystate[i] = 0;
+	}
+}
+
+static void
+AddHeldKey (SDL_Keycode key)
+{
+	int i;
+	for (i = 0; i < MAX_KEYS; ++i)
+	{
+		if (keystate[i] == key)
+		{
+			return;
+		}
+		if (keystate[i] == 0)
+		{
+			keystate[i] = key;
+			return;
+		}
+	}
+}
+
+static void
+RemoveHeldKey (SDL_Keycode key)
+{
+	int i;
+	for (i = 0; i < MAX_KEYS; ++i)
+	{
+		if (keystate[i] == key)
+		{
+			int j;
+			for (j = i + 1; j < MAX_KEYS; ++j)
+			{
+				keystate[j - 1] = keystate[j];
+			}
+			keystate[MAX_KEYS - 1] = 0;
+		}
+	}
+}
+
+static void
+DrawCenteredText (SDL_Renderer *r, int y, const char *c)
 {
 	int w = strlen (c) * 8;
 	
-	stringRGBA(s, (s->w - w) / 2, y, c, 0xc0, 0xc0, 0xc0, 0xff);
+	stringRGBA (r, (SCREEN_WIDTH - w) / 2, y, c, 0xc0, 0xc0, 0xc0, 0xff);
 }
 
-void
-DrawScreen (SDL_Surface *s)
+static void
+DrawScreen (SDL_Renderer *s)
 {	
 	int y;
-	SDL_FillRect (s, NULL, SDL_MapRGB (s->format, 0, 0, 0x80));
+	SDL_SetRenderDrawColor (s, 0, 0, 0x80, 0xFF);
+	SDL_RenderClear (s);
 	DrawCenteredText (s, 8, "Key Jamming");
 
 	y = 32;
@@ -48,7 +98,7 @@ DrawScreen (SDL_Surface *s)
 	DrawCenteredText (s, y, "register when simultaneously pressed.");
 
 	y += 16;
-	DrawCenteredText (s, y, "You are using the following SDL driver:");
+	DrawCenteredText (s, y, "You are using the following SDL2 rendering engine:");
 	y += 8;
 	DrawCenteredText (s, y, videoname);
 
@@ -57,78 +107,89 @@ DrawScreen (SDL_Surface *s)
 
 	DrawCenteredText (s, 300, held_keys);
 
-	SDL_Flip (s);
+	SDL_RenderPresent (s);
 }
 
 int 
 main (int argc, char *argv[])
 {        
 	SDL_Event event;
-	SDL_Surface *screen;
+	SDL_Window *window;
+	SDL_Renderer *screen;
+	SDL_RendererInfo renderer_info;
 	int quit = 0;
 	int i, changed;
         
 	/* Initialise SDL */
 	if (SDL_Init (SDL_INIT_VIDEO) < 0)
 	{
-		fprintf (stderr, "Could not initialise SDL: %s\n", SDL_GetError());
+		fprintf (stderr, "Could not initialise SDL: %s\n", SDL_GetError ());
 		exit (-1);
 	}
 
 	/* Set a video mode */
-	if (!(screen = SDL_SetVideoMode (640, 480, 0, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_ANYFORMAT)))
+	if (SDL_CreateWindowAndRenderer (SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &screen))
 	{
-		fprintf (stderr, "Could not set video mode: %s\n", SDL_GetError());
+		fprintf (stderr, "Could not set create window/renderer: %s\n", SDL_GetError ());
 		SDL_Quit ();
 		exit (-1);
 	}
 
-	SDL_WM_SetCaption ("Key Jammer", "Key Jammer");
-
-	SDL_VideoDriverName (videoname, BUFFERSIZE);
-
-	for (i = 0; i < SDLK_LAST; i++)
+	SDL_SetWindowTitle (window, "Key Jammer");
+	if (!SDL_GetRendererInfo (screen, &renderer_info))
 	{
-		keystate[i] = 0;
+		strncpy (videoname, renderer_info.name, BUFFERSIZE);
 	}
+	else
+	{
+		strncpy (videoname, "<unknown>", BUFFERSIZE);
+	}
+	videoname[BUFFERSIZE-1] = 0;
+
+	InitHeldKeys ();
 
 	DrawScreen (screen);
 
 	/* Loop until an SDL_QUIT event is found */
-	while( !quit ) {
+	while (!quit)
+	{
 		changed = 0;
 		/* Poll for events */
 		while (SDL_PollEvent (&event))
 		{
-			switch( event.type )
+			switch(event.type)
 			{
 			case SDL_KEYDOWN:
-				keystate[event.key.keysym.sym] = 1;
+				AddHeldKey (event.key.keysym.sym);
+				if (event.key.keysym.sym == SDLK_ESCAPE)
+				{
+					quit = 1;
+				}
 				changed = 1;
 				break;
 			case SDL_KEYUP:
-				keystate[event.key.keysym.sym] = 0;
+				RemoveHeldKey (event.key.keysym.sym);
 				changed = 1;
 				break;
 			case SDL_QUIT:
 				quit = 1;
 				break;
-
 			default:
 				break;
 			}
 		}
-		if (changed) {
+		if (changed)
+		{
 			held_keys[0] = '\0';
-			for (i = 0; i < SDLK_LAST; i++)
+			for (i = 0; i < MAX_KEYS; i++)
 			{
 				if (keystate[i])
 				{
 					if (held_keys[0])
 					{
-						strcat(held_keys, " | ");
+						strcat (held_keys, " | ");
 					}
-					strcat(held_keys, SDL_GetKeyName (i));
+					strcat (held_keys, SDL_GetKeyName (keystate[i]));
 				}
 				if (strlen (held_keys) > 200)
 				{
@@ -145,14 +206,12 @@ main (int argc, char *argv[])
 			}
 			DrawScreen (screen);
 		}
-		if (keystate[SDLK_ESCAPE])
-		{
-			quit = 1;
-		}
 		SDL_Delay (20);
 	}
 
 	/* Clean up */
+	SDL_DestroyRenderer (screen);
+	SDL_DestroyWindow (window);
 	SDL_Quit ();
 	exit (0);
 }

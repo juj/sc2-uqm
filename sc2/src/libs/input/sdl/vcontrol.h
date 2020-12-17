@@ -14,11 +14,17 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _VCONTROL_H_
-#define _VCONTROL_H_
+#ifndef LIBS_INPUT_SDL_VCONTROL_H_
+#define LIBS_INPUT_SDL_VCONTROL_H_
 
 #include "port.h"
 #include SDL_INCLUDE(SDL.h)
+
+#if SDL_MAJOR_VERSION == 1
+typedef SDLKey sdl_key_t;
+#else
+typedef SDL_Keycode sdl_key_t;
+#endif
 
 /* Initialization routines */
 void VControl_Init (void);
@@ -39,7 +45,7 @@ typedef enum {
 typedef struct {
 	VCONTROL_GESTURE_TYPE type;
 	union {
-		SDL_Keycode key;
+		sdl_key_t key;
 		struct { int port, index, polarity; } axis;
 		struct { int port, index; } button;
 		struct { int port, index; Uint8 dir; } hat;
@@ -50,8 +56,8 @@ typedef struct {
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);
 void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);
 
-int  VControl_AddKeyBinding (SDL_Keycode symbol, int *target);
-void VControl_RemoveKeyBinding (SDL_Keycode symbol, int *target);
+int  VControl_AddKeyBinding (sdl_key_t symbol, int *target);
+void VControl_RemoveKeyBinding (sdl_key_t symbol, int *target);
 int  VControl_AddJoyAxisBinding (int port, int axis, int polarity, int *target);
 void VControl_RemoveJoyAxisBinding (int port, int axis, int polarity, int *target);
 int  VControl_SetJoyThreshold (int port, int threshold);
@@ -69,8 +75,8 @@ void VControl_BeginFrame (void);
  * fabricating an SDL_Event. 
  */
 void VControl_HandleEvent (const SDL_Event *e);
-void VControl_ProcessKeyDown (SDL_Keycode symbol);
-void VControl_ProcessKeyUp (SDL_Keycode symbol);
+void VControl_ProcessKeyDown (sdl_key_t symbol);
+void VControl_ProcessKeyUp (sdl_key_t symbol);
 void VControl_ProcessJoyButtonDown (int port, int button);
 void VControl_ProcessJoyButtonUp (int port, int button);
 void VControl_ProcessJoyAxis (int port, int axis, int value);

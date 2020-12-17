@@ -33,11 +33,7 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
-#include SDL_INCLUDE(SDL_thread.h)
 
-SDL_Window *SDL_MainWindow;
-SDL_Renderer *SDL_MainRenderer;
-SDL_Surface *SDL_Video;
 SDL_Surface *SDL_Screen;
 SDL_Surface *TransitionScreen;
 
@@ -54,95 +50,17 @@ TFB_GRAPHICS_BACKEND *graphics_backend = NULL;
 volatile int QuitPosted = 0;
 volatile int GameActive = 1; // Track the SDL_ACTIVEEVENT state SDL_APPACTIVE
 
-static void TFB_PreQuit (void);
-
-void
-TFB_PreInit (void)
-{
-	log_add (log_Info, "Initializing base SDL functionality.");
-	log_add (log_Info, "Using SDL version %d.%d.%d (compiled with %d.%d.%d)",
-//		SDL_Linked_Version ()->major, SDL_Linked_Version ()->minor, SDL_Linked_Version ()->patch,
-		2,0,0, // TODO: Does there exist an equivalent of SDL_Linked_Version in SDL2?
-			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
-#if 0
-	if (SDL_Linked_Version ()->major != SDL_MAJOR_VERSION ||
-			SDL_Linked_Version ()->minor != SDL_MINOR_VERSION ||
-			SDL_Linked_Version ()->patch != SDL_PATCHLEVEL) {
-		log_add (log_Warning, "The used SDL library is not the same version "
-				"as the one used to compile The Ur-Quan Masters with! "
-				"If you experience any crashes, this would be an excellent "
-				"suspect.");
-	}
-#endif
-
-	if ((SDL_Init (SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1))
-	{
-		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
-		exit (EXIT_FAILURE);
-	}
-
-	atexit (TFB_PreQuit);
-}
-
-static void
-TFB_PreQuit (void)
-{
-	SDL_Quit ();
-}
-
 int
-TFB_ReInitGraphics (int driver, int flags, int width, int height)
+TFB_InitGraphics (int driver, int flags, const char *renderer, int width, int height)
 {
-	int result;
-	int togglefullscreen = 0;
+	int result, i;
 	char caption[200];
 
-	if (GfxFlags == (flags ^ TFB_GFXFLAGS_FULLSCREEN) &&
-			driver == GraphicsDriver &&
-			width == ScreenWidthActual && height == ScreenHeightActual)
+	/* Null out screen pointers the first time */
+	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 	{
-		togglefullscreen = 1;
+		SDL_Screens[i] = NULL;
 	}
-
-	GfxFlags = flags;
-
-	if (driver == TFB_GFXDRIVER_SDL_OPENGL)
-	{
-#ifdef HAVE_OPENGL
-		result = TFB_GL_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-#else
-		driver = TFB_GFXDRIVER_SDL_PURE;
-		log_add (log_Warning, "OpenGL support not compiled in,"
-				" so using pure SDL driver");
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-#endif
-	}
-	else
-	{
-		result = TFB_Pure_ConfigureVideo (driver, flags, width, height,
-				togglefullscreen);
-	}
-
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-	SDL_SetWindowTitle(SDL_MainWindow, caption);
-
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
-		SDL_ShowCursor (SDL_DISABLE);
-	else
-		SDL_ShowCursor (SDL_ENABLE);
-
-	return result;
-}
-
-int
-TFB_InitGraphics (int driver, int flags, int width, int height)
-{
-	int result;
-	char caption[200];
 
 	GfxFlags = flags;
 
@@ -154,18 +72,21 @@ TFB_InitGraphics (int driver, int flags, int width, int height)
 		driver = TFB_GFXDRIVER_SDL_PURE;
 		log_add (log_Warning, "OpenGL support not compiled in,"
 				" so using pure SDL driver");
-		result = TFB_Pure_InitGraphics (driver, flags, width, height);
+		result = TFB_Pure_InitGraphics (driver, flags, renderer, width, height);
 #endif
 	}
 	else
 	{
-		result = TFB_Pure_InitGraphics (driver, flags, width, height);
+		result = TFB_Pure_InitGraphics (driver, flags, renderer, width, height);
 	}
 
-	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s", 
-			UQM_MAJOR_VERSION, UQM_MINOR_VERSION, 
+#if SDL_MAJOR_VERSION == 1
+	/* Other versions do this when setting up the window */
+	sprintf (caption, "The Ur-Quan Masters v%d.%d.%d%s",
+			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 	SDL_SetWindowTitle(SDL_MainWindow, caption);
+#endif
 
 	if (flags & TFB_GFXFLAGS_FULLSCREEN)
 		SDL_ShowCursor (SDL_DISABLE);
@@ -211,23 +132,32 @@ TFB_ProcessEvents ()
 				/* Up to three different state changes can occur in one event. */
 				/* Here, disregard least significant change (mouse focus). */
 				// This controls the automatic sleep/pause when minimized.
-				// On small displays (e.g. mobile devices), APPINPUTFOCUS would 
+				// On small displays (e.g. mobile devices), APPINPUTFOCUS would
 				//  be an appropriate substitution for APPACTIVE:
 				// if (Event.active.state & SDL_APPINPUTFOCUS)
 				if (Event.active.state & SDL_APPACTIVE)
 					GameActive = Event.active.gain;
-#endif
 				break;
+			case SDL_VIDEORESIZE:    /* User resized video mode */
+				// TODO
+				break;
+#endif
 			case SDL_QUIT:
 				QuitPosted = 1;
 				break;
-//			case SDL_VIDEORESIZE:    /* User resized video mode */
-				// TODO
-//				break;
-//			case SDL_VIDEOEXPOSE:    /* Screen needs to be redrawn */
-				// TODO: What is the equivalent of SDL_VIDEOEXPOSE in SDL 2?
-//				TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
-//				break;
+#if SDL_MAJOR_VERSION == 1
+			case SDL_VIDEOEXPOSE:    /* Screen needs to be redrawn */
+				TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
+				break;
+#else
+			case SDL_WINDOWEVENT:
+				if (Event.window.event == SDL_WINDOWEVENT_EXPOSED)
+				{
+					/* Screen needs to be redrawn */
+					TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
+				}
+				break;
+#endif
 			default:
 				break;
 		}
@@ -273,7 +203,7 @@ TFB_SwapBuffers (int force_full_redraw)
 		force_full_redraw = TFB_REDRAW_FADING;
 
 	last_fade_amount = fade_amount;
-	last_transition_amount = transition_amount;	
+	last_transition_amount = transition_amount;
 
 	graphics_backend->preprocess (force_full_redraw, transition_amount,
 			fade_amount);
@@ -298,7 +228,7 @@ TFB_SwapBuffers (int force_full_redraw)
 		}
 		else
 		{
-			graphics_backend->color (255, 255, 255, 
+			graphics_backend->color (255, 255, 255,
 					fade_amount - 255, NULL);
 		}
 	}
@@ -318,7 +248,7 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 	SDL_Surface* newsurf;
 	SDL_PixelFormat* dstfmt;
 	const SDL_PixelFormat* srcfmt = surface->format;
-	
+
 	// figure out what format to use (alpha/no alpha)
 	if (surface->format->Amask)
 		dstfmt = format_conv_surf->format;
@@ -333,10 +263,14 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 		return surface; // no conversion needed
 
 	newsurf = SDL_ConvertSurface (surface, dstfmt, surface->flags);
-	// SDL_SRCCOLORKEY and SDL_SRCALPHA cannot work at the same time,
+	// Colorkeys and surface-level alphas cannot work at the same time,
 	// so we need to disable one of them
-	Uint32 colorkey;
-	bool oldSurfHasColorKey = SDL_GetColorKey(surface, &colorkey) == 0;
+	if (TFB_HasColorKey (surface) && newsurf &&
+			TFB_HasColorKey (newsurf) &&
+			TFB_HasSurfaceAlphaMod (newsurf))
+	{
+		TFB_DisableSurfaceAlphaMod (newsurf);
+	}
 
 	if (newsurf)
 	{
@@ -360,50 +294,22 @@ TFB_GetScreenCanvas (SCREEN screen)
 void
 TFB_UploadTransitionScreen (void)
 {
-#ifdef HAVE_OPENGL
-	if (GraphicsDriver == TFB_GFXDRIVER_SDL_OPENGL)
-	{
-		TFB_GL_UploadTransitionScreen ();
-	}
-#endif
-}
-
-bool
-TFB_SetGamma (float gamma)
-{
-	// TODO: SDL_SetGamma equivalent in SDL 2?
-	return true;
-//	return (SDL_SetGamma (gamma, gamma, gamma) == 0);
-}
-
-SDL_Surface *
-Create_Screen (SDL_Surface *templat, int w, int h)
-{
-	SDL_Surface *newsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
-			templat->format->BitsPerPixel,
-			templat->format->Rmask, templat->format->Gmask,
-			templat->format->Bmask, 0);
-	if (newsurf == 0) {
-		log_add (log_Error, "Couldn't create screen buffers: %s",
-				SDL_GetError());
-	}
-	return newsurf;
+	graphics_backend->uploadTransitionScreen ();
 }
 
 int
-ReInit_Screen (SDL_Surface **screen, SDL_Surface *templat, int w, int h)
+TFB_HasColorKey (SDL_Surface *surface)
 {
-	UnInit_Screen (screen);
-	*screen = Create_Screen (templat, w, h);
-	
-	return *screen == 0 ? -1 : 0;
+	Uint32 key;
+	return TFB_GetColorKey (surface, &key) == 0;
 }
 
 void
 UnInit_Screen (SDL_Surface **screen)
 {
-	if (*screen == NULL)
+	if (*screen == NULL) {
 		return;
+	}
 
 	SDL_FreeSurface (*screen);
 	*screen = NULL;

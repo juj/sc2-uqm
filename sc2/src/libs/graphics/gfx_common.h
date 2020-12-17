@@ -63,12 +63,14 @@ extern int GfxFlags;
 
 // The following functions are driver-defined
 void TFB_PreInit (void);
-int TFB_InitGraphics (int driver, int flags, int width, int height);
+int TFB_InitGraphics (int driver, int flags, const char *renderer,
+		int width, int height);
 int TFB_ReInitGraphics (int driver, int flags, int width, int height);
 void TFB_UninitGraphics (void);
 void TFB_ProcessEvents (void);
 bool TFB_SetGamma (float gamma);
 void TFB_UploadTransitionScreen (void);
+int TFB_SupportsHardwareScaling (void);
 // This function should not be called directly
 void TFB_SwapBuffers (int force_full_redraw);
 

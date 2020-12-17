@@ -1,5 +1,5 @@
-#ifndef _PORT_H
-#define _PORT_H
+#ifndef PORT_H_
+#define PORT_H_
 
 #include "config.h"
 
@@ -487,31 +487,9 @@ typedef unsigned int wint_t;
 #	endif  /* defined (__FreeBSD__) || defined (__OpenBSD__) */
 #endif  /* defined (PORT_WANT_ERRNO) */
 
-// Use SDL_INCLUDE and SDL_IMAGE_INCLUDE to portably include the SDL files
-// from the right location.
-// TODO: Where the SDL and SDL_image headers are located could be detected
-//       from the build script.
-#ifdef __APPLE__
-	// SDL_image.h in a directory SDL_image under the include dir.
-#	define SDL_DIR SDL
-#	define SDL_IMAGE_DIR SDL_image
-#else
-	// SDL_image.h directly under the include dir.
-#	undef SDL_DIR
-#	undef SDL_IMAGE_DIR
-#endif
-
-#ifdef SDL_DIR
-#	define SDL_INCLUDE(file) <SDL_DIR/file>
-#else
-#	define SDL_INCLUDE(file) <file>
-#endif  /* SDL_DIR */
-
-#ifdef SDL_IMAGE_DIR
-#	define SDL_IMAGE_INCLUDE(file) <SDL_IMAGE_DIR/file>
-#else
-#	define SDL_IMAGE_INCLUDE(file) <file>
-#endif  /* SDL_IMAGE_DIR */
+// Use SDL_INCLUDE to portably include the SDL files from the right location.
+// The SDL_DIR definition is provided by the build configuration.
+#define SDL_INCLUDE(file) #file
 
 // Mark a function as using printf-style function arguments, so that
 // extra consistency checks can be made by the compiler.
@@ -572,5 +550,5 @@ typedef unsigned int wint_t;
 // REJECT_DRIVE_PATH_WITHOUT_SLASH can also be defined, if paths of the form
 // "d:foo/bar" (without a slash after the drive letter) are to be rejected.
 
-#endif  /* _PORT_H */
+#endif  /* PORT_H_ */
 

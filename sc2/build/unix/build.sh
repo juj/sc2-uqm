@@ -58,6 +58,22 @@ fi
 # Load the configuration functions
 . build/unix/build.config
 
+BUILD_THREADS=""
+for i in "$@"; do
+	shift
+	if [ "`printf "%s" "$i" | cut -c1-2`" = "-j" ]; then
+		num="`printf "%s" "$i" | cut -c3-`"
+		if [ -z "$num" ] || [ "$num" -gt 0 ] 2>/dev/null; then
+			BUILD_THREADS="-j$num"
+		else
+			usage 1>&2
+			exit 1
+		fi
+	else
+		set -- "$@" "$i"
+	fi
+done
+
 case "$1" in
 	cleanall)
 		build_cleanall
@@ -83,7 +99,7 @@ if [ -z "$TARGET" ]; then
 fi
 BUILD_PROJECT="$TARGET"
 export TARGET BUILD_PROJECT ECHON
-export PREPROC_C MKDEP_C COMPILE_C PREPROC_CXX MKDEP_CXX COMPILE_CXX PREPROC_OBJC MKDEP_OBJC COMPILE_OBJC LINK
+export PREPROC_C MKDEP_C COMPILE_C PREPROC_CXX MKDEP_CXX COMPILE_CXX PREPROC_OBJC MKDEP_OBJC COMPILE_OBJC WINDRES LINK
 export "${BUILD_PROJECT}_CFLAGS" "${BUILD_PROJECT}_CXXFLAGS" "${BUILD_PROJECT}_LDFLAGS"
 
 # Add trailing / from objs dir
@@ -93,7 +109,7 @@ export "${BUILD_PROJECT}_OBJS"
 if [ $# -lt 2 ]; then
 	build_check_config
 	build_check_dependencies
-	build_compile
+	build_compile $BUILD_THREADS
 	exit $?
 fi
 
@@ -115,7 +131,7 @@ case "$2" in
 	install)
 		build_check_config
 		build_check_dependencies
-		build_check_compile
+		build_check_compile $BUILD_THREADS
 		build_install
 		;;
 	*)

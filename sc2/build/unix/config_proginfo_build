@@ -77,152 +77,90 @@ useGccBuildTools() {
 }
 case "$HOST_SYSTEM" in
 	Darwin)
-		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_C='-mmacosx-version-min=10.4 -arch i386'
-		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_CXX='-mmacosx-version-min=10.4 -arch i386'
-		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_OBJC='-mmacosx-version-min=10.4 -arch i386'
-		EXTRA_PLATFORM_GCC_FLAGS_LINK='-mmacosx-version-min=10.4 -arch i386'
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_C='-mmacosx-version-min=10.6 -arch x86_64'
+		EXTRA_PLATFORM_GCC_FLAGS_COMPILE_OBJC='-mmacosx-version-min=10.6 -arch x86_64'
+		EXTRA_PLATFORM_GCC_FLAGS_LINK='-mmacosx-version-min=10.6 -arch x86_64'
 		useGccBuildTools
 		;;
 	WINSCW)
 		EXTRA_WINSCW_FLAGS_COMPILE="-msgstyle gcc -gccinc -dialect c99 -relax_pointers -wchar_t off -align 4 -warnings on -w nohidevirtual,nounusedexpr -enum int -str pool -exc ms -trigraphs on -nostdinc -d _UNICODE -d __SYMBIAN32__ -d __SERIES60_30__ -d __SERIES60_3X__ -d __CW32__ -d __WINS__ -d __WINSCW__ -d __EXE__ -d __SUPPORT_CPP_EXCEPTIONS__ -I$BUILD_EPOCROOT/epoc32/include -I$BUILD_EPOCROOT/epoc32/include/stdapis -I$BUILD_EPOCROOT/epoc32/include/variant"
 		EXTRA_WINSCW_FLAGS_LINK='-library -msgstyle gcc -stdlib -noimplib -search'
-	
+
 		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_mwccsym2_FILE -E $EXTRA_WINSCW_FLAGS_COMPILE"
 		BUILDTOOL_PREPROC_C_DEPEND='mwccsym2'
-	
+
 		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_mwccsym2_FILE -MM -ext .o -gccdep $EXTRA_WINSCW_FLAGS_COMPILE"
 		BUILDTOOL_MKDEP_C_DEPEND='mwccsym2'
-	
+
 		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_mwccsym2_FILE -c $EXTRA_WINSCW_FLAGS_COMPILE"
 		BUILDTOOL_COMPILE_C_DEPEND='mwccsym2'
-	
-		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_mwccsym2_FILE -E $EXTRA_WINSCW_FLAGS_COMPILE"
-		BUILDTOOL_PREPROC_CXX_DEPEND='mwccsym2'
-	
-		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_mwccsym2_FILE -MM -ext .o -gccdep $EXTRA_WINSCW_FLAGS_COMPILE"
-		BUILDTOOL_MKDEP_CXX_DEPEND='mwccsym2'
-	
-		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_mwccsym2_FILE -c $EXTRA_WINSCW_FLAGS_COMPILE"
-		BUILDTOOL_COMPILE_CXX_DEPEND='mwccsym2'
-	
+
 		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_mwccsym2_FILE -E"
 		BUILDTOOL_PREPROC_OBJC_DEPEND='mwccsym2'
-	
+
 		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_mwccsym2_FILE -MM"
 		BUILDTOOL_MKDEP_OBJC_DEPEND='mwccsym2'
-	
+
 		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_mwccsym2_FILE -c"
 		BUILDTOOL_COMPILE_OBJC_DEPEND='mwccsym2'
-	
+
 		BUILDTOOL_LINK_COMMAND="\$PROG_mwldsym2_FILE $EXTRA_WINSCW_FLAGS_LINK"
 		BUILDTOOL_LINK_DEPEND='mwldsym2'
 		;;
 	ARMV5)
 		EXTRA_ARMV5_FLAGS_COMPILE='--gnu --apcs //inter --diag_suppress 66,161,611,654,997,1152,1300,1464,1488,6318,6331 --diag_error 1267 --arm --cpu ARM926EJ-S --fpu softvfp --exceptions --exceptions_unwind -D__MARM_INTERWORK__ --enum_is_int -Ono_known_library --fpmode ieee_no_fenv --export_all_vtbl --no_vfe --dllimport_runtime -D_UNICODE -D__SYMBIAN32__ -D__SERIES60_30__ -D__SERIES60_3X__ -D__ARMCC__ -D__EPOC32__ -D__MARM__ -D__EABI__ -D__ARMCC_2__ -D__ARMCC_2_2__ -D__MARM_ARMV5__ -D__SUPPORT_CPP_EXCEPTIONS__ -J$BUILD_EPOCROOT/epoc32/include -J$BUILD_EPOCROOT/epoc32/include/stdapis -J$BUILD_EPOCROOT/epoc32/include/variant --preinclude $BUILD_EPOCROOT/epoc32/include/RVCT2_2/RVCT2_2.h'
 		EXTRA_ARMV5_FLAGS_LINK=''
-	
+
 		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_armcc_FILE -E $EXTRA_ARMV5_FLAGS_COMPILE"
 		BUILDTOOL_PREPROC_C_DEPEND='armcc'
-	
+
 		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_armcc_FILE -MM --unix_depend_format $EXTRA_ARMV5_FLAGS_COMPILE"
 		BUILDTOOL_MKDEP_C_DEPEND='armcc'
-	
+
 		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_armcc_FILE -c $EXTRA_ARMV5_FLAGS_COMPILE"
 		BUILDTOOL_COMPILE_C_DEPEND='armcc'
-	
-		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_armcc_FILE -E $EXTRA_ARMV5_FLAGS_COMPILE"
-		BUILDTOOL_PREPROC_CXX_DEPEND='armcc'
-	
-		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_armcc_FILE -MM --unix_depend_format $EXTRA_ARMV5_FLAGS_COMPILE"
-		BUILDTOOL_MKDEP_CXX_DEPEND='armcc'
-	
-		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_armcc_FILE -c $EXTRA_ARMV5_FLAGS_COMPILE"
-		BUILDTOOL_COMPILE_CXX_DEPEND='armcc'
-	
+
 		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_armcc_FILE -E"
 		BUILDTOOL_PREPROC_OBJC_DEPEND='armcc'
-	
+
 		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_armcc_FILE -MM"
 		BUILDTOOL_MKDEP_OBJC_DEPEND='armcc'
-	
+
 		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_armcc_FILE -c"
 		BUILDTOOL_COMPILE_OBJC_DEPEND='armcc'
-	
+
 		BUILDTOOL_LINK_COMMAND="\$PROG_armar_FILE $EXTRA_ARMV5_FLAGS_LINK"
 		BUILDTOOL_LINK_DEPEND='armar'
 		;;
 	GCCE)
 		EXTRA_GCCE_FLAGS_COMPILE='-Wno-unknown-pragmas -march=armv5t -mapcs -pipe -nostdinc -msoft-float -D_UNICODE -D__GCCE__ -D__SYMBIAN32__ -D__SERIES60_30__ -D__SERIES60_3X__ -D__GCCE__ -D__EPOC32__ -D__MARM__ -D__EABI__ -D__MARM_ARMV5__ -D __REMOVE_PLATSEC_DIAGNOSTIC_STRINGS__ -x c -include $BUILD_EPOCROOT/EPOC32/INCLUDE/GCCE/GCCE.h -I$BUILD_EPOCROOT/epoc32/include -I$BUILD_EPOCROOT/epoc32/include/stdapis -I$BUILD_EPOCROOT/epoc32/include/variant'
 		EXTRA_GCCE_FLAGS_LINK=''
-	
+
 		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_gcce_FILE -E $EXTRA_GCCE_FLAGS_COMPILE"
 		BUILDTOOL_PREPROC_C_DEPEND='gcce'
-	
+
 		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_gcce_FILE -MM $EXTRA_GCCE_FLAGS_COMPILE"
 		BUILDTOOL_MKDEP_C_DEPEND='gcce'
-	
+
 		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_gcce_FILE -c $EXTRA_GCCE_FLAGS_COMPILE"
 		BUILDTOOL_COMPILE_C_DEPEND='gcce'
-	
-		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_gcce_FILE -E $EXTRA_GCCE_FLAGS_COMPILE"
-		BUILDTOOL_PREPROC_CXX_DEPEND='gcce'
-	
-		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_gcce_FILE -MM $EXTRA_GCCE_FLAGS_COMPILE"
-		BUILDTOOL_MKDEP_CXX_DEPEND='gcce'
-	
-		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_gcce_FILE -c $EXTRA_GCCE_FLAGS_COMPILE"
-		BUILDTOOL_COMPILE_CXX_DEPEND='gcce'
-	
+
 		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_gcce_FILE -E"
 		BUILDTOOL_PREPROC_OBJC_DEPEND='gcce'
-	
+
 		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_gcce_FILE -MM"
 		BUILDTOOL_MKDEP_OBJC_DEPEND='gcce'
-	
+
 		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_gcce_FILE -c"
 		BUILDTOOL_COMPILE_OBJC_DEPEND='gcce'
-	
+
 		BUILDTOOL_LINK_COMMAND="\$PROG_gcce_FILE $EXTRA_GCCE_FLAGS_LINK"
 		BUILDTOOL_LINK_DEPEND='gcce'
-		;;	
-	CYGWIN*)
-		EXTRA_CYGWIN_FLAGS_COMPILE=''
-		EXTRA_CYGWIN_FLAGS_LINK=''
-
-		BUILDTOOL_PREPROC_C_COMMAND="\$PROG_mingw_gcc_FILE -E $EXTRA_CYGWIN_FLAGS_COMPILE"
-		BUILDTOOL_PREPROC_C_DEPEND='mingw_gcc'
-
-		BUILDTOOL_MKDEP_C_COMMAND="\$PROG_mingw_gcc_FILE -MM $EXTRA_CYGWIN_FLAGS_COMPILE"
-		BUILDTOOL_MKDEP_C_DEPEND='mingw_gcc'
-
-		BUILDTOOL_COMPILE_C_COMMAND="\$PROG_mingw_gcc_FILE -c $EXTRA_CYGWIN_FLAGS_COMPILE"
-		BUILDTOOL_COMPILE_C_DEPEND='mingw_gcc'
-
-		BUILDTOOL_PREPROC_CXX_COMMAND="\$PROG_mingw_gcc_FILE -E $EXTRA_CYGWIN_FLAGS_COMPILE"
-		BUILDTOOL_PREPROC_CXX_DEPEND='mingw_gcc'
-
-		BUILDTOOL_MKDEP_CXX_COMMAND="\$PROG_mingw_gcc_FILE -MM $EXTRA_CYGWIN_FLAGS_COMPILE"
-		BUILDTOOL_MKDEP_CXX_DEPEND='mingw_gcc'
-
-		BUILDTOOL_COMPILE_CXX_COMMAND="\$PROG_mingw_gcc_FILE -c $EXTRA_CYGWIN_FLAGS_COMPILE"
-		BUILDTOOL_COMPILE_CXX_DEPEND='mingw_gcc'
-
-		BUILDTOOL_PREPROC_OBJC_COMMAND="\$PROG_mingw_gcc_FILE -E"
-		BUILDTOOL_PREPROC_OBJC_DEPEND='mingw_gcc'
-
-		BUILDTOOL_MKDEP_OBJC_COMMAND="\$PROG_mingw_gcc_FILE -MM"
-		BUILDTOOL_MKDEP_OBJC_DEPEND='mingw_gcc'
-
-		BUILDTOOL_COMPILE_OBJC_COMMAND="\$PROG_mingw_gcc_FILE -c"
-		BUILDTOOL_COMPILE_OBJC_DEPEND='mingw_gcc'
-
-		BUILDTOOL_LINK_COMMAND="\$PROG_mingw_gcc_FILE $EXTRA_CYGWIN_FLAGS_LINK"
-		BUILDTOOL_LINK_DEPEND='mingw_gcc'
 		;;
 	*)
 		useGccBuildTools
 		;;
-esac	
+esac
 case "$HOST_SYSTEM" in
 	Darwin)
 		BUILDTOOL_REZ_NAME="MacOS X resource compiler (Rez)"
@@ -264,7 +202,7 @@ PROG_echon_VERSION=''
 PROG_echon_DETECT="echon_detect"
 echon_detect() {
 	local TEST LOCATIONS LOCATION
-	
+
 	# Default echo (probably builtin)
 	TEST=`echo -n X`
 	if [ "$TEST" = X ]; then
@@ -291,7 +229,7 @@ echon_detect() {
 		return 0;
 	fi
 
-	# No good echo found	
+	# No good echo found
 	return 1
 }
 
@@ -326,7 +264,7 @@ PROG_windres_VERSION='windres --version'
 
 ### Rez resource compiler (for MacOS X) ###
 PROG_Rez_NAME="Rez resource compiler (Apple Developer Tools)"
-PROG_Rez_FILE="Rez"
+PROG_Rez_FILE="/usr/bin/Rez"
 PROG_Rez_ACTION=""
 PROG_Rez_VERSION=''
 
@@ -396,5 +334,3 @@ PROG_mingw_gcc_VERSION='$(i686-pc-mingw32-gcc --version)'
 ##############################################################################
 # Describe the symbols (possibly) used:                                      #
 ##############################################################################
-
-

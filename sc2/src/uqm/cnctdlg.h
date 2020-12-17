@@ -16,10 +16,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _CNCTDLG_H
-#define _CNCTDLG_H
-
 #ifdef NETPLAY
+
+#ifndef UQM_CNCTDLG_H_
+#define UQM_CNCTDLG_H_
 
 #include "libs/compiler.h"
 
@@ -33,6 +33,6 @@ BOOLEAN MeleeConnectDialog (int side);
 }
 #endif
 
-#endif /* NETPLAY */
+#endif /* UQM_CNCTDLG_H_ */
 
-#endif /* _CNCTDLG_H */
+#endif /* NETPLAY */

@@ -68,12 +68,6 @@ static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
-#ifdef HAVE_OPENGL
-#define RES_OPTS 4
-#else
-#define RES_OPTS 2
-#endif
-
 #define MENU_COUNT          8
 #define CHOICE_COUNT       24
 #define SLIDER_COUNT        4
@@ -216,6 +210,19 @@ static float maxGamma = 2.5f;
 static float minGammaX;
 static float maxGammaX;
 
+
+static int
+number_res_options (void)
+{
+	if (TFB_SupportsHardwareScaling ())
+	{
+		return 5;
+	}
+	else
+	{
+		return 2;
+	}
+}
 
 static int
 quit_main_menu (WIDGET *self, int event)
@@ -386,11 +393,11 @@ SetDefaults (void)
 	GetGlobalOptions (&opts);
 	if (opts.res == OPTVAL_CUSTOM)
 	{
-		choices[0].numopts = RES_OPTS + 1;
+		choices[0].numopts = number_res_options () + 1;
 	}
 	else
 	{
-		choices[0].numopts = RES_OPTS;
+		choices[0].numopts = number_res_options ();
 	}
 	choices[0].selected = opts.res;
 	choices[1].selected = opts.driver;
@@ -904,7 +911,7 @@ init_widgets (void)
 	}
 
 	/* The first choice is resolution, and is handled specially */
-	choices[0].numopts = RES_OPTS;
+	choices[0].numopts = number_res_options ();
 
 	/* Choices 18-20 are also special, being the names of the key configurations */
 	for (i = 0; i < 6; i++)
@@ -1362,6 +1369,16 @@ GetGlobalOptions (GLOBALOPTS *opts)
 			opts->res = OPTVAL_1024_768;
 		}		
 		break;
+	case 1280:
+		if (ScreenHeightActual != 960)
+		{
+			opts->res = OPTVAL_CUSTOM;
+		}
+		else
+		{
+			opts->res = OPTVAL_1280_960;
+		}
+		break;
 	default:
 		opts->res = OPTVAL_CUSTOM;
 		break;
@@ -1436,6 +1453,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		NewHeight = 768;
 		NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 		break;
+	case OPTVAL_1280_960:
+		NewWidth = 1280;
+		NewHeight = 960;
+		NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
+		break;
 	default:
 		/* Don't mess with the custom value */
 		break;
@@ -1482,8 +1504,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	else
 		NewGfxFlags &= ~TFB_GFXFLAGS_FULLSCREEN;
 
-	res_PutBoolean ("config.scanlines", opts->scanlines);
-	res_PutBoolean ("config.fullscreen", opts->fullscreen);
+	res_PutBoolean ("config.scanlines", (BOOLEAN)opts->scanlines);
+	res_PutBoolean ("config.fullscreen", (BOOLEAN)opts->fullscreen);
 
 
 	if ((NewWidth != ScreenWidthActual) ||

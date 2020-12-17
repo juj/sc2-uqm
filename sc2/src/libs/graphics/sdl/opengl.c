@@ -24,6 +24,8 @@
 #include "options.h"
 #include "libs/log.h"
 
+#if SDL_MAJOR_VERSION == 1
+
 typedef struct _gl_screeninfo {
 	SDL_Surface *scaled;
 	GLuint texture;
@@ -52,6 +54,7 @@ static BOOLEAN first_init = TRUE;
 
 static void TFB_GL_Preprocess (int force_full_redraw, int transition_amount, int fade_amount);
 static void TFB_GL_Postprocess (void);
+static void TFB_GL_UploadTransitionScreen (void);
 static void TFB_GL_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
@@ -59,12 +62,14 @@ static void TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rec
 static TFB_GRAPHICS_BACKEND opengl_scaled_backend = {
 	TFB_GL_Preprocess,
 	TFB_GL_Postprocess,
+	TFB_GL_UploadTransitionScreen,
 	TFB_GL_Scaled_ScreenLayer,
 	TFB_GL_ColorLayer };
 
 static TFB_GRAPHICS_BACKEND opengl_unscaled_backend = {
 	TFB_GL_Preprocess,
 	TFB_GL_Postprocess,
+	TFB_GL_UploadTransitionScreen,
 	TFB_GL_Unscaled_ScreenLayer,
 	TFB_GL_ColorLayer };
 
@@ -72,6 +77,7 @@ static TFB_GRAPHICS_BACKEND opengl_unscaled_backend = {
 static int
 AttemptColorDepth (int flags, int width, int height, int bpp)
 {
+	SDL_Surface *SDL_Video;
 	int videomode_flags;
 	ScreenColorDepth = bpp;
 	ScreenWidthActual = width;
@@ -168,7 +174,7 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 
 		for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
 		{
-			if (0 != ReInit_Screen (&SDL_Screens[i], format_conv_surf,
+			if (0 != SDL1_ReInit_Screen (&SDL_Screens[i], format_conv_surf,
 					ScreenWidth, ScreenHeight))
 				return -1;
 		}
@@ -197,7 +203,7 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 			{
 				if (!GL_Screens[i].active)
 					continue;
-				if (0 != ReInit_Screen (&GL_Screens[i].scaled, format_conv_surf,
+				if (0 != SDL1_ReInit_Screen (&GL_Screens[i].scaled, format_conv_surf,
 						ScreenWidth * 2, ScreenHeight * 2))
 				return -1;
 			}
@@ -281,11 +287,13 @@ TFB_GL_UninitGraphics (void)
 {
 	int i;
 
-	for (i = 0; i < TFB_GFX_NUMSCREENS; i++)
+	for (i = 0; i < TFB_GFX_NUMSCREENS; i++) {
 		UnInit_Screen (&GL_Screens[i].scaled);
+	}
 }
 
-void TFB_GL_UploadTransitionScreen (void)
+static void
+TFB_GL_UploadTransitionScreen (void)
 {
 	GL_Screens[TFB_SCREEN_TRANSITION].updated.x = 0;
 	GL_Screens[TFB_SCREEN_TRANSITION].updated.y = 0;
@@ -565,4 +573,5 @@ TFB_GL_Postprocess (void)
 	SDL_GL_SwapBuffers ();
 }	
 
+#endif
 #endif

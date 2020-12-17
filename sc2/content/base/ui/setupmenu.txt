@@ -42,27 +42,26 @@ Aspect Ratio
 640x480
 800x600
 1024x768
+1280x960
 Custom
 
 #(CAT_0_OPT_0_DESC)
 320x240 resolution.
-Available with SDL framebuffer or OpenGL.
 
 #(CAT_0_OPT_1_DESC)
 640x480 resolution.
-Available with SDL framebuffer or OpenGL.
 
 #(CAT_0_OPT_2_DESC)
 800x600 resolution.
-Requires OpenGL graphics drivers.
 
 #(CAT_0_OPT_3_DESC)
 1024x768 resolution.
-Requires OpenGL graphics drivers.
 
 #(CAT_0_OPT_4_DESC)
+1280x960 resolution.
+
+#(CAT_0_OPT_5_DESC)
 Custom resolution set from the commandline.
-Requires OpenGL graphics drivers.
 
 #(CAT_1_OPTS)
 If Possible

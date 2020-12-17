@@ -16,8 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef _STRINGS_H
-#define _STRINGS_H
+#ifndef ARILOU_STRINGS_H
+#define ARILOU_STRINGS_H
 
 enum
 {
@@ -120,5 +120,4 @@ enum
 	GOODBYE_ANGRY_SPACE,
 	OUT_TAKES,
 };
-
 #endif /* _STRINGS_H */
