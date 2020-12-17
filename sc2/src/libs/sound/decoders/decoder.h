@@ -27,7 +27,9 @@
 
 #ifndef OVCODEC_NONE
 #	ifdef _MSC_VER
+#if 0 // TODO: Fix Vorbis CMakeLists.txt go generate vorbisfile.lib
 #		pragma comment (lib, "vorbisfile.lib")
+#endif
 #	endif  /* _MSC_VER */
 #endif  /* OVCODEC_NONE */
 

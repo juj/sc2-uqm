@@ -367,7 +367,7 @@ uio_StdioAccessHandle_free(uio_StdioAccessHandle *handle) {
 	uio_free(handle);
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900 /*< VS2015*/
 #	include <stdarg.h>
 #if 0  /* Unneeded for now */
 // MSVC does not have snprintf(). It does have a _snprintf(), but it does

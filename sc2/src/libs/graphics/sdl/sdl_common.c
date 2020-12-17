@@ -272,6 +272,7 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 		TFB_DisableSurfaceAlphaMod (newsurf);
 	}
 
+#if 0
 	if (newsurf)
 	{
 		Uint32 colorkey2;
@@ -280,6 +281,8 @@ TFB_DisplayFormatAlpha (SDL_Surface *surface)
 		if (oldSurfHasColorKey && newsurf && newSurfHasColorKey /* && TODO: newsurf->flags & SDL_SRCALPHA */)
 			SDL_SetSurfaceAlphaMod(newsurf, 255);
 	}
+#endif
+
 	return newsurf;
 }
 

@@ -170,7 +170,7 @@ typedef unsigned short mode_t;
 #endif
 
 // String formatting
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900 /*< VS2015*/
 #	include <stdarg.h>
 // Defined in port.c
 #if defined(__cplusplus)

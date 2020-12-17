@@ -315,9 +315,6 @@ TFB_DrawCanvas_Fill (SDL_Surface *src, Uint32 fillcolor, SDL_Surface *dst)
 		dstkey = SDL_MapRGBA (dstfmt, 127, 127, 127, 0);
 	}
 
-	Uint32 colorkey;
-	bool hasColorKey = SDL_GetColorKey(src, &colorkey) == 0;
-
 	if (srcfmt->Amask)
 	{	// alpha-based fill
 		for (y = 0; y < height; ++y, dst_p += ddst, src_p += dsrc)
@@ -1381,8 +1378,6 @@ TFB_DrawCanvas_Rescale_Trilinear (TFB_Canvas src_canvas, TFB_Canvas src_mipmap,
 		return;
 	}
 
-	hasColorKey = SDL_GetColorKey(src, &colorkey) == 0;
-
 	// use colorkeys where appropriate
 	if (srcfmt->Amask)
 	{	// alpha transparency
@@ -1394,8 +1389,6 @@ TFB_DrawCanvas_Rescale_Trilinear (TFB_Canvas src_canvas, TFB_Canvas src_mipmap,
 		mk0 = ~srcfmt->Amask;
 		ck0 &= mk0;
 	}
-
-	hasColorKey = SDL_GetColorKey(mm, &colorkey) == 0;
 
 	if (mmfmt->Amask)
 	{	// alpha transparency
@@ -1665,7 +1658,6 @@ TFB_DrawCanvas_Rescale_Bilinear (TFB_Canvas src_canvas, TFB_Canvas dst_canvas,
 		return;
 	}
 
-	hasColorKey = SDL_GetColorKey(src, &colorkey) == 0;
 	// use colorkeys where appropriate
 	if (srcfmt->Amask)
 	{	// alpha transparency
@@ -1978,8 +1970,6 @@ TFB_DrawCanvas_Intersect (TFB_Canvas canvas1, POINT c1org,
 	getpixel1 = getpixel_for (surf1);
 	getpixel2 = getpixel_for (surf2);
 
-	Uint32 colorkey;
-	SDL_GetColorKey(surf1, &colorkey);
 	if (surf1->format->Amask)
 	{	// use alpha transparency info
 		s1mask = surf1->format->Amask;
@@ -1993,8 +1983,6 @@ TFB_DrawCanvas_Intersect (TFB_Canvas canvas1, POINT c1org,
 		s1mask = ~surf1->format->Amask;
 		s1key = colorkey & s1mask;
 	}
-
-	SDL_GetColorKey(surf2, &colorkey);
 
 	if (surf2->format->Amask)
 	{	// use alpha transparency info
